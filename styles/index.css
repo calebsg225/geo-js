@@ -1,3 +1,24 @@
+body,
+#main,
+#geo-canvas {
+	margin: 0;
+}
+
+#main,
+#geo-canvas {
+	width: 100%;
+	height: 100%;
+}
+
+body {
+	height: 100vh;
+	overflow: hidden;
+}
+
 #main {
-	font-size: 5rem;
+	position: relative;
+}
+
+#interface {
+	position: absolute;
 }
