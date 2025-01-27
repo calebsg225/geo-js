@@ -1,4 +1,4 @@
-import { calc3dDistance, calcTriangleArea } from "./util";
+import { calc3dDistance, calcTriangleArea } from "./util.js";
 
 /**
  * Creates a new Node
@@ -28,7 +28,7 @@ class Node {
 	 * @returns {boolean}
 	 */
 	isNear = () => {
-		return z < 0;
+		return this.z < 0;
 	}
 
 	/**

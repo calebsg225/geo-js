@@ -57,19 +57,44 @@ const calcTriangleArea = (
 }
 
 /**
+ * given an integer, return a char. Chars are mapped so that 'a' is 0.
+ * @param {number} num number to map to char
+ * @returns {string} the char num maps to
+ */
+const numToChar = (num) => {
+	return String.fromCharCode(num + 'a'.charCodeAt(0));
+}
+
+/**
+ * given a char, return a number. Chars are mapped so that 'a' is 0.
+ * @param {string} char char to map to number
+ * @returns {number} the num char maps to
+ */
+const charToNum = (char) => {
+	return char.charCodeAt(0) - 'a'.charCodeAt(0);
+}
+
+// TODO: function for generating node key string
+// TODO: function for generating edge key string
+// TODO: function for generating face key string
+
+/**
  * finds the five connections of a given vertex of an icosahedron
  * @param {number} n vertex represented as an integer 0-11
  * @returns {number[]} array of 5 vertices represented as integers 0-11
  */
 const getBaseIcosahedronConnections = (n) => {
-	/** gets 'top' connection @param {number} n @returns {number} */
 	const gT = (n) => (n ^ 1) % 12;
-	/** gets 'middle' connection @param {number} n @returns {number} */
 	const gM = (n) => 4 * ((Math.floor(n / 4) + 1) % 3) + Math.floor(n / 2) % 2;
-	/** gets 'bottom' connection @param {number} n @returns {number} */
 	const gB = (n) => 4 * ((Math.floor(n / 4) + 2) % 3) + 2 * (n % 2);
 
 	return [gT(n), gM(n), gM(n) + 2, gB(n), gB(n) + 2];
 }
 
-export { calc3dDistance, calcTriangleArea, getBaseIcosahedronConnections };
+export {
+	calc3dDistance,
+	calcTriangleArea,
+	getBaseIcosahedronConnections,
+	numToChar,
+	charToNum,
+};

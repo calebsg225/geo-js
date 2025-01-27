@@ -1,3 +1,5 @@
+import { buildIcosahedronAtFrequency } from "./geodesic.js";
+
 const body = document.querySelectorAll('body')[0];
 
 body.innerHTML = `
@@ -31,3 +33,5 @@ const render = () => {
 	ctx.fillText(`${width}, ${height}`, 10, 30);
 }
 render();
+
+console.log(buildIcosahedronAtFrequency(5));
