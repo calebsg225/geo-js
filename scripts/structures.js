@@ -24,6 +24,14 @@ class Node {
 	}
 
 	/**
+	 * checks if the node is in the front (near) or back (far)
+	 * @returns {boolean}
+	 */
+	isNear = () => {
+		return z < 0;
+	}
+
+	/**
 	 * replaces old Node coordinates with new Coordinates
 	 * @param {number} x
 	 * @param {number} y
