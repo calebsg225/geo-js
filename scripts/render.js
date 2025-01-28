@@ -36,6 +36,12 @@ class Renderer {
 			this.options.base.far.faces
 		);
 
+		// render far base edges
+		this.drawEdges(
+			this.structure.edges.base.far,
+			this.options.base.far.edges
+		);
+
 		/**
 		 * draw order:
 		 *
@@ -77,7 +83,26 @@ class Renderer {
 		this.ctx.fillStyle = color;
 		this.ctx.fill();
 	}
-	drawEdge = () => { }
+
+	/**
+	 * draws an edge with specified parameters
+	 * @param {number[][]} nodes
+	 * @param {number} size
+	 * @param {string} color
+	 */
+	drawEdge = (
+		nodes,
+		size,
+		color
+	) => {
+		this.ctx.beginPath();
+		this.ctx.moveTo(nodes[0][0], nodes[0][1]);
+		this.ctx.lineTo(nodes[1][0], nodes[1][1]);
+		this.ctx.linWidth = size;
+		this.ctx.strokeStyle = color;
+		this.ctx.stroke();
+	}
+
 	/**
 	 * draws a face from node coords
 	 * @param {number[][]} nodes
@@ -114,7 +139,24 @@ class Renderer {
 		});
 	}
 
-	drawEdges = () => { }
+	/**
+	 * draws inputed edges using the inputed styles
+	 * @param {Map<Edge>} edges
+	 * @param {Object} styles
+	 */
+	drawEdges = (edges, styles) => {
+		if (!styles.show) return;
+		edges.forEach((edge, _) => {
+			this.drawEdge(
+				edge.nodes.map((nodeKey) => {
+					const node = this.getNode(nodeKey);
+					return [node.x + this.cX, node.y + this.cY]
+				}),
+				styles.size,
+				styles.color
+			);
+		});
+	}
 
 	/**
 	 * draws inputed faces using the inputed styles

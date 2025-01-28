@@ -32,11 +32,11 @@ const renderOptions = {
 			},
 			edges: {
 				show: true,
-				color: "#FFFFFF",
+				color: "#F42FFF",
 				size: 3,
 			},
 			faces: {
-				show: true,
+				show: false,
 				color: "#3FFFFF",
 			}
 		}
