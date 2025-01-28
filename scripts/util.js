@@ -101,7 +101,8 @@ const getBaseIcosahedronConnections = (n) => {
 	const gM = (n) => 4 * ((Math.floor(n / 4) + 1) % 3) + Math.floor(n / 2) % 2;
 	const gB = (n) => 4 * ((Math.floor(n / 4) + 2) % 3) + 2 * (n % 2);
 
-	return [gT(n), gM(n), gM(n) + 2, gB(n), gB(n) + 1];
+	// returns connections in a circular order for easy face generation
+	return [gT(n), gM(n), gB(n), gB(n) + 1, gM(n) + 2];
 }
 
 export {

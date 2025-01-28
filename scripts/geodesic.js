@@ -139,24 +139,58 @@ const generateBaseIcosahedron = () => {
 
 		for (let con = 0; con < connections.length; con++) {
 			const conName = numToChar(connections[con]);
+			const con2Name = numToChar(connections[(con + 1) % 5]);
 			const edgeName = [nodeName, conName].sort().join('-');
-			if (!addedNodes.has(conName) || addedEdges.has(edgeName)) continue;
-			// both nodes required for edge have been added
-			// edge has not already been added
+			const faceName = [nodeName, conName, con2Name].sort().join('-');
 
-			const conNode = getBaseNode(conName);
+			// connect edges
+			if (
+				addedNodes.has(conName) &&
+				!addedEdges.has(edgeName)
+			) {
+				// both nodes required for edge have been added
+				// edge has not already been added
 
-			const edge = new Edge(node, conNode);
-			node.addEdge(edgeName);
-			conNode.addEdge(edgeName);
+				const conNode = getBaseNode(conName);
 
-			// add edge to edges
-			if (isNear([node.z, conNode.z])) {
-				edges.base.near.set(edgeName, edge);
-			} else {
-				edges.base.far.set(edgeName, edge);
+				const edge = new Edge(node, conNode);
+				node.addEdge(edgeName);
+				conNode.addEdge(edgeName);
+
+				// add edge to edges
+				if (isNear([node.z, conNode.z])) {
+					edges.base.near.set(edgeName, edge);
+				} else {
+					edges.base.far.set(edgeName, edge);
+				}
+				addedEdges.add(edgeName);
 			}
-			addedEdges.add(edgeName);
+
+			// connect faces
+			if (
+				addedNodes.has(conName) &&
+				addedNodes.has(con2Name) &&
+				!addedFaces.has(faceName)
+			) {
+				// all nodes required for face have been added
+				// face has not already been added
+
+				const conNode = getBaseNode(conName);
+				const con2Node = getBaseNode(con2Name);
+
+				const face = new Face(node, conNode, con2Node);
+				node.addFace(faceName);
+				conNode.addFace(faceName);
+				con2Node.addFace(faceName);
+
+				// add face to faces
+				if (isNear([node.z, conNode.z, con2Node.z])) {
+					faces.base.near.set(faceName, face);
+				} else {
+					faces.base.far.set(faceName, face);
+				}
+				addedFaces.add(faceName);
+			}
 		}
 
 		// add node to nodes
