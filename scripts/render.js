@@ -24,6 +24,7 @@ class Renderer {
 	 */
 	render = () => {
 		this.clearCanvas();
+
 		// render far base nodes
 		this.drawNodes(
 			this.structure.nodes.base.far,
@@ -40,6 +41,25 @@ class Renderer {
 		this.drawEdges(
 			this.structure.edges.base.far,
 			this.options.base.far.edges
+		);
+
+		// render near base edges
+		this.drawEdges(
+			this.structure.edges.base.near,
+			this.options.base.near.edges
+		);
+
+		// render near base faces
+		this.drawFaces(
+			this.structure.faces.base.near,
+			this.options.base.near.faces
+		);
+
+
+		// render near base nodes
+		this.drawNodes(
+			this.structure.nodes.base.near,
+			this.options.base.near.nodes
 		);
 
 		/**
