@@ -19,8 +19,6 @@ geoCanvas.width = width;
 geoCanvas.height = height;
 
 buildOptions.sizeConstraint = Math.min(width, height);
-buildOptions.centerX = width / 2;
-buildOptions.centerY = height / 2;
 
 const renderer = new Renderer(
 	geoCanvas,
@@ -35,6 +33,7 @@ window.addEventListener('resize', () => {
 	geoCanvas.width = width;
 	geoCanvas.height = height;
 	buildOptions.sizeConstraint = Math.min(width, height);
+	renderer.updateCenter(width, height);
 	renderer.render();
 });
 renderer.render();

@@ -133,8 +133,8 @@ const generateBaseIcosahedron = (options) => {
 	for (let i = 0; i < 12; i++) {
 		const nodeName = numToChar(i);
 		const node = new Node(
-			coords[i][0] * scale + options.centerX,
-			coords[i][1] * scale + options.centerY,
+			coords[i][0] * scale,
+			coords[i][1] * scale,
 			coords[i][2] * scale,
 			nodeName
 		);
