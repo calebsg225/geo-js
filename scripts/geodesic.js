@@ -53,22 +53,26 @@ import { getBaseIcosahedronConnections, isNear, numToChar } from "./util.js";
 
 /**
  * generates icosahedron structure
- * @param {number} v frequency of icosahedron
+ * @param {Object} options build options
+ * @returns {Structure}
  */
-const buildIcosahedronAtFrequency = (v) => {
+const buildIcosahedronAtFrequency = (options) => {
 	/** @type {Structure} */
-	const structure = generateBaseIcosahedron();
+	const structure = generateBaseIcosahedron(options);
 
 	return structure;
 };
 
 /**
  * generates base icosahedron structure
+ * @param {Object} options
  * @returns {Structure}
  */
-const generateBaseIcosahedron = () => {
+const generateBaseIcosahedron = (options) => {
+	const radius = options.sizeConstraint * options.fillPercentage / 2;
 	// golden ratio
 	const g = (1 + Math.sqrt(5)) / 2;
+	const scale = radius / Math.sqrt(g ** 2 + 1);
 	const coords = [
 		[0, -g, -1],
 		[0, -g, 1],
@@ -129,9 +133,9 @@ const generateBaseIcosahedron = () => {
 	for (let i = 0; i < 12; i++) {
 		const nodeName = numToChar(i);
 		const node = new Node(
-			coords[i][0],
-			coords[i][1],
-			coords[i][2],
+			coords[i][0] * scale + options.centerX,
+			coords[i][1] * scale + options.centerY,
+			coords[i][2] * scale,
 			nodeName
 		);
 
