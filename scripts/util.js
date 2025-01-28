@@ -14,6 +14,19 @@ const calc3dDistance = (x, y, z, dx, dy, dz) => {
 }
 
 /**
+ * returns true if averageZ is negative
+ * @param {number[]} zs array of z values to average
+ * @returns {boolean}
+ */
+const isNear = (zs) => {
+	let sum = 0;
+	for (let z = 0; z < zs.length; z++) {
+		sum += zs[z];
+	}
+	return sum / zs.length < 0;
+}
+
+/**
  * calculates the area of a triangle given 3 node positions
  * @param {number} x1
  * @param {number} y1
@@ -88,7 +101,7 @@ const getBaseIcosahedronConnections = (n) => {
 	const gM = (n) => 4 * ((Math.floor(n / 4) + 1) % 3) + Math.floor(n / 2) % 2;
 	const gB = (n) => 4 * ((Math.floor(n / 4) + 2) % 3) + 2 * (n % 2);
 
-	return [gT(n), gM(n), gM(n) + 2, gB(n), gB(n) + 2];
+	return [gT(n), gM(n), gM(n) + 2, gB(n), gB(n) + 1];
 }
 
 export {
@@ -97,4 +110,5 @@ export {
 	getBaseIcosahedronConnections,
 	numToChar,
 	charToNum,
+	isNear,
 };

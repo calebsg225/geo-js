@@ -1,5 +1,5 @@
 import { Node, Edge, Face } from "./structures.js";
-import { getBaseIcosahedronConnections, numToChar } from "./util.js";
+import { getBaseIcosahedronConnections, isNear, numToChar } from "./util.js";
 
 // TODO: put types in a separate file
 // TODO: try out generic types?
@@ -56,9 +56,19 @@ import { getBaseIcosahedronConnections, numToChar } from "./util.js";
  * @param {number} v frequency of icosahedron
  */
 const buildIcosahedronAtFrequency = (v) => {
+	/** @type {Structure} */
+	const structure = generateBaseIcosahedron();
+
+	return structure;
+};
+
+/**
+ * generates base icosahedron structure
+ * @returns {Structure}
+ */
+const generateBaseIcosahedron = () => {
 	// golden ratio
 	const g = (1 + Math.sqrt(5)) / 2;
-	// coordinate list
 	const coords = [
 		[0, -g, -1],
 		[0, -g, 1],
@@ -91,7 +101,12 @@ const buildIcosahedronAtFrequency = (v) => {
 	};
 
 	/** @type {Faces} */
-	const faces = {};
+	const faces = {
+		base: {
+			near: new Map(),
+			far: new Map()
+		}
+	};
 
 	/**
 	 * gets a Node
@@ -102,25 +117,15 @@ const buildIcosahedronAtFrequency = (v) => {
 		return nodes.base.near.get(key) || nodes.base.far.get(key);
 	};
 
-	/**
-	 * adds a node to structure
-	 * @param {Node} node node to add
-	 */
-	const addBaseNode = (node) => {
-		if (node.isNear()) {
-			nodes.base.near.set(node.name, node);
-		} else {
-			nodes.base.far.set(node.name, node);
-		}
-	}
-
 	/** @type {Set<string>} */
 	const addedNodes = new Set();
 
 	/** @type {Set<string>} */
 	const addedEdges = new Set();
 
-	// generate base nodes
+	/** @type {Set<string>} */
+	const addedFaces = new Set();
+
 	for (let i = 0; i < 12; i++) {
 		const nodeName = numToChar(i);
 		const node = new Node(
@@ -130,35 +135,40 @@ const buildIcosahedronAtFrequency = (v) => {
 			nodeName
 		);
 
-		addedNodes.add(nodeName);
-
 		const connections = getBaseIcosahedronConnections(i);
 
 		for (let con = 0; con < connections.length; con++) {
 			const conName = numToChar(connections[con]);
-			if (!addedNodes.has(conName)) continue;
+			const edgeName = [nodeName, conName].sort().join('-');
+			if (!addedNodes.has(conName) || addedEdges.has(edgeName)) continue;
 			// both nodes required for edge have been added
+			// edge has not already been added
 
-			const edgeKey = `${nodeName}-${conName}`;
 			const conNode = getBaseNode(conName);
 
 			const edge = new Edge(node, conNode);
-			node.addEdge(edgeKey);
-			conNode.addEdge(edgeKey);
+			node.addEdge(edgeName);
+			conNode.addEdge(edgeName);
+
+			// add edge to edges
+			if (isNear([node.z, conNode.z])) {
+				edges.base.near.set(edgeName, edge);
+			} else {
+				edges.base.far.set(edgeName, edge);
+			}
+			addedEdges.add(edgeName);
 		}
 
-		addBaseNode(node);
+		// add node to nodes
+		if (isNear([node.z])) {
+			nodes.base.near.set(node.name, node);
+		} else {
+			nodes.base.far.set(node.name, node);
+		}
+		addedNodes.add(nodeName);
 	}
-
-	/** @type {Structure} */
-	const structure = {
-		nodes: nodes,
-		edges: edges,
-		faces: faces
-	};
-
-	return structure;
-};
+	return { nodes, edges, faces }
+}
 
 export {
 	buildIcosahedronAtFrequency
