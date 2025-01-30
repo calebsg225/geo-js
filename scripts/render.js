@@ -1,4 +1,5 @@
 import { Node, Face, Edge } from "./structures.js";
+import { rotateNode } from "./util.js";
 
 /**
  * manages render
@@ -83,6 +84,56 @@ class Renderer {
 		 *
 		 * base: near nodes
 		 */
+	}
+
+	/**
+	 * rotates the structure based on inputed deltas
+	 * @param {number} dX delta X
+	 * @param {number} dY delta Y
+	 */
+	rotate = (dX, dY) => {
+		// rotate all nodes
+		// update near and far nodes accordingly
+		// TODO: determine whether edges/faces need to be moved to near/far
+
+		/**
+		 * @type {Set<string>}
+		 */
+		const rotatedNodes = new Set();
+
+		/**
+		 * @type {Set<string>}
+		 */
+		const rotatedEdges = new Set();
+
+		/**
+		 * @type {Set<string>}
+		 */
+		const rotatedFaces = new Set();
+
+		for (const nodeType of Object.keys(this.structure.nodes)) {
+			for (const distType of Object.keys(this.structure.nodes[nodeType])) {
+				const nodes = this.structure.nodes[nodeType][distType];
+
+				nodes.forEach((node, _) => {
+					// return if its already been rotated
+					if (rotatedNodes.has(node.name)) return;
+
+					// rotate node, check if node switched near/far
+					const switched = node.updateCoord(...rotateNode(node.x, node.y, node.z, dX, dY, this.options.rotationStep));
+
+					if (!switched) return;
+
+					// update node dist
+					const newDist = distType === "near" ? "far" : "near";
+					this.structure.nodes[nodeType][newDist].set(node.name, node);
+					this.structure.nodes[nodeType][distType].delete(node.name);
+					rotatedNodes.add(node.name);
+				});
+			}
+		}
+
+		this.render();
 	}
 
 	/**

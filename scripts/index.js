@@ -26,6 +26,27 @@ const renderer = new Renderer(
 	buildIcosahedronAtFrequency(buildOptions),
 );
 
+const geoInterface = document.querySelector('#interface');
+let mouseIsDown = false;
+
+geoInterface.addEventListener("click", (e) => {
+	// dont allow structure rotation when mouse is over interface
+	e.stopPropagation();
+});
+
+geoCanvas.addEventListener('mousedown', () => {
+	mouseIsDown = true;
+});
+
+geoCanvas.addEventListener('mouseup', () => {
+	mouseIsDown = false;
+});
+
+geoCanvas.addEventListener('mousemove', (e) => {
+	if (!mouseIsDown) return;
+	renderer.rotate(e.movementX, e.movementY);
+});
+
 // update canvas width and height to match client window size
 window.addEventListener('resize', () => {
 	width = body.clientWidth;

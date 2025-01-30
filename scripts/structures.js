@@ -28,12 +28,14 @@ class Node {
 	 * @param {number} x
 	 * @param {number} y
 	 * @param {number} z
+	 * @returns {boolean}
 	 */
 	updateCoord(x, y, z) {
-		// TODO: return whether node switches near/far
+		const switched = (z > 0) !== (this.z > 0);
 		this.x = x;
 		this.y = y;
 		this.z = z;
+		return switched
 	}
 
 	/**

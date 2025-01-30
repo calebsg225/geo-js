@@ -23,7 +23,7 @@ const isNear = (zs) => {
 	for (let z = 0; z < zs.length; z++) {
 		sum += zs[z];
 	}
-	return sum / zs.length < 0;
+	return sum / zs.length <= 0;
 }
 
 /**
@@ -70,6 +70,43 @@ const calcTriangleArea = (
 }
 
 /**
+ * given a nodes coordinates, rotate that node around the x or y
+ * plane based on multiplyers
+ * @param {number} x
+ * @param {number} y
+ * @param {number} z
+ * @param {number} mX: how far to rotate around x axis
+ * @param {number} mY: how far to rotate around y axis
+ * @param {number} rad: how far to rotate per m_
+ * @returns {number[]} an array containing the new coordinates
+ */
+const rotateNode = (
+	x,
+	y,
+	z,
+	mX,
+	mY,
+	rad
+) => {
+	// changing signs causes rotation in different directions.
+	// These signs align rotation with HTMLCanvas coords: positive y is 'down'
+	// and with personal preference related to the z axis: positive z is 'far'
+
+	// store sine and cosine values
+	const sX = Math.sin(rad * mX);
+	const cX = Math.cos(rad * mX);
+	const sY = Math.sin(rad * mY);
+	const cY = Math.cos(rad * mY);
+
+	// calculate rotated coords
+	const nX = (x * cX) - (y * sX * sY) - (z * sX * cY);
+	const nY = (y * cY) - (z * sY);
+	const nZ = (x * sX) + (y * cX * sY) + (z * cX * cY);
+
+	return [nX, nY, nZ];
+}
+
+/**
  * given an integer, return a char. Chars are mapped so that 'a' is 0.
  * @param {number} num number to map to char
  * @returns {string} the char num maps to
@@ -112,4 +149,5 @@ export {
 	numToChar,
 	charToNum,
 	isNear,
+	rotateNode,
 };

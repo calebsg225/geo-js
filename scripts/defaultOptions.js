@@ -7,31 +7,32 @@ const buildOptions = {
 
 const renderOptions = {
 	backgroundColor: "black",
+	rotationStep: 0.002,
 	base: {
 		near: {
 			nodes: {
 				show: true,
-				color: "#FFFFFF",
-				size: 3,
+				color: "green",
+				size: 6,
 			},
 			edges: {
-				show: true,
+				show: false,
 				color: "#FFFFFF",
 				size: 3,
 			},
 			faces: {
-				show: true,
+				show: false,
 				color: "#FFFFFF",
 			}
 		},
 		far: {
 			nodes: {
 				show: true,
-				color: "#FFFFFF",
+				color: "red",
 				size: 3,
 			},
 			edges: {
-				show: true,
+				show: false,
 				color: "#F42FFF",
 				size: 3,
 			},
