@@ -28,14 +28,16 @@ class Node {
 	 * @param {number} x
 	 * @param {number} y
 	 * @param {number} z
-	 * @returns {boolean}
+	 * @param {number} threshold
+	 * @returns {{switched: boolean, underThreshold: boolean}}
 	 */
-	updateCoord(x, y, z) {
+	updateCoord(x, y, z, threshold = Infinity) {
 		const switched = (z > 0) !== (this.z > 0);
+		const underThreshold = Math.abs(this.z) < threshold || Math.abs(z) < threshold;
 		this.x = x;
 		this.y = y;
 		this.z = z;
-		return switched
+		return { switched, underThreshold }
 	}
 
 	/**

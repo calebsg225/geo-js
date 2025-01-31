@@ -1,5 +1,5 @@
 import { Node, Face, Edge } from "./structures.js";
-import { rotateNode } from "./util.js";
+import { rotateNode, isNear } from "./util.js";
 
 /**
  * manages render
@@ -104,12 +104,12 @@ class Renderer {
 		/**
 		 * @type {Set<string>}
 		 */
-		const rotatedEdges = new Set();
+		const edgesToUpdate = new Set();
 
 		/**
 		 * @type {Set<string>}
 		 */
-		const rotatedFaces = new Set();
+		const facesToUpdate = new Set();
 
 		for (const nodeType of Object.keys(this.structure.nodes)) {
 			for (const distType of Object.keys(this.structure.nodes[nodeType])) {
@@ -120,7 +120,14 @@ class Renderer {
 					if (rotatedNodes.has(node.name)) return;
 
 					// rotate node, check if node switched near/far
-					const switched = node.updateCoord(...rotateNode(node.x, node.y, node.z, dX, dY, this.options.rotationStep));
+					const { switched, underThreshold } = node.updateCoord(...rotateNode(node.x, node.y, node.z, dX, dY, this.options.rotationStep), this.structure.minEdgeLength / 2);
+
+					// if node z value is or was under min edge length, edge needs to be checked if it crossed to near/far
+					if (underThreshold) {
+						for (let i = 0; i < node.edges.length; i++) {
+							edgesToUpdate.add(node.edges[i]);
+						}
+					}
 
 					if (!switched) return;
 
@@ -132,6 +139,21 @@ class Renderer {
 				});
 			}
 		}
+
+		// for detected edges near z=0, check if switched to near/far
+		edgesToUpdate.forEach(edgeKey => {
+			const { edge, edgeType, distType } = this.getEdge(edgeKey);
+			const node1 = this.getNode(edge.nodes[0]);
+			const node2 = this.getNode(edge.nodes[1]);
+
+			const newDist = isNear([node1.z, node2.z]) ? "near" : "far";
+
+			// if edge used to be near and is now far (or vice versa)
+			if (newDist !== distType) {
+				this.structure.edges[edgeType][newDist].set(edgeKey, edge);
+				this.structure.edges[edgeType][distType].delete(edgeKey);
+			}
+		});
 
 		this.render();
 	}
@@ -169,7 +191,7 @@ class Renderer {
 		this.ctx.beginPath();
 		this.ctx.moveTo(nodes[0][0], nodes[0][1]);
 		this.ctx.lineTo(nodes[1][0], nodes[1][1]);
-		this.ctx.linWidth = size;
+		this.ctx.lineWidth = size;
 		this.ctx.strokeStyle = color;
 		this.ctx.stroke();
 	}
@@ -249,8 +271,10 @@ class Renderer {
 
 	/**
 	 * @param {string} key
+	 * @returns {Node}
 	 */
 	getNode = (key) => {
+		// TODO: return path details where it was found?
 		return (
 			this.structure.nodes.base.near.get(key) ||
 			this.structure.nodes.base.far.get(key) ||
@@ -259,6 +283,25 @@ class Renderer {
 			this.structure.nodes.face.near.get(key) ||
 			this.structure.nodes.face.far.get(key)
 		);
+	}
+
+	/**
+	 * @param {string} key
+	 * @returns {{edge: Edge, edgeType: string, distType: string}}
+	 */
+	getEdge = (key) => {
+		const edges = this.structure.edges;
+
+		for (const edgeType of Object.keys(edges)) {
+			for (const distType of Object.keys(edges[edgeType])) {
+				const edge = edges[edgeType][distType].get(key);
+
+				if (edge) {
+					return ({ edge, edgeType, distType });
+				}
+
+			}
+		}
 	}
 
 	// TODO: put Structure type in a differnet file so type can be accessed here

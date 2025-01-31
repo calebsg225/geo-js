@@ -12,13 +12,13 @@ const renderOptions = {
 		near: {
 			nodes: {
 				show: true,
-				color: "green",
-				size: 6,
+				color: "blue",
+				size: 8,
 			},
 			edges: {
-				show: false,
-				color: "#FFFFFF",
-				size: 3,
+				show: true,
+				color: "darkgreen",
+				size: 6,
 			},
 			faces: {
 				show: false,
@@ -28,12 +28,12 @@ const renderOptions = {
 		far: {
 			nodes: {
 				show: true,
-				color: "red",
-				size: 3,
+				color: "blue",
+				size: 6,
 			},
 			edges: {
-				show: false,
-				color: "#F42FFF",
+				show: true,
+				color: "darkred",
 				size: 3,
 			},
 			faces: {
