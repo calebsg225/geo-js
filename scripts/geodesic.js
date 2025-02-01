@@ -49,7 +49,7 @@ import { getBaseIcosahedronConnections, isNear, numToChar } from "./util.js";
  * @property {Nodes} nodes
  * @property {Edges} edges
  * @property {Faces} faces
- * @property {number} minEdgeLength
+ * @property {number} maxEdgeLength
  */
 
 /**
@@ -114,7 +114,7 @@ const generateBaseIcosahedron = (options) => {
 	};
 
 	/** @type {number} */
-	let minEdgeLength = Infinity;
+	let maxEdgeLength = -Infinity;
 
 	/**
 	 * gets a Node
@@ -165,7 +165,7 @@ const generateBaseIcosahedron = (options) => {
 				node.addEdge(edgeName);
 				conNode.addEdge(edgeName);
 
-				minEdgeLength = Math.min(minEdgeLength, edge.length);
+				maxEdgeLength = Math.max(maxEdgeLength, edge.length);
 
 				// add edge to edges
 				if (isNear([node.z, conNode.z])) {
@@ -211,7 +211,7 @@ const generateBaseIcosahedron = (options) => {
 		}
 		addedNodes.add(nodeName);
 	}
-	return { nodes, edges, faces, minEdgeLength }
+	return { nodes, edges, faces, maxEdgeLength }
 }
 
 export {
