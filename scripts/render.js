@@ -122,10 +122,13 @@ class Renderer {
 					// rotate node, check if node switched near/far
 					const { switched, underThreshold } = node.updateCoord(...rotateNode(node.x, node.y, node.z, dX, dY, this.options.rotationStep), this.structure.maxEdgeLength / 2);
 
-					// if node z value is or was under max edge length, edge needs to be checked if it crossed to near/far
+					// if node z value is or was under max edge length, edges and faces connected to this node need to be checked if it crossed to near/far
 					if (underThreshold) {
 						for (let i = 0; i < node.edges.length; i++) {
 							edgesToUpdate.add(node.edges[i]);
+						}
+						for (let i = 0; i < node.faces.length; i++) {
+							facesToUpdate.add(node.faces[i]);
 						}
 					}
 
@@ -152,6 +155,23 @@ class Renderer {
 			if (newDist !== distType) {
 				this.structure.edges[edgeType][newDist].set(edgeKey, edge);
 				this.structure.edges[edgeType][distType].delete(edgeKey);
+			}
+		});
+
+
+		// for detected faces near z=0, check if switched to near/far
+		facesToUpdate.forEach(faceKey => {
+			const { face, faceType, distType } = this.getFace(faceKey);
+			const node1 = this.getNode(face.nodes[0]);
+			const node2 = this.getNode(face.nodes[1]);
+			const node3 = this.getNode(face.nodes[2]);
+
+			const newDist = isNear([node1.z, node2.z, node3.z]) ? "near" : "far";
+
+			// if face used to be near and is now far (or vice versa)
+			if (newDist !== distType) {
+				this.structure.faces[faceType][newDist].set(faceKey, face);
+				this.structure.faces[faceType][distType].delete(faceKey);
 			}
 		});
 
@@ -298,6 +318,25 @@ class Renderer {
 
 				if (edge) {
 					return ({ edge, edgeType, distType });
+				}
+
+			}
+		}
+	}
+
+	/**
+	 * @param {string} key
+	 * @returns {{face: Face, faceType: string, distType: string}}
+	 */
+	getFace = (key) => {
+		const faces = this.structure.faces;
+
+		for (const faceType of Object.keys(faces)) {
+			for (const distType of Object.keys(faces[faceType])) {
+				const face = faces[faceType][distType].get(key);
+
+				if (face) {
+					return ({ face, faceType, distType });
 				}
 
 			}

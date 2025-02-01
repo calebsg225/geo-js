@@ -22,7 +22,7 @@ const renderOptions = {
 			},
 			faces: {
 				show: false,
-				color: "#FFFFFF",
+				color: "#66666699",
 			}
 		},
 		far: {
@@ -37,8 +37,8 @@ const renderOptions = {
 				size: 3,
 			},
 			faces: {
-				show: false,
-				color: "#3FFFFF",
+				show: true,
+				color: "#88444499",
 			}
 		}
 	},
