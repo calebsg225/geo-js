@@ -42,6 +42,10 @@ geoCanvas.addEventListener('mouseup', () => {
 	mouseIsDown = false;
 });
 
+geoCanvas.addEventListener('mouseleave', () => {
+	mouseIsDown = false;
+});
+
 geoCanvas.addEventListener('mousemove', (e) => {
 	if (!mouseIsDown) return;
 	renderer.rotate(e.movementX, e.movementY);
