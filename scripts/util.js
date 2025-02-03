@@ -142,6 +142,40 @@ const getBaseIcosahedronConnections = (n) => {
 	return [gT(n), gM(n), gB(n), gB(n) + 1, gM(n) + 2];
 }
 
+/**
+ * returns coordinates for the node in between the three weighted input nodes
+ * @param {Node} node1
+ * @param {Node} node2
+ * @param {Node} node3
+ * @param {number} w1
+ * @param {number} w2
+ * @param {number} w3
+ * @returns {number[]} [x, y, z]
+ */
+const calcMidNodeCoords = (node1, node2, node3, w1, w2, w3) => {
+	const v = w1 + w2 + w3;
+	const nX = (node1.x * w1 + node2.x * w2 + node3.x * w3) / v;
+	const nY = (node1.y * w1 + node2.x * w2 + node3.y * w3) / v;
+	const nZ = (node1.z * w1 + node2.z * w2 + node3.z * w3) / v;
+	return [nX, nY, nZ];
+}
+
+/**
+ * returns node coordinates normalized (pushed) to the surface of a sphere
+ * @param {number} x
+ * @param {number} y
+ * @param {number} z
+ * @param {number} r radius of the sphere to push to
+ * @returns {number[]}
+ */
+const normalizeNode = (x, y, z, r) => {
+	const dist = calc3dDistance(0, 0, 0, x, y, z);
+	const nX = x / dist * r;
+	const nY = y / dist * r;
+	const nZ = z / dist * r;
+	return [nX, nY, nZ];
+}
+
 export {
 	calc3dDistance,
 	calcTriangleArea,
@@ -150,4 +184,6 @@ export {
 	charToNum,
 	isNear,
 	rotateNode,
+	calcMidNodeCoords,
+	normalizeNode,
 };
