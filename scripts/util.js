@@ -143,15 +143,35 @@ const generateNodeKey = (nn1, nn2, nn3, w1, w2, w3) => {
 	return res.sort().join('');
 }
 
-// TODO: function for generating edge key string
-// TODO: function for generating face key string
+/**
+ * generates an edge key based on connected nodes
+ * edge names are alphabetized
+ * @param {string} nn1 node name of first node
+ * @param {string} nn2 node name of second node
+ * @returns {string}
+ */
+const generateEdgeKey = (nn1, nn2) => {
+	return [nn1, nn2].sort().join('-');
+}
+
+/**
+ * generates a face key based on connected nodes
+ * face names are alphabetized
+ * @param {string} nn1 face name of first node
+ * @param {string} nn2 face name of second node
+ * @param {string} nn3 face name of third node
+ * @returns {string}
+ */
+const generateFaceKey = (nn1, nn2, nn3) => {
+	return [nn1, nn2, nn3].sort().join('-');
+}
 
 /**
  * @param {Object} nodes
  * @param {string} key
  * @returns {{node: Node, nodeType: string, distType: string}}
  */
-getNode = (nodes, key) => {
+const getNode = (nodes, key) => {
 	for (const nodeType of Object.keys(nodes)) {
 		for (const distType of Object.keys(nodes[nodeType])) {
 			const node = nodes[nodeType][distType].get(key);
@@ -258,6 +278,8 @@ export {
 	calc3dDistance,
 	calcTriangleArea,
 	generateNodeKey,
+	generateEdgeKey,
+	generateFaceKey,
 	getNode,
 	getEdge,
 	getFace,
