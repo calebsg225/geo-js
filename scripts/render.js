@@ -1,5 +1,5 @@
 import { Node, Face, Edge } from "./structures.js";
-import { rotateNode, isNear } from "./util.js";
+import { rotateNode, isNear, getNode, getEdge, getFace } from "./util.js";
 
 /**
  * manages render
@@ -145,9 +145,9 @@ class Renderer {
 
 		// for detected edges near z=0, check if switched to near/far
 		edgesToUpdate.forEach(edgeKey => {
-			const { edge, edgeType, distType } = this.getEdge(edgeKey);
-			const node1 = this.getNode(edge.nodes[0]);
-			const node2 = this.getNode(edge.nodes[1]);
+			const { edge, edgeType, distType } = getEdge(edgeKey);
+			const node1 = getNode(edge.nodes[0]);
+			const node2 = getNode(edge.nodes[1]);
 
 			const newDist = isNear([node1.z, node2.z]) ? "near" : "far";
 
@@ -161,10 +161,10 @@ class Renderer {
 
 		// for detected faces near z=0, check if switched to near/far
 		facesToUpdate.forEach(faceKey => {
-			const { face, faceType, distType } = this.getFace(faceKey);
-			const node1 = this.getNode(face.nodes[0]);
-			const node2 = this.getNode(face.nodes[1]);
-			const node3 = this.getNode(face.nodes[2]);
+			const { face, faceType, distType } = getFace(faceKey);
+			const node1 = getNode(face.nodes[0]);
+			const node2 = getNode(face.nodes[1]);
+			const node3 = getNode(face.nodes[2]);
 
 			const newDist = isNear([node1.z, node2.z, node3.z]) ? "near" : "far";
 
@@ -262,7 +262,7 @@ class Renderer {
 		edges.forEach((edge, _) => {
 			this.drawEdge(
 				edge.nodes.map((nodeKey) => {
-					const node = this.getNode(nodeKey);
+					const node = getNode(nodeKey);
 					return [node.x + this.cX, node.y + this.cY]
 				}),
 				styles.size,
@@ -281,66 +281,12 @@ class Renderer {
 		faces.forEach((face, _) => {
 			this.drawFace(
 				face.nodes.map((nodeKey) => {
-					const node = this.getNode(nodeKey);
+					const node = getNode(nodeKey);
 					return [node.x + this.cX, node.y + this.cY];
 				}),
 				styles.color
 			);
 		});
-	}
-
-	/**
-	 * @param {string} key
-	 * @returns {Node}
-	 */
-	getNode = (key) => {
-		// TODO: return path details where it was found?
-		return (
-			this.structure.nodes.base.near.get(key) ||
-			this.structure.nodes.base.far.get(key) ||
-			this.structure.nodes.edge.near.get(key) ||
-			this.structure.nodes.edge.far.get(key) ||
-			this.structure.nodes.face.near.get(key) ||
-			this.structure.nodes.face.far.get(key)
-		);
-	}
-
-	/**
-	 * @param {string} key
-	 * @returns {{edge: Edge, edgeType: string, distType: string}}
-	 */
-	getEdge = (key) => {
-		const edges = this.structure.edges;
-
-		for (const edgeType of Object.keys(edges)) {
-			for (const distType of Object.keys(edges[edgeType])) {
-				const edge = edges[edgeType][distType].get(key);
-
-				if (edge) {
-					return ({ edge, edgeType, distType });
-				}
-
-			}
-		}
-	}
-
-	/**
-	 * @param {string} key
-	 * @returns {{face: Face, faceType: string, distType: string}}
-	 */
-	getFace = (key) => {
-		const faces = this.structure.faces;
-
-		for (const faceType of Object.keys(faces)) {
-			for (const distType of Object.keys(faces[faceType])) {
-				const face = faces[faceType][distType].get(key);
-
-				if (face) {
-					return ({ face, faceType, distType });
-				}
-
-			}
-		}
 	}
 
 	// TODO: put Structure type in a differnet file so type can be accessed here

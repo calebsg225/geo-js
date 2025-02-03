@@ -1,4 +1,3 @@
-
 /**
  * calculates the distance between two Nodes
  * @param {number} x
@@ -124,9 +123,88 @@ const charToNum = (char) => {
 	return char.charCodeAt(0) - 'a'.charCodeAt(0);
 }
 
-// TODO: function for generating node key string
+/**
+ * generates a node key based on base nodes and node weights
+ * node names are alphabetized
+ * @param {string} nn1 node name of first base node
+ * @param {string} nn2 node name of second base node
+ * @param {string} nn3 node name of third base node
+ * @param {number} w1 weight of first base node
+ * @param {number} w2 weight of second base node
+ * @param {number} w3 weight of third base node
+ * @returns {string}
+ */
+const generateNodeKey = (nn1, nn2, nn3, w1, w2, w3) => {
+	const v = w1 + w2 + w3;
+	let res = [];
+	if (w1) res.push(nn1 + (w1 % v ? w1 : ''));
+	if (w2) res.push(nn2 + (w2 % v ? w2 : ''));
+	if (w3) res.push(nn3 + (w3 % v ? w3 : ''));
+	return res.sort().join('');
+}
+
 // TODO: function for generating edge key string
 // TODO: function for generating face key string
+
+/**
+ * @param {Object} nodes
+ * @param {string} key
+ * @returns {{node: Node, nodeType: string, distType: string}}
+ */
+getNode = (nodes, key) => {
+	for (const nodeType of Object.keys(nodes)) {
+		for (const distType of Object.keys(nodes[nodeType])) {
+			const node = nodes[nodeType][distType].get(key);
+
+			if (node) {
+				return ({ node, nodeType, distType });
+			}
+
+		}
+	}
+	// no node found
+	return { node: undefined, nodeType: '', distType: '' };
+}
+
+/**
+ * @param {Object} edges
+ * @param {string} key
+ * @returns {{edge: Edge, edgeType: string, distType: string}}
+ */
+const getEdge = (edges, key) => {
+	for (const edgeType of Object.keys(edges)) {
+		for (const distType of Object.keys(edges[edgeType])) {
+			const edge = edges[edgeType][distType].get(key);
+
+			if (edge) {
+				return ({ edge, edgeType, distType });
+			}
+
+		}
+	}
+	// no edge found
+	return { edge: undefined, edgeType: '', distType: '' };
+}
+
+/**
+ * @param {Object} faces
+ * @param {string} key
+ * @returns {{face: Face, faceType: string, distType: string}}
+ */
+const getFace = (faces, key) => {
+	for (const faceType of Object.keys(faces)) {
+		for (const distType of Object.keys(faces[faceType])) {
+			const face = faces[faceType][distType].get(key);
+
+			if (face) {
+				return ({ face, faceType, distType });
+			}
+
+		}
+	}
+	// no face found
+	return { face: undefined, faceType: '', distType: '' };
+}
 
 /**
  * finds the five connections of a given vertex of an icosahedron
@@ -179,6 +257,10 @@ const normalizeNode = (x, y, z, r) => {
 export {
 	calc3dDistance,
 	calcTriangleArea,
+	generateNodeKey,
+	getNode,
+	getEdge,
+	getFace,
 	getBaseIcosahedronConnections,
 	numToChar,
 	charToNum,
