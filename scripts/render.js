@@ -32,6 +32,27 @@ class Renderer {
 			this.options.base.far.nodes
 		);
 
+		// render far other nodes
+		this.drawNodes(
+			this.structure.nodes.edge.far,
+			this.options.edge.far.nodes
+		);
+		this.drawNodes(
+			this.structure.nodes.face.far,
+			this.options.face.far.nodes
+		);
+
+		// render far other faces
+		// render far other edges
+		this.drawEdges(
+			this.structure.edges.edge.far,
+			this.options.edge.far.edges
+		);
+		this.drawEdges(
+			this.structure.edges.face.far,
+			this.options.face.far.edges
+		);
+
 		// render far base faces
 		this.drawFaces(
 			this.structure.faces.base.far,
@@ -56,6 +77,27 @@ class Renderer {
 			this.options.base.near.faces
 		);
 
+		// render near other edges
+		this.drawEdges(
+			this.structure.edges.edge.near,
+			this.options.edge.near.edges
+		);
+		this.drawEdges(
+			this.structure.edges.face.near,
+			this.options.face.near.edges
+		);
+
+		// render near other faces
+
+		// render near other nodes
+		this.drawNodes(
+			this.structure.nodes.edge.near,
+			this.options.edge.near.nodes
+		);
+		this.drawNodes(
+			this.structure.nodes.face.near,
+			this.options.face.near.nodes
+		);
 
 		// render near base nodes
 		this.drawNodes(
@@ -145,9 +187,9 @@ class Renderer {
 
 		// for detected edges near z=0, check if switched to near/far
 		edgesToUpdate.forEach(edgeKey => {
-			const { edge, edgeType, distType } = getEdge(edgeKey);
-			const node1 = getNode(edge.nodes[0]);
-			const node2 = getNode(edge.nodes[1]);
+			const { edge, edgeType, distType } = getEdge(this.structure.edges, edgeKey);
+			const { node: node1 } = getNode(this.structure.nodes, edge.nodes[0]);
+			const { node: node2 } = getNode(this.structure.nodes, edge.nodes[1]);
 
 			const newDist = isNear([node1.z, node2.z]) ? "near" : "far";
 
@@ -161,10 +203,10 @@ class Renderer {
 
 		// for detected faces near z=0, check if switched to near/far
 		facesToUpdate.forEach(faceKey => {
-			const { face, faceType, distType } = getFace(faceKey);
-			const node1 = getNode(face.nodes[0]);
-			const node2 = getNode(face.nodes[1]);
-			const node3 = getNode(face.nodes[2]);
+			const { face, faceType, distType } = getFace(this.structure.faces, faceKey);
+			const { node: node1 } = getNode(this.structure.nodes, face.nodes[0]);
+			const { node: node2 } = getNode(this.structure.nodes, face.nodes[1]);
+			const { node: node3 } = getNode(this.structure.nodes, face.nodes[2]);
 
 			const newDist = isNear([node1.z, node2.z, node3.z]) ? "near" : "far";
 
@@ -262,7 +304,7 @@ class Renderer {
 		edges.forEach((edge, _) => {
 			this.drawEdge(
 				edge.nodes.map((nodeKey) => {
-					const node = getNode(nodeKey);
+					const { node } = getNode(this.structure.nodes, nodeKey);
 					return [node.x + this.cX, node.y + this.cY]
 				}),
 				styles.size,
@@ -281,7 +323,7 @@ class Renderer {
 		faces.forEach((face, _) => {
 			this.drawFace(
 				face.nodes.map((nodeKey) => {
-					const node = getNode(nodeKey);
+					const { node } = getNode(this.structure.nodes, nodeKey);
 					return [node.x + this.cX, node.y + this.cY];
 				}),
 				styles.color
