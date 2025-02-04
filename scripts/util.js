@@ -252,9 +252,9 @@ const getBaseIcosahedronConnections = (n) => {
  */
 const calcMidNodeCoords = (node1, node2, node3, w1, w2, w3) => {
 	const v = w1 + w2 + w3;
-	const nX = (node1.x * w1 + node2.x * w2 + node3.x * w3) / v;
-	const nY = (node1.y * w1 + node2.x * w2 + node3.y * w3) / v;
-	const nZ = (node1.z * w1 + node2.z * w2 + node3.z * w3) / v;
+	const nX = node1.x * (w1 / v) + node2.x * (w2 / v) + node3.x * (w3 / v);
+	const nY = node1.y * (w1 / v) + node2.y * (w2 / v) + node3.y * (w3 / v);
+	const nZ = node1.z * (w1 / v) + node2.z * (w2 / v) + node3.z * (w3 / v);
 	return [nX, nY, nZ];
 }
 
