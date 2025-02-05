@@ -268,6 +268,11 @@ const geodesizeIcosahedron = (structure, options) => {
 		far: new Map()
 	};
 
+	structure.faces.cap = {
+		near: new Map(),
+		far: new Map()
+	};
+
 	for (const distType of Object.keys(structure.faces.base)) {
 		structure.faces.base[distType].forEach((face, _) => {
 			// get nodes, geodesize
@@ -342,7 +347,18 @@ const geodesizeIcosahedron = (structure, options) => {
 						connectEdge(structure, prevWidthNode, widthNode, (!aww ? 'edge' : 'face'));
 					}
 
-					// if node is not on the top edges, create angled edges
+					// add face
+					const topNodeName = generateNodeKey(a.name, b.name, c.name, aww + 1, bww, cww - 1);
+					const { node: topNode } = getNode(structure.nodes, topNodeName);
+					const faceType = (aww && bww && cww - 1)
+						? 'face'
+						: ((aww + 1 === nv || bww + 1 === nv || cww === nv)
+							? 'cap'
+							: 'edge'
+						);
+					connectFace(structure, prevWidthNode, widthNode, topNode, faceType);
+
+					// if node is not on the top edges, create angled edges and face
 					if (bww && cww) {
 						const leftNodeName = generateNodeKey(a.name, b.name, c.name, aww + 1, bww, cww - 1);
 						const rightNodeName = generateNodeKey(a.name, b.name, c.name, aww + 1, bww - 1, cww);
@@ -350,6 +366,11 @@ const geodesizeIcosahedron = (structure, options) => {
 						const { node: rightNode } = getNode(structure.nodes, rightNodeName);
 						connectEdge(structure, leftNode, widthNode, 'face');
 						connectEdge(structure, rightNode, widthNode, 'face');
+
+						const faceType = (aww && bww - 1 && cww - 1) ? 'face' : 'edge';
+
+						// add face
+						connectFace(structure, leftNode, rightNode, widthNode, faceType);
 					}
 
 					prevWidthNodeName = widthNodeName;
@@ -386,6 +407,33 @@ const connectEdge = (structure, node1, node2, edgeType) => {
 
 	// add edge to structure
 	structure.edges[edgeType][distType].set(edgeKey, newEdge);
+}
+
+/**
+ * given 3 existing nodes, add a connected face between them
+ * @param {Structure}
+ * @param {Node} node1
+ * @param {Node} node2
+ * @param {Node} node3
+ * @param {string} faceType
+ */
+const connectFace = (structure, node1, node2, node3, faceType) => {
+	// generate name of new face
+	const faceKey = generateFaceKey(node1.name, node2.name, node3.name);
+
+	// connect face to nodes
+	node1.addFace(faceKey);
+	node2.addFace(faceKey);
+	node3.addFace(faceKey);
+
+	// create new face
+	const newFace = new Face(node1, node2, node3);
+
+	// find out view distance of face
+	const distType = isNear([node1.z, node2.z, node3.z]) ? 'near' : 'far';
+
+	// add face to structure
+	structure.faces[faceType][distType].set(faceKey, newFace);
 }
 
 export {

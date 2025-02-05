@@ -43,7 +43,23 @@ class Renderer {
 		);
 
 		// render far other faces
+		this.drawFaces(
+			this.structure.faces.edge.far,
+			this.options.edge.far.faces
+		);
+		this.drawFaces(
+			this.structure.faces.face.far,
+			this.options.face.far.faces
+		);
+		this.drawFaces(
+			this.structure.faces.cap.far,
+			this.options.cap.far.faces
+		);
 		// render far other edges
+		this.drawFaces(
+			this.structure.faces.face.far,
+			this.options.face.far.faces
+		);
 		this.drawEdges(
 			this.structure.edges.edge.far,
 			this.options.edge.far.edges
@@ -88,6 +104,18 @@ class Renderer {
 		);
 
 		// render near other faces
+		this.drawFaces(
+			this.structure.faces.edge.near,
+			this.options.edge.near.faces
+		);
+		this.drawFaces(
+			this.structure.faces.face.near,
+			this.options.face.near.faces
+		);
+		this.drawFaces(
+			this.structure.faces.cap.near,
+			this.options.cap.near.faces
+		);
 
 		// render near other nodes
 		this.drawNodes(
