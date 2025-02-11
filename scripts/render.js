@@ -31,37 +31,37 @@ class Renderer {
 		// render far nodes
 		this.drawNodes(
 			this.layer.nodes.far,
-			this.options.edge.far.nodes
+			this.options.nodes.far
 		);
 
 		// render far faces
 		this.drawFaces(
 			this.layer.faces.far,
-			this.options.cap.far.faces
+			this.options.faces.far
 		);
 
 		// render far edges
 		this.drawEdges(
 			this.layer.edges.far,
-			this.options.face.far.edges
+			this.options.edges.far
 		);
 
 		// render near edges
 		this.drawEdges(
 			this.layer.edges.near,
-			this.options.edge.near.edges
+			this.options.edges.near
 		);
 
 		// render near faces
 		this.drawFaces(
 			this.layer.faces.near,
-			this.options.cap.near.faces
+			this.options.faces.near
 		);
 
 		// render near nodes
 		this.drawNodes(
 			this.layer.nodes.near,
-			this.options.face.near.nodes
+			this.options.nodes.near
 		);
 
 	}
