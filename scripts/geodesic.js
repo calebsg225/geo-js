@@ -253,18 +253,17 @@ const classILayer = (layer, options) => {
 
 	for (const distType of Object.keys(layer.faces)) {
 		layer.faces[distType].forEach((face, _) => {
-			// get nodes, geodesize
-			const baseNodes = [];
+			// get face nodes
+			const faceNodes = [];
 			for (const nodeKey of face.nodes) {
-				baseNodes.push(
+				faceNodes.push(
 					layer.nodes.far.get(nodeKey) ||
 					layer.nodes.near.get(nodeKey)
 				);
 			}
-			// get base nodes
 			// sort alphabetically
 			// TODO: (for class III subdivision) order in a consistent way
-			const [a, b, c] = baseNodes.sort();
+			const [a, b, c] = faceNodes.sort();
 
 			// initialize node weights
 			let aw = nv;
@@ -279,7 +278,7 @@ const classILayer = (layer, options) => {
 				bw += 1;
 				const depthNodeName = generateNodeKey(a.name, b.name, c.name, aw, bw, cw);
 
-				// if node does not exist, create node and connect edge
+				// if node does not exist, create node
 				if (!getNode(nodes, depthNodeName).node) {
 					// calculate coords for new node
 					const cmCoords = calcMidNodeCoords(a, b, c, aw, bw, cw);
@@ -294,6 +293,7 @@ const classILayer = (layer, options) => {
 
 				const { edge: depthEdge } = getEdge(edges, generateEdgeKey(prevDepthNodeName, depthNodeName));
 
+				// if edge between nodes does not exist, connect edge
 				if (!depthEdge) {
 					const { node: depthNode } = getNode(nodes, depthNodeName);
 					connectEdge(edges, depthNode, prevDepthNode);
@@ -309,7 +309,7 @@ const classILayer = (layer, options) => {
 					cww += 1;
 					const widthNodeName = generateNodeKey(a.name, b.name, c.name, aww, bww, cww);
 
-					// if node does not exist, create node and connect edge
+					// if node does not exist, create node
 					if (!getNode(nodes, widthNodeName).node) {
 						const cmCoords = calcMidNodeCoords(a, b, c, aww, bww, cww);
 						const nCoords = normalizeNode(...cmCoords, radius);
@@ -322,7 +322,7 @@ const classILayer = (layer, options) => {
 					const { edge: widthEdge } = getEdge(edges, generateEdgeKey(prevWidthNodeName, widthNodeName));
 
 					const { node: widthNode } = getNode(nodes, widthNodeName);
-					// if edge does not exist, add it
+					// if edge does not exist, connect edge
 					if (!widthEdge) {
 						connectEdge(edges, prevWidthNode, widthNode);
 					}
@@ -331,6 +331,11 @@ const classILayer = (layer, options) => {
 					const topNodeName = generateNodeKey(a.name, b.name, c.name, aww + 1, bww, cww - 1);
 					const { node: topNode } = getNode(nodes, topNodeName);
 					connectFace(faces, prevWidthNode, widthNode, topNode);
+
+					// add bc edge if it does not exist. This is a must for structures built off of more than one layer.
+					if (!getEdge(edges, generateEdgeKey(widthNode, topNode)).edge) {
+						connectEdge(edges, widthNode, topNode);
+					}
 
 					// if node is not on the top edges, create angled edges and face
 					if (bww && cww) {
