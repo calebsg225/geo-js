@@ -218,6 +218,12 @@ class Renderer {
 		return str.join("");
 	}
 
+	labelNode = (node) => {
+		this.ctx.fillStyle = "blue";
+		this.ctx.font = "10px serif";
+		this.ctx.fillText(node.name, node.x + this.cX, node.y + this.cY);
+	}
+
 	/**
 	 * draws inputed nodes using the inputed styles
 	 * @param {Map<Node>} nodes
