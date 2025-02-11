@@ -17,51 +17,35 @@ import {
 // TODO: try out generic types?
 
 /**
- * @typedef {Object} SeparateNodes
+ * @typedef {Object} Nodes
  * @property {Map<string, Node>} near
  * @property {Map<string, Node>} far
  */
 
 /**
- * @typedef {Object} SeparateEdges
+ * @typedef {Object} Edges
  * @property {Map<string, Edge>} near
  * @property {Map<string, Edge>} far
  */
 
 /**
- * @typedef {Object} SeparateFaces
+ * @typedef {Object} Faces
  * @property {Map<string, Face>} near
  * @property {Map<string, Face>} far
  */
 
 /**
- * @typedef {Object} Nodes
- * @property {SeparateNodes} base
- * @property {SeparateNodes} edge
- * @property {SeparateNodes} face
- */
-
-/**
- * @typedef {Object} Edges
- * @property {SeparateEdges} base
- * @property {SeparateEdges} edge
- * @property {SeparateEdges} face
- */
-
-/**
- * @typedef {Object} Faces
- * @property {SeparateFaces} base
- * @property {SeparateFaces} edge
- * @property {SeparateFaces} face
+ * @typedef {object} StructureLayer
+ * @property {Nodes} nodes
+ * @property {Edges} edges
+ * @property {Faces} faces
+ * @property {number} maxEdgeLength
  */
 
 /**
  * geodesic structure data
  * @typedef {Object} Structure
- * @property {Nodes} nodes
- * @property {Edges} edges
- * @property {Faces} faces
- * @property {number} maxEdgeLength
+ * @property {StructureLayer[]} layers
  */
 
 /**
@@ -70,10 +54,18 @@ import {
  * @returns {Structure}
  */
 const buildIcosahedronAtFrequency = (options) => {
-	/** @type {Structure} */
-	const baseIco = generateBaseIcosahedron(options);
 
-	const structure = geodesizeIcosahedron(baseIco, options);
+	/** @type {Structure} */
+	const structure = {
+		layers: [],
+	}
+
+	structure.layers.push(generateBaseIcosahedron(options));
+
+	structure.layers.push(classILayer(
+		structure.layers[structure.layers.length - 1],
+		options
+	));
 
 	return structure;
 };
@@ -81,7 +73,7 @@ const buildIcosahedronAtFrequency = (options) => {
 /**
  * generates base icosahedron structure
  * @param {Object} options
- * @returns {Structure}
+ * @returns {StructureLayer}
  */
 const generateBaseIcosahedron = (options) => {
 	const radius = options.sizeConstraint * options.fillPercentage / 2;
@@ -105,26 +97,20 @@ const generateBaseIcosahedron = (options) => {
 
 	/** @type {Nodes} */
 	const nodes = {
-		base: {
-			near: new Map(),
-			far: new Map()
-		}
+		near: new Map(),
+		far: new Map()
 	};
 
 	/** @type {Edges} */
 	const edges = {
-		base: {
-			near: new Map(),
-			far: new Map()
-		}
+		near: new Map(),
+		far: new Map()
 	};
 
 	/** @type {Faces} */
 	const faces = {
-		base: {
-			near: new Map(),
-			far: new Map()
-		}
+		near: new Map(),
+		far: new Map()
 	};
 
 	/** @type {number} */
@@ -136,7 +122,7 @@ const generateBaseIcosahedron = (options) => {
 	 * @returns {Node}
 	 */
 	const getBaseNode = (key) => {
-		return nodes.base.near.get(key) || nodes.base.far.get(key);
+		return nodes.near.get(key) || nodes.far.get(key);
 	};
 
 	/** @type {Set<string>} */
@@ -183,9 +169,9 @@ const generateBaseIcosahedron = (options) => {
 
 				// add edge to edges
 				if (isNear([node.z, conNode.z])) {
-					edges.base.near.set(edgeName, edge);
+					edges.near.set(edgeName, edge);
 				} else {
-					edges.base.far.set(edgeName, edge);
+					edges.far.set(edgeName, edge);
 				}
 				addedEdges.add(edgeName);
 			}
@@ -209,9 +195,9 @@ const generateBaseIcosahedron = (options) => {
 
 				// add face to faces
 				if (isNear([node.z, conNode.z, con2Node.z])) {
-					faces.base.near.set(faceName, face);
+					faces.near.set(faceName, face);
 				} else {
-					faces.base.far.set(faceName, face);
+					faces.far.set(faceName, face);
 				}
 				addedFaces.add(faceName);
 			}
@@ -219,9 +205,9 @@ const generateBaseIcosahedron = (options) => {
 
 		// add node to nodes
 		if (isNear([node.z])) {
-			nodes.base.near.set(node.name, node);
+			nodes.near.set(node.name, node);
 		} else {
-			nodes.base.far.set(node.name, node);
+			nodes.far.set(node.name, node);
 		}
 		addedNodes.add(nodeName);
 	}
@@ -229,62 +215,55 @@ const generateBaseIcosahedron = (options) => {
 }
 
 /**
- * generates the nodes, edges, and faces of a geodesized icosahedron
- * @param {Structure} structure
+ * creates a class I subdivision of the inputed structure layer
+ * @param {StructureLayer} layer
  * @param {Object} options
- * @returns {Structure}
+ * @returns {StructureLayer}
  */
-const geodesizeIcosahedron = (structure, options) => {
+const classILayer = (layer, options) => {
 	const nv = options.frequency;
 	const radius = options.sizeConstraint * options.fillPercentage / 2;
 
-	structure.nodes.edge = {
+	const nodes = {
 		near: new Map(),
 		far: new Map()
 	};
 
-	structure.nodes.face = {
+	// carry over nodes from previous layer without previous layer node connections
+	for (const distType of Object.keys(layer.nodes)) {
+		layer.nodes[distType].forEach((node, nodeKey) => {
+			nodes[distType].set(nodeKey, new Node(
+				node.x,
+				node.y,
+				node.z,
+				nodeKey
+			));
+		});
+	}
+
+	const edges = {
 		near: new Map(),
 		far: new Map()
 	};
 
-	structure.edges.edge = {
+	const faces = {
 		near: new Map(),
 		far: new Map()
 	};
 
-	structure.edges.face = {
-		near: new Map(),
-		far: new Map()
-	};
-
-	structure.faces.edge = {
-		near: new Map(),
-		far: new Map()
-	};
-
-	structure.faces.face = {
-		near: new Map(),
-		far: new Map()
-	};
-
-	structure.faces.cap = {
-		near: new Map(),
-		far: new Map()
-	};
-
-	for (const distType of Object.keys(structure.faces.base)) {
-		structure.faces.base[distType].forEach((face, _) => {
-			// get nodes, geodesize
-			const baseNodes = [];
-			for (const node of face.nodes) {
-				baseNodes.push(
-					structure.nodes.base.far.get(node) ||
-					structure.nodes.base.near.get(node)
+	for (const distType of Object.keys(layer.faces)) {
+		layer.faces[distType].forEach((face, _) => {
+			// get face nodes
+			const faceNodes = [];
+			for (const nodeKey of face.nodes) {
+				faceNodes.push(
+					layer.nodes.far.get(nodeKey) ||
+					layer.nodes.near.get(nodeKey)
 				);
 			}
-			// get base nodes
-			const [a, b, c] = baseNodes.sort();
+			// sort alphabetically
+			// TODO: (for class III subdivision) order in a consistent way
+			const [a, b, c] = faceNodes.sort();
 
 			// initialize node weights
 			let aw = nv;
@@ -293,14 +272,14 @@ const geodesizeIcosahedron = (structure, options) => {
 
 			let prevDepthNodeName = generateNodeKey(a.name, b.name, c.name, aw, bw, cw);
 			while (bw < nv) { // can still slide from a to b
-				const { node: prevDepthNode } = getNode(structure.nodes, prevDepthNodeName);
+				const { node: prevDepthNode } = getNode(nodes, prevDepthNodeName);
 				// slide from a to b
 				aw -= 1;
 				bw += 1;
 				const depthNodeName = generateNodeKey(a.name, b.name, c.name, aw, bw, cw);
 
-				// if node does not exist, create node and connect edge
-				if (!getNode(structure.nodes, depthNodeName).node) {
+				// if node does not exist, create node
+				if (!getNode(nodes, depthNodeName).node) {
 					// calculate coords for new node
 					const cmCoords = calcMidNodeCoords(a, b, c, aw, bw, cw);
 					const nCoords = normalizeNode(...cmCoords, radius);
@@ -308,69 +287,67 @@ const geodesizeIcosahedron = (structure, options) => {
 					const newNode = new Node(...nCoords, depthNodeName);
 
 					const nodeIsNear = isNear([newNode.z]) ? 'near' : 'far';
-					// add new node to structure
-					structure.nodes.edge[nodeIsNear].set(depthNodeName, newNode);
+					// add new node to new layer
+					nodes[nodeIsNear].set(depthNodeName, newNode);
 				}
 
-				const { edge: depthEdge } = getEdge(structure.edges, generateEdgeKey(prevDepthNodeName, depthNodeName));
+				const { edge: depthEdge } = getEdge(edges, generateEdgeKey(prevDepthNodeName, depthNodeName));
 
+				// if edge between nodes does not exist, connect edge
 				if (!depthEdge) {
-					const { node: depthNode } = getNode(structure.nodes, depthNodeName);
-					connectEdge(structure, depthNode, prevDepthNode, 'edge');
+					const { node: depthNode } = getNode(nodes, depthNodeName);
+					connectEdge(edges, depthNode, prevDepthNode);
 				}
 
 
 				let prevWidthNodeName = depthNodeName;
 				let [aww, bww, cww] = [aw, bw, cw];
 				while (bww) { // can still slide from b to c
-					const { node: prevWidthNode } = getNode(structure.nodes, prevWidthNodeName);
+					const { node: prevWidthNode } = getNode(nodes, prevWidthNodeName);
 					// slide from b to c
 					bww -= 1;
 					cww += 1;
 					const widthNodeName = generateNodeKey(a.name, b.name, c.name, aww, bww, cww);
 
-					// if node does not exist, create node and connect edge
-					if (!getNode(structure.nodes, widthNodeName).node) {
+					// if node does not exist, create node
+					if (!getNode(nodes, widthNodeName).node) {
 						const cmCoords = calcMidNodeCoords(a, b, c, aww, bww, cww);
 						const nCoords = normalizeNode(...cmCoords, radius);
 						const newNode = new Node(...nCoords, widthNodeName);
 
 						const nodeIsNear = isNear([newNode.z]) ? 'near' : 'far';
-						structure.nodes[aww && bww && cww ? 'face' : 'edge'][nodeIsNear].set(widthNodeName, newNode);
+						nodes[nodeIsNear].set(widthNodeName, newNode);
 					}
 
-					const { edge: widthEdge } = getEdge(structure.edges, generateEdgeKey(prevWidthNodeName, widthNodeName));
+					const { edge: widthEdge } = getEdge(edges, generateEdgeKey(prevWidthNodeName, widthNodeName));
 
-					const { node: widthNode } = getNode(structure.nodes, widthNodeName);
-					// if edge does not exist, add it
+					const { node: widthNode } = getNode(nodes, widthNodeName);
+					// if edge does not exist, connect edge
 					if (!widthEdge) {
-						connectEdge(structure, prevWidthNode, widthNode, (!aww ? 'edge' : 'face'));
+						connectEdge(edges, prevWidthNode, widthNode);
 					}
 
 					// add face
 					const topNodeName = generateNodeKey(a.name, b.name, c.name, aww + 1, bww, cww - 1);
-					const { node: topNode } = getNode(structure.nodes, topNodeName);
-					const faceType = (aww && bww && cww - 1)
-						? 'face'
-						: ((aww + 1 === nv || bww + 1 === nv || cww === nv)
-							? 'cap'
-							: 'edge'
-						);
-					connectFace(structure, prevWidthNode, widthNode, topNode, faceType);
+					const { node: topNode } = getNode(nodes, topNodeName);
+					connectFace(faces, prevWidthNode, widthNode, topNode);
+
+					// add bc edge if it does not exist. This is a must for structures built off of more than one layer.
+					if (!getEdge(edges, generateEdgeKey(widthNode, topNode)).edge) {
+						connectEdge(edges, widthNode, topNode);
+					}
 
 					// if node is not on the top edges, create angled edges and face
 					if (bww && cww) {
 						const leftNodeName = generateNodeKey(a.name, b.name, c.name, aww + 1, bww, cww - 1);
 						const rightNodeName = generateNodeKey(a.name, b.name, c.name, aww + 1, bww - 1, cww);
-						const { node: leftNode } = getNode(structure.nodes, leftNodeName);
-						const { node: rightNode } = getNode(structure.nodes, rightNodeName);
-						connectEdge(structure, leftNode, widthNode, 'face');
-						connectEdge(structure, rightNode, widthNode, 'face');
-
-						const faceType = (aww && bww - 1 && cww - 1) ? 'face' : 'edge';
+						const { node: leftNode } = getNode(nodes, leftNodeName);
+						const { node: rightNode } = getNode(nodes, rightNodeName);
+						connectEdge(edges, leftNode, widthNode);
+						connectEdge(edges, rightNode, widthNode);
 
 						// add face
-						connectFace(structure, leftNode, rightNode, widthNode, faceType);
+						connectFace(faces, leftNode, rightNode, widthNode);
 					}
 
 					prevWidthNodeName = widthNodeName;
@@ -381,17 +358,16 @@ const geodesizeIcosahedron = (structure, options) => {
 		});
 	}
 
-	return structure;
+	return { nodes, edges, faces };
 }
 
 /**
  * given 2 existing nodes, add a connected edge between them
- * @param {Structure} structure
+ * @param {Edges} edges
  * @param {Node} node1
  * @param {Node} node2
- * @param {string} edgeType
  */
-const connectEdge = (structure, node1, node2, edgeType) => {
+const connectEdge = (edges, node1, node2) => {
 	// generate name of new edge
 	const edgeKey = generateEdgeKey(node1.name, node2.name);
 
@@ -406,18 +382,18 @@ const connectEdge = (structure, node1, node2, edgeType) => {
 	const distType = isNear([node1.z, node2.z]) ? 'near' : 'far';
 
 	// add edge to structure
-	structure.edges[edgeType][distType].set(edgeKey, newEdge);
+	edges[distType].set(edgeKey, newEdge);
 }
 
 /**
  * given 3 existing nodes, add a connected face between them
- * @param {Structure}
+ * @param {Faces} faces
  * @param {Node} node1
  * @param {Node} node2
  * @param {Node} node3
  * @param {string} faceType
  */
-const connectFace = (structure, node1, node2, node3, faceType) => {
+const connectFace = (faces, node1, node2, node3) => {
 	// generate name of new face
 	const faceKey = generateFaceKey(node1.name, node2.name, node3.name);
 
@@ -433,7 +409,7 @@ const connectFace = (structure, node1, node2, node3, faceType) => {
 	const distType = isNear([node1.z, node2.z, node3.z]) ? 'near' : 'far';
 
 	// add face to structure
-	structure.faces[faceType][distType].set(faceKey, newFace);
+	faces[distType].set(faceKey, newFace);
 }
 
 export {

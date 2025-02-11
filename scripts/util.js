@@ -169,61 +169,53 @@ const generateFaceKey = (nn1, nn2, nn3) => {
 /**
  * @param {Object} nodes
  * @param {string} key
- * @returns {{node: Node, nodeType: string, distType: string}}
+ * @returns {{node: Node, distType: string}}
  */
 const getNode = (nodes, key) => {
-	for (const nodeType of Object.keys(nodes)) {
-		for (const distType of Object.keys(nodes[nodeType])) {
-			const node = nodes[nodeType][distType].get(key);
+	for (const distType of Object.keys(nodes)) {
+		const node = nodes[distType].get(key);
 
-			if (node) {
-				return ({ node, nodeType, distType });
-			}
-
+		if (node) {
+			return ({ node, distType });
 		}
 	}
 	// no node found
-	return { node: undefined, nodeType: '', distType: '' };
+	return { node: undefined, distType: '' };
 }
 
 /**
  * @param {Object} edges
  * @param {string} key
- * @returns {{edge: Edge, edgeType: string, distType: string}}
+ * @returns {{edge: Edge, distType: string}}
  */
 const getEdge = (edges, key) => {
-	for (const edgeType of Object.keys(edges)) {
-		for (const distType of Object.keys(edges[edgeType])) {
-			const edge = edges[edgeType][distType].get(key);
+	for (const distType of Object.keys(edges)) {
+		const edge = edges[distType].get(key);
 
-			if (edge) {
-				return ({ edge, edgeType, distType });
-			}
-
+		if (edge) {
+			return ({ edge, distType });
 		}
 	}
 	// no edge found
-	return { edge: undefined, edgeType: '', distType: '' };
+	return { edge: undefined, distType: '' };
 }
 
 /**
  * @param {Object} faces
  * @param {string} key
- * @returns {{face: Face, faceType: string, distType: string}}
+ * @returns {{face: Face, distType: string}}
  */
 const getFace = (faces, key) => {
-	for (const faceType of Object.keys(faces)) {
-		for (const distType of Object.keys(faces[faceType])) {
-			const face = faces[faceType][distType].get(key);
+	for (const distType of Object.keys(faces)) {
+		const face = faces[distType].get(key);
 
-			if (face) {
-				return ({ face, faceType, distType });
-			}
-
+		if (face) {
+			return ({ face, distType });
 		}
+
 	}
 	// no face found
-	return { face: undefined, faceType: '', distType: '' };
+	return { face: undefined, distType: '' };
 }
 
 /**

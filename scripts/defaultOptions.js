@@ -1,6 +1,6 @@
 const buildOptions = {
 	baseShape: "icosahedron",
-	frequency: 6,
+	frequency: 3,
 	sizeConstraint: 1000, // min of canvas width and height
 	fillPercentage: .98, // percentage of sizeConstraint that the structure should fill initially
 };
@@ -8,121 +8,39 @@ const buildOptions = {
 const renderOptions = {
 	backgroundColor: "black",
 	rotationStep: 0.002,
-	base: {
+	nodes: {
 		near: {
-			nodes: {
-				show: true,
-				color: "#505050",
-				size: 6,
-			},
-			edges: {
-				show: true,
-				color: "#444444",
-				size: 4,
-			},
-			faces: {
-				show: false,
-				color: "#66666699",
-			}
+			show: false,
+			color: 'green',
+			size: 2
 		},
 		far: {
-			nodes: {
-				show: true,
-				color: "#222222",
-				size: 6,
-			},
-			edges: {
-				show: true,
-				color: "#222222",
-				size: 4,
-			},
-			faces: {
-				show: false,
-				color: "#88444499",
-			}
-		}
+			show: false,
+			color: 'red',
+			size: 4
+		},
 	},
-	edge: {
+	edges: {
 		near: {
-			nodes: {
-				show: true,
-				color: "#505050",
-				size: 3,
-			},
-			edges: {
-				show: true,
-				color: "#505050",
-				size: 2,
-			},
-			faces: {
-				show: true,
-				color: "#440000CC",
-			}
+			show: true,
+			color: 'grey',
+			size: 1
 		},
 		far: {
-			nodes: {
-				show: true,
-				color: "#505050",
-				size: 3,
-			},
-			edges: {
-				show: true,
-				color: "#505050",
-				size: 2,
-			},
-			faces: {
-				show: true,
-				color: "#440000",
-			}
-		}
+			show: false,
+			color: 'grey',
+			size: 2
+		},
 	},
-	face: {
+	faces: {
 		near: {
-			nodes: {
-				show: true,
-				color: "#505050",
-				size: 3,
-			},
-			edges: {
-				show: true,
-				color: "#505050",
-				size: 2,
-			},
-			faces: {
-				show: true,
-				color: "#113399CC",
-			}
+			show: true,
+			color: '#FFFF0055',
 		},
 		far: {
-			nodes: {
-				show: true,
-				color: "#505050",
-				size: 3,
-			},
-			edges: {
-				show: true,
-				color: "#505050",
-				size: 2,
-			},
-			faces: {
-				show: true,
-				color: "#113399",
-			}
-		}
-	},
-	cap: {
-		near: {
-			faces: {
-				show: true,
-				color: "#006600CC"
-			}
+			show: false,
+			color: 'black',
 		},
-		far: {
-			faces: {
-				show: true,
-				color: "#006600"
-			}
-		}
 	}
 };
 

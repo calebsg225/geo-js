@@ -18,6 +18,8 @@ class Renderer {
 		this.options = defaultOptions;
 		this.ctx = canvas.getContext('2d');
 		this.structure = structure;
+		this.renderLayer = structure.layers.length - 1;
+		this.layer = structure.layers[this.renderLayer];
 	}
 
 	/** 
@@ -26,134 +28,42 @@ class Renderer {
 	render = () => {
 		this.clearCanvas();
 
-		// render far base nodes
+		// render far nodes
 		this.drawNodes(
-			this.structure.nodes.base.far,
-			this.options.base.far.nodes
+			this.layer.nodes.far,
+			this.options.nodes.far
 		);
 
-		// render far other nodes
+		// render far faces
+		this.drawFaces(
+			this.layer.faces.far,
+			this.options.faces.far
+		);
+
+		// render far edges
+		this.drawEdges(
+			this.layer.edges.far,
+			this.options.edges.far
+		);
+
+		// render near edges
+		this.drawEdges(
+			this.layer.edges.near,
+			this.options.edges.near
+		);
+
+		// render near faces
+		this.drawFaces(
+			this.layer.faces.near,
+			this.options.faces.near
+		);
+
+		// render near nodes
 		this.drawNodes(
-			this.structure.nodes.edge.far,
-			this.options.edge.far.nodes
-		);
-		this.drawNodes(
-			this.structure.nodes.face.far,
-			this.options.face.far.nodes
+			this.layer.nodes.near,
+			this.options.nodes.near
 		);
 
-		// render far other faces
-		this.drawFaces(
-			this.structure.faces.edge.far,
-			this.options.edge.far.faces
-		);
-		this.drawFaces(
-			this.structure.faces.face.far,
-			this.options.face.far.faces
-		);
-		this.drawFaces(
-			this.structure.faces.cap.far,
-			this.options.cap.far.faces
-		);
-		// render far other edges
-		this.drawFaces(
-			this.structure.faces.face.far,
-			this.options.face.far.faces
-		);
-		this.drawEdges(
-			this.structure.edges.edge.far,
-			this.options.edge.far.edges
-		);
-		this.drawEdges(
-			this.structure.edges.face.far,
-			this.options.face.far.edges
-		);
-
-		// render far base faces
-		this.drawFaces(
-			this.structure.faces.base.far,
-			this.options.base.far.faces
-		);
-
-		// render far base edges
-		this.drawEdges(
-			this.structure.edges.base.far,
-			this.options.base.far.edges
-		);
-
-		// render near base edges
-		this.drawEdges(
-			this.structure.edges.base.near,
-			this.options.base.near.edges
-		);
-
-		// render near base faces
-		this.drawFaces(
-			this.structure.faces.base.near,
-			this.options.base.near.faces
-		);
-
-		// render near other edges
-		this.drawEdges(
-			this.structure.edges.edge.near,
-			this.options.edge.near.edges
-		);
-		this.drawEdges(
-			this.structure.edges.face.near,
-			this.options.face.near.edges
-		);
-
-		// render near other faces
-		this.drawFaces(
-			this.structure.faces.edge.near,
-			this.options.edge.near.faces
-		);
-		this.drawFaces(
-			this.structure.faces.face.near,
-			this.options.face.near.faces
-		);
-		this.drawFaces(
-			this.structure.faces.cap.near,
-			this.options.cap.near.faces
-		);
-
-		// render near other nodes
-		this.drawNodes(
-			this.structure.nodes.edge.near,
-			this.options.edge.near.nodes
-		);
-		this.drawNodes(
-			this.structure.nodes.face.near,
-			this.options.face.near.nodes
-		);
-
-		// render near base nodes
-		this.drawNodes(
-			this.structure.nodes.base.near,
-			this.options.base.near.nodes
-		);
-
-		/**
-		 * draw order:
-		 *
-		 * base: far nodes
-		 *
-		 * other: far nodes
-		 * other: far faces
-		 * other: far edges
-		 *
-		 * base: far faces
-		 * base: far edges
-		 *
-		 * base: near edges
-		 * base: near faces
-		 *
-		 * other: near edges
-		 * other: near faces
-		 * other: near nodes
-		 *
-		 * base: near nodes
-		 */
 	}
 
 	/**
@@ -181,67 +91,65 @@ class Renderer {
 		 */
 		const facesToUpdate = new Set();
 
-		for (const nodeType of Object.keys(this.structure.nodes)) {
-			for (const distType of Object.keys(this.structure.nodes[nodeType])) {
-				const nodes = this.structure.nodes[nodeType][distType];
+		for (const distType of Object.keys(this.layer.nodes)) {
+			const nodes = this.layer.nodes[distType];
 
-				nodes.forEach((node, _) => {
-					// return if its already been rotated
-					if (rotatedNodes.has(node.name)) return;
+			nodes.forEach((node, _) => {
+				// return if its already been rotated
+				if (rotatedNodes.has(node.name)) return;
 
-					// rotate node, check if node switched near/far
-					const { switched, underThreshold } = node.updateCoord(...rotateNode(node.x, node.y, node.z, dX, dY, this.options.rotationStep), this.structure.maxEdgeLength / 2);
+				// rotate node, check if node switched near/far
+				const { switched, underThreshold } = node.updateCoord(...rotateNode(node.x, node.y, node.z, dX, dY, this.options.rotationStep), 1000);
 
-					// if node z value is or was under max edge length, edges and faces connected to this node need to be checked if it crossed to near/far
-					if (underThreshold) {
-						for (let i = 0; i < node.edges.length; i++) {
-							edgesToUpdate.add(node.edges[i]);
-						}
-						for (let i = 0; i < node.faces.length; i++) {
-							facesToUpdate.add(node.faces[i]);
-						}
+				// if node z value is or was under max edge length, edges and faces connected to this node need to be checked if it crossed to near/far
+				if (underThreshold) {
+					for (let i = 0; i < node.edges.length; i++) {
+						edgesToUpdate.add(node.edges[i]);
 					}
+					for (let i = 0; i < node.faces.length; i++) {
+						facesToUpdate.add(node.faces[i]);
+					}
+				}
 
-					if (!switched) return;
+				if (!switched) return;
 
-					// update node dist
-					const newDist = distType === "near" ? "far" : "near";
-					this.structure.nodes[nodeType][newDist].set(node.name, node);
-					this.structure.nodes[nodeType][distType].delete(node.name);
-					rotatedNodes.add(node.name);
-				});
-			}
+				// update node dist
+				const newDist = distType === "near" ? "far" : "near";
+				this.layer.nodes[newDist].set(node.name, node);
+				this.layer.nodes[distType].delete(node.name);
+				rotatedNodes.add(node.name);
+			});
 		}
 
 		// for detected edges near z=0, check if switched to near/far
 		edgesToUpdate.forEach(edgeKey => {
-			const { edge, edgeType, distType } = getEdge(this.structure.edges, edgeKey);
-			const { node: node1 } = getNode(this.structure.nodes, edge.nodes[0]);
-			const { node: node2 } = getNode(this.structure.nodes, edge.nodes[1]);
+			const { edge, distType } = getEdge(this.layer.edges, edgeKey);
+			const { node: node1 } = getNode(this.layer.nodes, edge.nodes[0]);
+			const { node: node2 } = getNode(this.layer.nodes, edge.nodes[1]);
 
 			const newDist = isNear([node1.z, node2.z]) ? "near" : "far";
 
 			// if edge used to be near and is now far (or vice versa)
 			if (newDist !== distType) {
-				this.structure.edges[edgeType][newDist].set(edgeKey, edge);
-				this.structure.edges[edgeType][distType].delete(edgeKey);
+				this.layer.edges[newDist].set(edgeKey, edge);
+				this.layer.edges[distType].delete(edgeKey);
 			}
 		});
 
 
 		// for detected faces near z=0, check if switched to near/far
 		facesToUpdate.forEach(faceKey => {
-			const { face, faceType, distType } = getFace(this.structure.faces, faceKey);
-			const { node: node1 } = getNode(this.structure.nodes, face.nodes[0]);
-			const { node: node2 } = getNode(this.structure.nodes, face.nodes[1]);
-			const { node: node3 } = getNode(this.structure.nodes, face.nodes[2]);
+			const { face, distType } = getFace(this.layer.faces, faceKey);
+			const { node: node1 } = getNode(this.layer.nodes, face.nodes[0]);
+			const { node: node2 } = getNode(this.layer.nodes, face.nodes[1]);
+			const { node: node3 } = getNode(this.layer.nodes, face.nodes[2]);
 
 			const newDist = isNear([node1.z, node2.z, node3.z]) ? "near" : "far";
 
 			// if face used to be near and is now far (or vice versa)
 			if (newDist !== distType) {
-				this.structure.faces[faceType][newDist].set(faceKey, face);
-				this.structure.faces[faceType][distType].delete(faceKey);
+				this.layer.faces[newDist].set(faceKey, face);
+				this.layer.faces[distType].delete(faceKey);
 			}
 		});
 
@@ -310,6 +218,12 @@ class Renderer {
 		return str.join("");
 	}
 
+	labelNode = (node) => {
+		this.ctx.fillStyle = "blue";
+		this.ctx.font = "10px serif";
+		this.ctx.fillText(node.name, node.x + this.cX, node.y + this.cY);
+	}
+
 	/**
 	 * draws inputed nodes using the inputed styles
 	 * @param {Map<Node>} nodes
@@ -332,7 +246,7 @@ class Renderer {
 		edges.forEach((edge, _) => {
 			this.drawEdge(
 				edge.nodes.map((nodeKey) => {
-					const { node } = getNode(this.structure.nodes, nodeKey);
+					const { node } = getNode(this.layer.nodes, nodeKey);
 					return [node.x + this.cX, node.y + this.cY]
 				}),
 				styles.size,
@@ -351,7 +265,7 @@ class Renderer {
 		faces.forEach((face, _) => {
 			this.drawFace(
 				face.nodes.map((nodeKey) => {
-					const { node } = getNode(this.structure.nodes, nodeKey);
+					const { node } = getNode(this.layer.nodes, nodeKey);
 					return [node.x + this.cX, node.y + this.cY];
 				}),
 				styles.color
