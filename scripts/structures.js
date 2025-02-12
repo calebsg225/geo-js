@@ -79,6 +79,7 @@ class Edge {
 			node2.y,
 			node2.z
 		);
+		this.colorCode = 0;
 	}
 
 }

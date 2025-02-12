@@ -116,6 +116,9 @@ const generateBaseIcosahedron = (options) => {
 	/** @type {number} */
 	let maxEdgeLength = -Infinity;
 
+	/** @type {Map<number, number>} */
+	const edgeColorMap = new Map();
+
 	/**
 	 * gets a Node
 	 * @param {string} key points to desired node
@@ -166,6 +169,15 @@ const generateBaseIcosahedron = (options) => {
 				conNode.addEdge(edgeName);
 
 				maxEdgeLength = Math.max(maxEdgeLength, edge.length);
+
+				const edgeColorKey = parseFloat(edge.length.toPrecision(10));
+				if (edgeColorMap.has(edgeColorKey)) {
+					edge.colorCode = edgeColorMap.get(edgeColorKey);
+				} else {
+					const edgeColorCode = edgeColorMap.size;
+					edgeColorMap.set(edgeColorKey, edgeColorCode);
+					edge.colorCode = edgeColorCode;
+				}
 
 				// add edge to edges
 				if (isNear([node.z, conNode.z])) {
@@ -251,6 +263,9 @@ const classILayer = (layer, options) => {
 		far: new Map()
 	};
 
+	/** @type {Map<number, number>} */
+	const edgeColorMap = new Map();
+
 	for (const distType of Object.keys(layer.faces)) {
 		layer.faces[distType].forEach((face, _) => {
 			// get face nodes
@@ -296,7 +311,7 @@ const classILayer = (layer, options) => {
 				// if edge between nodes does not exist, connect edge
 				if (!depthEdge) {
 					const { node: depthNode } = getNode(nodes, depthNodeName);
-					connectEdge(edges, depthNode, prevDepthNode);
+					connectEdge(edges, depthNode, prevDepthNode, edgeColorMap);
 				}
 
 
@@ -324,7 +339,7 @@ const classILayer = (layer, options) => {
 					const { node: widthNode } = getNode(nodes, widthNodeName);
 					// if edge does not exist, connect edge
 					if (!widthEdge) {
-						connectEdge(edges, prevWidthNode, widthNode);
+						connectEdge(edges, prevWidthNode, widthNode, edgeColorMap);
 					}
 
 					// add face
@@ -334,7 +349,7 @@ const classILayer = (layer, options) => {
 
 					// add bc edge if it does not exist. This is a must for structures built off of more than one layer.
 					if (!getEdge(edges, generateEdgeKey(widthNode, topNode)).edge) {
-						connectEdge(edges, widthNode, topNode);
+						connectEdge(edges, widthNode, topNode, edgeColorMap);
 					}
 
 					// if node is not on the top edges, create angled edges and face
@@ -343,8 +358,8 @@ const classILayer = (layer, options) => {
 						const rightNodeName = generateNodeKey(a.name, b.name, c.name, aww + 1, bww - 1, cww);
 						const { node: leftNode } = getNode(nodes, leftNodeName);
 						const { node: rightNode } = getNode(nodes, rightNodeName);
-						connectEdge(edges, leftNode, widthNode);
-						connectEdge(edges, rightNode, widthNode);
+						connectEdge(edges, leftNode, widthNode, edgeColorMap);
+						connectEdge(edges, rightNode, widthNode, edgeColorMap);
 
 						// add face
 						connectFace(faces, leftNode, rightNode, widthNode);
@@ -358,6 +373,7 @@ const classILayer = (layer, options) => {
 		});
 	}
 
+	console.log(edgeColorMap);
 	return { nodes, edges, faces };
 }
 
@@ -366,8 +382,9 @@ const classILayer = (layer, options) => {
  * @param {Edges} edges
  * @param {Node} node1
  * @param {Node} node2
+ * @param {Map<number, number>} edgeColorMap
  */
-const connectEdge = (edges, node1, node2) => {
+const connectEdge = (edges, node1, node2, edgeColorMap) => {
 	// generate name of new edge
 	const edgeKey = generateEdgeKey(node1.name, node2.name);
 
@@ -378,6 +395,14 @@ const connectEdge = (edges, node1, node2) => {
 	// create new edge
 	const newEdge = new Edge(node1, node2);
 
+	const edgeColorKey = parseFloat(newEdge.length.toPrecision(10));
+	if (edgeColorMap.has(edgeColorKey)) {
+		newEdge.colorCode = edgeColorMap.get(edgeColorKey);
+	} else {
+		const edgeColorCode = edgeColorMap.size;
+		edgeColorMap.set(edgeColorKey, edgeColorCode);
+		newEdge.colorCode = edgeColorCode;
+	}
 	// find out view distance of edge
 	const distType = isNear([node1.z, node2.z]) ? 'near' : 'far';
 

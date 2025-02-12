@@ -20,6 +20,8 @@ class Renderer {
 		this.structure = structure;
 		this.renderLayer = structure.layers.length - 1;
 		this.layer = structure.layers[this.renderLayer];
+		/** @type {Map<number, string>} */
+		this.edgeColorCodes = new Map();
 	}
 
 	/** 
@@ -43,13 +45,15 @@ class Renderer {
 		// render far edges
 		this.drawEdges(
 			this.layer.edges.far,
-			this.options.edges.far
+			this.options.edges.far,
+			this.options.defaultEdgeColors
 		);
 
 		// render near edges
 		this.drawEdges(
 			this.layer.edges.near,
-			this.options.edges.near
+			this.options.edges.near,
+			this.options.defaultEdgeColors
 		);
 
 		// render near faces
@@ -209,7 +213,11 @@ class Renderer {
 		this.ctx.fill();
 	}
 
-	randCol = () => {
+	/**
+	 * generates a random opaque color
+	 * @returns {string}
+	 */
+	randomColor = () => {
 		const str = [];
 		str.push("#");
 		for (let i = 0; i < 6; i++) {
@@ -238,26 +246,38 @@ class Renderer {
 
 	/**
 	 * draws inputed edges using the inputed styles
-	 * @param {Map<Edge>} edges
+	 * @param {Map<string, Edge>} edges
 	 * @param {Object} styles
+	 * @param {string[]} defaultEdgeColors
 	 */
-	drawEdges = (edges, styles) => {
+	drawEdges = (edges, styles, defaultEdgeColors) => {
 		if (!styles.show) return;
 		edges.forEach((edge, _) => {
+			let color = styles.color;
+			if (styles.colorLength) {
+				if (edge.colorCode < defaultEdgeColors.length) {
+					color = defaultEdgeColors[edge.colorCode];
+				} else {
+					if (!this.edgeColorCodes.has(edge.colorCode)) {
+						this.edgeColorCodes.set(edge.colorCode, this.randomColor());
+					}
+					color = this.edgeColorCodes.get(edge.colorCode);
+				}
+			}
 			this.drawEdge(
 				edge.nodes.map((nodeKey) => {
 					const { node } = getNode(this.layer.nodes, nodeKey);
 					return [node.x + this.cX, node.y + this.cY]
 				}),
 				styles.size,
-				styles.color
+				color
 			);
 		});
 	}
 
 	/**
 	 * draws inputed faces using the inputed styles
-	 * @param {Map<Face>} faces
+	 * @param {Map<string, Face>} faces
 	 * @param {Object} styles
 	 */
 	drawFaces = (faces, styles) => {
