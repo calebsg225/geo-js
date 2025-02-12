@@ -110,6 +110,7 @@ class Face {
 			node3.y,
 			node3.z,
 		);
+		this.colorCode = 0;
 	}
 }
 
