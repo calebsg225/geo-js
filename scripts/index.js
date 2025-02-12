@@ -29,6 +29,9 @@ const renderer = new Renderer(
 const geoInterface = document.querySelector('#interface');
 let mouseIsDown = false;
 
+let prevTouchX = 0;
+let prevTouchY = 0;
+
 geoInterface.addEventListener("click", (e) => {
 	// dont allow structure rotation when mouse is over interface
 	e.stopPropagation();
@@ -49,6 +52,26 @@ geoCanvas.addEventListener('mouseleave', () => {
 geoCanvas.addEventListener('mousemove', (e) => {
 	if (!mouseIsDown) return;
 	renderer.rotate(e.movementX, e.movementY);
+});
+
+// touch screen controls
+geoCanvas.addEventListener('touchstart', (e) => {
+	prevTouchX = e.targetTouches[0].screenX;
+	prevTouchY = e.targetTouches[0].screenY;
+});
+
+geoCanvas.addEventListener('touchmove', (e) => {
+	e.preventDefault();
+	const touchX = e.targetTouches[0].screenX;
+	const touchY = e.targetTouches[0].screenY;
+
+	const deltaX = touchX - prevTouchX;
+	const deltaY = touchY - prevTouchY;
+
+	prevTouchX = touchX;
+	prevTouchY = touchY;
+
+	renderer.rotate(deltaX, deltaY);
 });
 
 // update canvas width and height to match client window size
