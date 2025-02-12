@@ -79,6 +79,7 @@ class Edge {
 			node2.y,
 			node2.z
 		);
+		this.colorCode = 0;
 	}
 
 }
@@ -109,6 +110,7 @@ class Face {
 			node3.y,
 			node3.z,
 		);
+		this.colorCode = 0;
 	}
 }
 

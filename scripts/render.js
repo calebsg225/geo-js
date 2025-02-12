@@ -20,6 +20,12 @@ class Renderer {
 		this.structure = structure;
 		this.renderLayer = structure.layers.length - 1;
 		this.layer = structure.layers[this.renderLayer];
+
+		/** @type {Map<number, string>} */
+		this.edgeColorCodes = new Map();
+
+		/** @type {Map<number, string>} */
+		this.faceColorCodes = new Map();
 	}
 
 	/** 
@@ -37,25 +43,29 @@ class Renderer {
 		// render far faces
 		this.drawFaces(
 			this.layer.faces.far,
-			this.options.faces.far
+			this.options.faces.far,
+			this.options.defaultColors
 		);
 
 		// render far edges
 		this.drawEdges(
 			this.layer.edges.far,
-			this.options.edges.far
+			this.options.edges.far,
+			this.options.defaultColors
 		);
 
 		// render near edges
 		this.drawEdges(
 			this.layer.edges.near,
-			this.options.edges.near
+			this.options.edges.near,
+			this.options.defaultColors
 		);
 
 		// render near faces
 		this.drawFaces(
 			this.layer.faces.near,
-			this.options.faces.near
+			this.options.faces.near,
+			this.options.defaultColors
 		);
 
 		// render near nodes
@@ -209,7 +219,11 @@ class Renderer {
 		this.ctx.fill();
 	}
 
-	randCol = () => {
+	/**
+	 * generates a random opaque color
+	 * @returns {string}
+	 */
+	randomColor = () => {
 		const str = [];
 		str.push("#");
 		for (let i = 0; i < 6; i++) {
@@ -238,37 +252,65 @@ class Renderer {
 
 	/**
 	 * draws inputed edges using the inputed styles
-	 * @param {Map<Edge>} edges
+	 * @param {Map<string, Edge>} edges
 	 * @param {Object} styles
+	 * @param {string[]} defaultColors
 	 */
-	drawEdges = (edges, styles) => {
+	drawEdges = (edges, styles, defaultColors) => {
 		if (!styles.show) return;
 		edges.forEach((edge, _) => {
+
+			let color = styles.color;
+			if (styles.colorLength) {
+				if (edge.colorCode < defaultColors.length) {
+					color = defaultColors[edge.colorCode];
+				} else {
+					if (!this.edgeColorCodes.has(edge.colorCode)) {
+						this.edgeColorCodes.set(edge.colorCode, this.randomColor());
+					}
+					color = this.edgeColorCodes.get(edge.colorCode);
+				}
+			}
+
 			this.drawEdge(
 				edge.nodes.map((nodeKey) => {
 					const { node } = getNode(this.layer.nodes, nodeKey);
 					return [node.x + this.cX, node.y + this.cY]
 				}),
 				styles.size,
-				styles.color
+				color
 			);
 		});
 	}
 
 	/**
 	 * draws inputed faces using the inputed styles
-	 * @param {Map<Face>} faces
+	 * @param {Map<string, Face>} faces
 	 * @param {Object} styles
+	 * @param {string[]} defaultColors
 	 */
-	drawFaces = (faces, styles) => {
+	drawFaces = (faces, styles, defaultColors) => {
 		if (!styles.show) return;
 		faces.forEach((face, _) => {
+
+			let color = styles.color;
+			if (styles.colorArea) {
+				if (face.colorCode < defaultColors.length) {
+					color = defaultColors[face.colorCode];
+				} else {
+					if (!this.faceColorCodes.has(face.colorCode)) {
+						this.faceColorCodes.set(face.colorCode, this.randomColor());
+					}
+					color = this.faceColorCodes.get(face.colorCode);
+				}
+			}
+
 			this.drawFace(
 				face.nodes.map((nodeKey) => {
 					const { node } = getNode(this.layer.nodes, nodeKey);
 					return [node.x + this.cX, node.y + this.cY];
 				}),
-				styles.color
+				color
 			);
 		});
 	}
