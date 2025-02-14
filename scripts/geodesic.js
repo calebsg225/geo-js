@@ -67,6 +67,11 @@ const buildIcosahedronAtFrequency = (options) => {
 		options
 	));
 
+	structure.layers.push(classIILayer(
+		structure.layers[structure.layers.length - 1],
+		options
+	));
+
 	return structure;
 };
 
@@ -388,6 +393,132 @@ const classILayer = (layer, options) => {
 		});
 	}
 
+	return { nodes, edges, faces };
+}
+
+/**
+ * creates a class II subdivision of the inputed structure layer
+ * @param {StructureLayer} layer
+ * @param {Object} options
+ * @returns {StructureLayer}
+ */
+const classIILayer = (layer, options) => {
+	const nv = options.frequency;
+	const radius = options.sizeConstraint * options.fillPercentage / 2;
+
+	const nodes = {
+		near: new Map(),
+		far: new Map()
+	};
+
+	// carry over nodes from previous layer without previous layer node connections
+	for (const distType of Object.keys(layer.nodes)) {
+		layer.nodes[distType].forEach((node, nodeKey) => {
+			nodes[distType].set(nodeKey, new Node(
+				node.x,
+				node.y,
+				node.z,
+				nodeKey
+			));
+		});
+	}
+
+	const edges = {
+		near: new Map(),
+		far: new Map()
+	};
+
+	const faces = {
+		near: new Map(),
+		far: new Map()
+	};
+
+	/** @type {Map<number, number>} */
+	const edgeColorMap = new Map();
+
+	/** @type {Map<number, number>} */
+	const faceColorMap = new Map();
+
+	for (const distType of Object.keys(layer.faces)) {
+		layer.faces[distType].forEach((face, _) => {
+			// get face nodes
+			const faceNodes = [];
+			for (const nodeKey of face.nodes) {
+				faceNodes.push(
+					layer.nodes.far.get(nodeKey) ||
+					layer.nodes.near.get(nodeKey)
+				);
+			}
+			// sort alphabetically
+			const [a, b, c] = faceNodes.sort();
+
+			// how much to slide when sliding from node to node
+			const slide = 2 / 3;
+
+			// initialize node weights
+			let aw = nv;
+			let bw = 0;
+			let cw = 0;
+
+			let previouslySlidDown = false;
+
+			let prevDepthNodeName = generateNodeKey(a.name, b.name, c.name, aw, bw, cw);
+			while (bw + .1 < nv) { // we have not yet reached node b // adding .1 in case of 7.99999... instead of 8
+				if (previouslySlidDown) {
+					// slide toward B
+					aw -= slide;
+					bw += 2 * slide;
+					cw -= slide;
+				} else {
+					// slide away from A
+					aw -= 2 * slide;
+					bw += slide;
+					cw += slide;
+				}
+
+				const depthNodeName = generateNodeKey(a.name, b.name, c.name, aw, bw, cw);
+
+				// create new node here if no node
+				if (!getNode(nodes, depthNodeName).node) {
+					const cmCoords = calcMidNodeCoords(a, b, c, aw, bw, cw);
+					const nCoords = normalizeNode(...cmCoords, radius);
+					const newNode = new Node(...nCoords, depthNodeName);
+					const nodeIsNear = isNear([newNode.z]) ? 'near' : 'far';
+					nodes[nodeIsNear].set(depthNodeName, newNode);
+				}
+
+				if (!previouslySlidDown && bw > 1) {
+					// draw down-specific nodes and edges
+					// layer 'above' has to have already been drawn
+				}
+
+				// draw layer nodes
+				let prevWidthNodeName = depthNodeName;
+				let [aww, bww, cww] = [aw, bw, cw];
+
+				while (aww > .1 && bww > .1) { // make sure aww and bww are not 'zero' (rounded)
+					// slide toward C
+					aww -= slide;
+					bww -= slide;
+					cww += 2 * slide;
+					const widthNodeName = generateNodeKey(a.name, b.name, c.name, aww, bww, cww);
+
+					if (!getNode(nodes, widthNodeName).node) {
+						const cmCoords = calcMidNodeCoords(a, b, c, aww, bww, cww);
+						const nCoords = normalizeNode(...cmCoords, radius);
+						const newNode = new Node(...nCoords, widthNodeName);
+						const nodeIsNear = isNear([newNode.z]) ? 'near' : 'far';
+						nodes[nodeIsNear].set(widthNodeName, newNode);
+					}
+
+					prevWidthNodeName = widthNodeName;
+				}
+
+				previouslySlidDown = !previouslySlidDown;
+				prevDepthNodeName = depthNodeName;
+			}
+		});
+	}
 	return { nodes, edges, faces };
 }
 

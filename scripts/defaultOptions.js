@@ -1,13 +1,13 @@
 const buildOptions = {
 	baseShape: "icosahedron",
-	frequency: 6,
+	frequency: 4,
 	sizeConstraint: 1000, // min of canvas width and height
 	fillPercentage: .98, // percentage of sizeConstraint that the structure should fill initially
 };
 
 const renderOptions = {
 	backgroundColor: "black",
-	rotationStep: 0.002,
+	rotationStep: 0.003,
 	defaultColors: [
 		"#FF0000",
 		"#00FF00",
@@ -33,19 +33,19 @@ const renderOptions = {
 	],
 	nodes: {
 		near: {
-			show: false,
+			show: true,
 			color: 'green',
-			size: 2
+			size: 3
 		},
 		far: {
-			show: false,
+			show: true,
 			color: 'red',
-			size: 4
+			size: 2
 		},
 	},
 	edges: {
 		near: {
-			show: false,
+			show: true,
 			colorLength: true,
 			color: 'grey',
 			size: 4
