@@ -487,11 +487,17 @@ const classIILayer = (layer, options) => {
 					nodes[nodeIsNear].set(depthNodeName, newNode);
 				}
 
+				const prevDepthNode = getNode(nodes, prevDepthNodeName).node;
+
+				const depthNode = getNode(nodes, depthNodeName).node;
+				connectEdge(edges, prevDepthNode, depthNode, edgeColorMap);
+
 				if (!previouslySlidDown && bw > 1) {
 					// draw down-specific nodes and edges
 					// layer 'above' has to have already been drawn
+					const rightNode = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aw + slide, bw - (2 * slide), cw + slide)).node;
+					connectEdge(edges, depthNode, rightNode, edgeColorMap);
 				}
-
 				// draw layer nodes
 				let prevWidthNodeName = depthNodeName;
 				let [aww, bww, cww] = [aw, bw, cw];
@@ -509,6 +515,24 @@ const classIILayer = (layer, options) => {
 						const newNode = new Node(...nCoords, widthNodeName);
 						const nodeIsNear = isNear([newNode.z]) ? 'near' : 'far';
 						nodes[nodeIsNear].set(widthNodeName, newNode);
+					}
+
+					const prevWidthNode = getNode(nodes, prevWidthNodeName).node;
+
+					const widthNode = getNode(nodes, widthNodeName).node;
+
+					connectEdge(edges, prevWidthNode, widthNode, edgeColorMap);
+
+					// if b > ~0 connect edge towards A
+					if (bww > .1) {
+						const upNode = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aww + (2 * slide), bww - slide, cww - slide)).node;
+						connectEdge(edges, widthNode, upNode, edgeColorMap);
+					}
+
+					// if b > 1 connect edge away from B
+					if (bww > 1) {
+						const rightNode = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aww + slide, bww - (2 * slide), cww + slide)).node;
+						connectEdge(edges, widthNode, rightNode, edgeColorMap);
 					}
 
 					prevWidthNodeName = widthNodeName;

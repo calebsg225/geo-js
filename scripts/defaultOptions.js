@@ -33,7 +33,7 @@ const renderOptions = {
 	],
 	nodes: {
 		near: {
-			show: true,
+			show: false,
 			color: 'green',
 			size: 3
 		},
@@ -48,7 +48,7 @@ const renderOptions = {
 			show: true,
 			colorLength: true,
 			color: 'grey',
-			size: 4
+			size: 2
 		},
 		far: {
 			show: false,
