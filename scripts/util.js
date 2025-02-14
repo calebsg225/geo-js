@@ -150,9 +150,9 @@ const generateNodeKey = (nn1, nn2, nn3, w1, w2, w3) => {
 	const sw3 = Math.abs(w3 - Math.round(w3)) < t ? Math.round(w3) : parseFloat(w3.toPrecision(p));
 
 	let res = [];
-	if (w1) res.push(nn1 + (v - w1 < t ? '' : sw1));
-	if (w2) res.push(nn2 + (v - w2 < t ? '' : sw2));
-	if (w3) res.push(nn3 + (v - w3 < t ? '' : sw3));
+	if (sw1) res.push(nn1 + (v - w1 < t ? '' : sw1));
+	if (sw2) res.push(nn2 + (v - w2 < t ? '' : sw2));
+	if (sw3) res.push(nn3 + (v - w3 < t ? '' : sw3));
 	return res.sort().join('');
 }
 
