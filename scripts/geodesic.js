@@ -61,12 +61,10 @@ const buildIcosahedronAtFrequency = (options) => {
 	}
 
 	structure.layers.push(generateBaseIcosahedron(options));
-
 	structure.layers.push(classILayer(
 		structure.layers[structure.layers.length - 1],
 		options
 	));
-
 	structure.layers.push(classIILayer(
 		structure.layers[structure.layers.length - 1],
 		options
@@ -406,6 +404,10 @@ const classIILayer = (layer, options) => {
 	const nv = options.frequency;
 	const radius = options.sizeConstraint * options.fillPercentage / 2;
 
+	// store nodes between faces
+	/** @type {Map<string, string[]>) */
+	const interFaceConnections = new Map();
+
 	const nodes = {
 		near: new Map(),
 		far: new Map()
@@ -443,14 +445,22 @@ const classIILayer = (layer, options) => {
 		layer.faces[distType].forEach((face, _) => {
 			// get face nodes
 			const faceNodes = [];
-			for (const nodeKey of face.nodes) {
+			for (const nodeKey of face.nodes.sort()) {
 				faceNodes.push(
 					layer.nodes.far.get(nodeKey) ||
 					layer.nodes.near.get(nodeKey)
 				);
 			}
-			// sort alphabetically
-			const [a, b, c] = faceNodes.sort();
+			const [a, b, c] = faceNodes;
+
+			// keep track of interFaceConnections
+			const abInter = [];
+			const bcInter = [];
+			const acInter = [];
+
+			const abEdgeKey = generateEdgeKey(a.name, b.name);
+			const bcEdgeKey = generateEdgeKey(b.name, c.name);
+			const acEdgeKey = generateEdgeKey(a.name, c.name);
 
 			// how much to slide when sliding from node to node
 			const slide = 2 / 3;
@@ -488,16 +498,48 @@ const classIILayer = (layer, options) => {
 				}
 
 				const prevDepthNode = getNode(nodes, prevDepthNodeName).node;
-
 				const depthNode = getNode(nodes, depthNodeName).node;
 				connectEdge(edges, prevDepthNode, depthNode, edgeColorMap);
 
+				if (!previouslySlidDown) {
+					if (interFaceConnections.has(abEdgeKey)) {
+						// connect between faces on edge AB
+						const connectedFaceNode = getNode(nodes, interFaceConnections.get(abEdgeKey)[Math.floor(bw) / 2]).node;
+						connectEdge(edges, depthNode, connectedFaceNode, edgeColorMap);
+					} else {
+						// add node to be connected to by other face
+						abInter.push(depthNodeName);
+					}
+				}
+
+				if (bw < 1 && bw > .1) {
+					if (interFaceConnections.has(acEdgeKey)) {
+						// connect first node between faces on edge AC
+						const connectedFaceNode = getNode(nodes, interFaceConnections.get(acEdgeKey)[0]).node;
+						connectEdge(edges, depthNode, connectedFaceNode, edgeColorMap);
+					} else {
+						// add node to be connected to by other face
+						acInter.push(depthNodeName);
+					}
+				}
+
+				if (aw < 1 && aw > .1) {
+					if (interFaceConnections.has(bcEdgeKey)) {
+						// connect first node between faces on edge BC
+						const connectedFaceNode = getNode(nodes, interFaceConnections.get(bcEdgeKey)[0]).node;
+						connectEdge(edges, depthNode, connectedFaceNode, edgeColorMap);
+					} else {
+						// add node to be connected by other face
+						bcInter.unshift(depthNodeName);
+					}
+				}
+
 				if (!previouslySlidDown && bw > 1) {
 					// draw down-specific nodes and edges
-					// layer 'above' has to have already been drawn
 					const rightNode = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aw + slide, bw - (2 * slide), cw + slide)).node;
 					connectEdge(edges, depthNode, rightNode, edgeColorMap);
 				}
+
 				// draw layer nodes
 				let prevWidthNodeName = depthNodeName;
 				let [aww, bww, cww] = [aw, bw, cw];
@@ -518,10 +560,30 @@ const classIILayer = (layer, options) => {
 					}
 
 					const prevWidthNode = getNode(nodes, prevWidthNodeName).node;
-
 					const widthNode = getNode(nodes, widthNodeName).node;
-
 					connectEdge(edges, prevWidthNode, widthNode, edgeColorMap);
+
+					if (bww < 1 && bww > .1) {
+						if (interFaceConnections.has(acEdgeKey)) {
+							// connect remaining nodes between faces on edge AC
+							const connectedFaceNode = getNode(nodes, interFaceConnections.get(acEdgeKey)[Math.floor(cww) / 2]).node;
+							connectEdge(edges, widthNode, connectedFaceNode, edgeColorMap);
+						} else {
+							// add node to be connected by other face
+							acInter.push(widthNodeName);
+						}
+					}
+
+					if (aww < 1 && aww > .1) {
+						if (interFaceConnections.has(bcEdgeKey)) {
+							// connect remaining nodes between faces on edge BC
+							const connectedFaceNode = getNode(nodes, interFaceConnections.get(bcEdgeKey)[Math.floor(cww) / 2]).node;
+							connectEdge(edges, widthNode, connectedFaceNode, edgeColorMap);
+						} else {
+							// add node to be connected by other face
+							bcInter.unshift(widthNodeName);
+						}
+					}
 
 					// if b > ~0 connect edge towards A
 					if (bww > .1) {
@@ -541,6 +603,11 @@ const classIILayer = (layer, options) => {
 				previouslySlidDown = !previouslySlidDown;
 				prevDepthNodeName = depthNodeName;
 			}
+
+			// update interFace connections
+			if (!interFaceConnections.has(abEdgeKey)) interFaceConnections.set(abEdgeKey, abInter);
+			if (!interFaceConnections.has(acEdgeKey)) interFaceConnections.set(acEdgeKey, acInter);
+			if (!interFaceConnections.has(bcEdgeKey)) interFaceConnections.set(bcEdgeKey, bcInter);
 		});
 	}
 	return { nodes, edges, faces };
