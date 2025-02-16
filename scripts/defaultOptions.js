@@ -45,7 +45,7 @@ const renderOptions = {
 	},
 	edges: {
 		near: {
-			show: false,
+			show: true,
 			colorLength: true,
 			color: 'grey',
 			size: 2
@@ -59,7 +59,7 @@ const renderOptions = {
 	},
 	faces: {
 		near: {
-			show: true,
+			show: false,
 			colorArea: true,
 			color: '#FFFF0055',
 		},

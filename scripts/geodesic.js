@@ -500,45 +500,16 @@ const classIILayer = (layer, options) => {
 				const depthNode = getNode(nodes, depthNodeName).node;
 				connectEdge(edges, prevDepthNode, depthNode, edgeColorMap);
 
-				if (!previouslySlidDown) {
-					if (interFaceConnections.has(abEdgeKey)) {
-						// connect between faces on edge AB
-						const connectedFaceNode = getNode(nodes, interFaceConnections.get(abEdgeKey)[Math.floor(bw) / 2]).node;
-						connectEdge(edges, depthNode, connectedFaceNode, edgeColorMap);
-					} else {
-						// add node to be connected to by other face
-						abInter.push(depthNodeName);
-					}
-				}
-
+				// connect interFace connections on edge AB
 				if (cw < .1) {
 					if (interFaceConnections.has(abEdgeKey)) {
 						const connectedFaceNode = getNode(nodes, interFaceConnections.get(abEdgeKey)[(Math.floor(bw) / 2) - 1]).node;
 						const nodeTowardA = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aw + 2, bw - 2, cw)).node;
+						connectEdge(edges, prevDepthNode, connectedFaceNode, edgeColorMap);
 						connectFace(faces, prevDepthNode, depthNode, connectedFaceNode, faceColorMap);
 						connectFace(faces, prevDepthNode, connectedFaceNode, nodeTowardA, faceColorMap);
-					}
-				}
-
-				if (bw < 1 && bw > .1) {
-					if (interFaceConnections.has(acEdgeKey)) {
-						// connect first node between faces on edge AC
-						const connectedFaceNode = getNode(nodes, interFaceConnections.get(acEdgeKey)[0]).node;
-						connectEdge(edges, depthNode, connectedFaceNode, edgeColorMap);
 					} else {
-						// add node to be connected to by other face
-						acInter.push(depthNodeName);
-					}
-				}
-
-				if (aw < 1 && aw > .1) {
-					if (interFaceConnections.has(bcEdgeKey)) {
-						// connect first node between faces on edge BC
-						const connectedFaceNode = getNode(nodes, interFaceConnections.get(bcEdgeKey)[0]).node;
-						connectEdge(edges, depthNode, connectedFaceNode, edgeColorMap);
-					} else {
-						// add node to be connected by other face
-						bcInter.unshift(depthNodeName);
+						abInter.push(prevDepthNodeName);
 					}
 				}
 
@@ -572,43 +543,29 @@ const classIILayer = (layer, options) => {
 					const widthNode = getNode(nodes, widthNodeName).node;
 					connectEdge(edges, prevWidthNode, widthNode, edgeColorMap);
 
-					if (bww < 1 && bww > .1) {
-						if (interFaceConnections.has(acEdgeKey)) {
-							// connect remaining nodes between faces on edge AC
-							const connectedFaceNode = getNode(nodes, interFaceConnections.get(acEdgeKey)[Math.floor(cww) / 2]).node;
-							connectEdge(edges, widthNode, connectedFaceNode, edgeColorMap);
-						} else {
-							// add node to be connected by other face
-							acInter.push(widthNodeName);
-						}
-					}
-
+					// connect interFace connections on edge AC
 					if (bww < .1) {
 						if (interFaceConnections.has(acEdgeKey)) {
 							const connectedFaceNode = getNode(nodes, interFaceConnections.get(acEdgeKey)[(Math.round(cww) / 2) - 1]).node;
 							const nodeTowardA = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aww + 2, bww, cww - 2)).node;
+							connectEdge(edges, prevWidthNode, connectedFaceNode, edgeColorMap);
 							connectFace(faces, prevWidthNode, widthNode, connectedFaceNode, faceColorMap);
 							connectFace(faces, prevWidthNode, connectedFaceNode, nodeTowardA, faceColorMap);
-						}
-					}
-
-					if (aww < 1 && aww > .1) {
-						if (interFaceConnections.has(bcEdgeKey)) {
-							// connect remaining nodes between faces on edge BC
-							const connectedFaceNode = getNode(nodes, interFaceConnections.get(bcEdgeKey)[Math.floor(cww) / 2]).node;
-							connectEdge(edges, widthNode, connectedFaceNode, edgeColorMap);
 						} else {
-							// add node to be connected by other face
-							bcInter.unshift(widthNodeName);
+							acInter.push(prevWidthNodeName);
 						}
 					}
 
+					// connect interFace connections on edge BC
 					if (aww < .1) {
 						if (interFaceConnections.has(bcEdgeKey)) {
 							const connectedFaceNode = getNode(nodes, interFaceConnections.get(bcEdgeKey)[(Math.round(cww) / 2) - 1]).node;
 							const nodeTowardB = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aww, bww + 2, cww - 2)).node;
+							connectEdge(edges, prevWidthNode, connectedFaceNode, edgeColorMap);
 							connectFace(faces, prevWidthNode, widthNode, connectedFaceNode, faceColorMap);
 							connectFace(faces, prevWidthNode, connectedFaceNode, nodeTowardB, faceColorMap);
+						} else {
+							bcInter.unshift(prevWidthNodeName);
 						}
 					}
 
