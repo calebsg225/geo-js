@@ -537,6 +537,7 @@ const classIILayer = (layer, options) => {
 					// draw down-specific nodes and edges
 					const rightNode = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aw + slide, bw - (2 * slide), cw + slide)).node;
 					connectEdge(edges, depthNode, rightNode, edgeColorMap);
+					connectFace(faces, prevDepthNode, depthNode, rightNode, faceColorMap);
 				}
 
 				// draw layer nodes
@@ -588,13 +589,15 @@ const classIILayer = (layer, options) => {
 					if (bww > .1) {
 						const upNode = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aww + (2 * slide), bww - slide, cww - slide)).node;
 						connectEdge(edges, widthNode, upNode, edgeColorMap);
+						connectFace(faces, prevWidthNode, widthNode, upNode, faceColorMap);
+						// if b > 1 connect edge away from B
+						if (bww > 1) {
+							const rightNode = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aww + slide, bww - (2 * slide), cww + slide)).node;
+							connectEdge(edges, widthNode, rightNode, edgeColorMap);
+							connectFace(faces, widthNode, upNode, rightNode, faceColorMap);
+						}
 					}
 
-					// if b > 1 connect edge away from B
-					if (bww > 1) {
-						const rightNode = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aww + slide, bww - (2 * slide), cww + slide)).node;
-						connectEdge(edges, widthNode, rightNode, edgeColorMap);
-					}
 
 					prevWidthNodeName = widthNodeName;
 				}
