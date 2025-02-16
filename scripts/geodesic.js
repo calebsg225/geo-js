@@ -285,15 +285,14 @@ const classILayer = (layer, options) => {
 		layer.faces[distType].forEach((face, _) => {
 			// get face nodes
 			const faceNodes = [];
-			for (const nodeKey of face.nodes) {
+			for (const nodeKey of face.nodes.sort()) {
 				faceNodes.push(
 					layer.nodes.far.get(nodeKey) ||
 					layer.nodes.near.get(nodeKey)
 				);
 			}
-			// sort alphabetically
 			// TODO: (for class III subdivision) order in a consistent way
-			const [a, b, c] = faceNodes.sort();
+			const [a, b, c] = faceNodes;
 
 			// initialize node weights
 			let aw = nv;
