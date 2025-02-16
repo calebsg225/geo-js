@@ -1,6 +1,6 @@
 const buildOptions = {
 	baseShape: "icosahedron",
-	frequency: 6,
+	frequency: 2,
 	sizeConstraint: 1000, // min of canvas width and height
 	fillPercentage: .98, // percentage of sizeConstraint that the structure should fill initially
 };
@@ -45,7 +45,7 @@ const renderOptions = {
 	},
 	edges: {
 		near: {
-			show: true,
+			show: false,
 			colorLength: true,
 			color: 'grey',
 			size: 2

@@ -511,6 +511,15 @@ const classIILayer = (layer, options) => {
 					}
 				}
 
+				if (cw < .1) {
+					if (interFaceConnections.has(abEdgeKey)) {
+						const connectedFaceNode = getNode(nodes, interFaceConnections.get(abEdgeKey)[(Math.floor(bw) / 2) - 1]).node;
+						const nodeTowardA = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aw + 2, bw - 2, cw)).node;
+						connectFace(faces, prevDepthNode, depthNode, connectedFaceNode, faceColorMap);
+						connectFace(faces, prevDepthNode, connectedFaceNode, nodeTowardA, faceColorMap);
+					}
+				}
+
 				if (bw < 1 && bw > .1) {
 					if (interFaceConnections.has(acEdgeKey)) {
 						// connect first node between faces on edge AC
@@ -574,6 +583,15 @@ const classIILayer = (layer, options) => {
 						}
 					}
 
+					if (bww < .1) {
+						if (interFaceConnections.has(acEdgeKey)) {
+							const connectedFaceNode = getNode(nodes, interFaceConnections.get(acEdgeKey)[(Math.round(cww) / 2) - 1]).node;
+							const nodeTowardA = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aww + 2, bww, cww - 2)).node;
+							connectFace(faces, prevWidthNode, widthNode, connectedFaceNode, faceColorMap);
+							connectFace(faces, prevWidthNode, connectedFaceNode, nodeTowardA, faceColorMap);
+						}
+					}
+
 					if (aww < 1 && aww > .1) {
 						if (interFaceConnections.has(bcEdgeKey)) {
 							// connect remaining nodes between faces on edge BC
@@ -582,6 +600,15 @@ const classIILayer = (layer, options) => {
 						} else {
 							// add node to be connected by other face
 							bcInter.unshift(widthNodeName);
+						}
+					}
+
+					if (aww < .1) {
+						if (interFaceConnections.has(bcEdgeKey)) {
+							const connectedFaceNode = getNode(nodes, interFaceConnections.get(bcEdgeKey)[(Math.round(cww) / 2) - 1]).node;
+							const nodeTowardB = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aww, bww + 2, cww - 2)).node;
+							connectFace(faces, prevWidthNode, widthNode, connectedFaceNode, faceColorMap);
+							connectFace(faces, prevWidthNode, connectedFaceNode, nodeTowardB, faceColorMap);
 						}
 					}
 
