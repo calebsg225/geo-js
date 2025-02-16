@@ -61,8 +61,11 @@ const buildIcosahedronAtFrequency = (options) => {
 	}
 
 	structure.layers.push(generateBaseIcosahedron(options));
-
 	structure.layers.push(classILayer(
+		structure.layers[structure.layers.length - 1],
+		options
+	));
+	structure.layers.push(classIILayer(
 		structure.layers[structure.layers.length - 1],
 		options
 	));
@@ -285,15 +288,14 @@ const classILayer = (layer, options) => {
 		layer.faces[distType].forEach((face, _) => {
 			// get face nodes
 			const faceNodes = [];
-			for (const nodeKey of face.nodes) {
+			for (const nodeKey of face.nodes.sort()) {
 				faceNodes.push(
 					layer.nodes.far.get(nodeKey) ||
 					layer.nodes.near.get(nodeKey)
 				);
 			}
-			// sort alphabetically
 			// TODO: (for class III subdivision) order in a consistent way
-			const [a, b, c] = faceNodes.sort();
+			const [a, b, c] = faceNodes;
 
 			// initialize node weights
 			let aw = nv;
@@ -388,6 +390,212 @@ const classILayer = (layer, options) => {
 		});
 	}
 
+	return { nodes, edges, faces };
+}
+
+/**
+ * creates a class II subdivision of the inputed structure layer
+ * @param {StructureLayer} layer
+ * @param {Object} options
+ * @returns {StructureLayer}
+ */
+const classIILayer = (layer, options) => {
+	const nv = options.frequency;
+	const radius = options.sizeConstraint * options.fillPercentage / 2;
+
+	// store nodes between faces
+	/** @type {Map<string, string[]>) */
+	const interFaceConnections = new Map();
+
+	const nodes = {
+		near: new Map(),
+		far: new Map()
+	};
+
+	// carry over nodes from previous layer without previous layer node connections
+	for (const distType of Object.keys(layer.nodes)) {
+		layer.nodes[distType].forEach((node, nodeKey) => {
+			nodes[distType].set(nodeKey, new Node(
+				node.x,
+				node.y,
+				node.z,
+				nodeKey
+			));
+		});
+	}
+
+	const edges = {
+		near: new Map(),
+		far: new Map()
+	};
+
+	const faces = {
+		near: new Map(),
+		far: new Map()
+	};
+
+	/** @type {Map<number, number>} */
+	const edgeColorMap = new Map();
+
+	/** @type {Map<number, number>} */
+	const faceColorMap = new Map();
+
+	for (const distType of Object.keys(layer.faces)) {
+		layer.faces[distType].forEach((face, _) => {
+			// get face nodes
+			const faceNodes = [];
+			for (const nodeKey of face.nodes.sort()) {
+				faceNodes.push(
+					layer.nodes.far.get(nodeKey) ||
+					layer.nodes.near.get(nodeKey)
+				);
+			}
+			const [a, b, c] = faceNodes;
+
+			// keep track of interFaceConnections
+			const abInter = [];
+			const bcInter = [];
+			const acInter = [];
+
+			const abEdgeKey = generateEdgeKey(a.name, b.name);
+			const bcEdgeKey = generateEdgeKey(b.name, c.name);
+			const acEdgeKey = generateEdgeKey(a.name, c.name);
+
+			// how much to slide when sliding from node to node
+			const slide = 2 / 3;
+
+			// initialize node weights
+			let aw = nv;
+			let bw = 0;
+			let cw = 0;
+
+			let previouslySlidDown = false;
+
+			let prevDepthNodeName = generateNodeKey(a.name, b.name, c.name, aw, bw, cw);
+			while (bw + .1 < nv) { // we have not yet reached node b // adding .1 in case of 7.99999... instead of 8
+				if (previouslySlidDown) {
+					// slide toward B
+					aw -= slide;
+					bw += 2 * slide;
+					cw -= slide;
+				} else {
+					// slide away from A
+					aw -= 2 * slide;
+					bw += slide;
+					cw += slide;
+				}
+
+				const depthNodeName = generateNodeKey(a.name, b.name, c.name, aw, bw, cw);
+
+				// create new node here if no node
+				if (!getNode(nodes, depthNodeName).node) {
+					const cmCoords = calcMidNodeCoords(a, b, c, aw, bw, cw);
+					const nCoords = normalizeNode(...cmCoords, radius);
+					const newNode = new Node(...nCoords, depthNodeName);
+					const nodeIsNear = isNear([newNode.z]) ? 'near' : 'far';
+					nodes[nodeIsNear].set(depthNodeName, newNode);
+				}
+
+				const prevDepthNode = getNode(nodes, prevDepthNodeName).node;
+				const depthNode = getNode(nodes, depthNodeName).node;
+				connectEdge(edges, prevDepthNode, depthNode, edgeColorMap);
+
+				// connect interFace connections on edge AB
+				if (cw < .1) {
+					if (interFaceConnections.has(abEdgeKey)) {
+						const connectedFaceNode = getNode(nodes, interFaceConnections.get(abEdgeKey)[(Math.floor(bw) / 2) - 1]).node;
+						const nodeTowardA = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aw + 2, bw - 2, cw)).node;
+						connectEdge(edges, prevDepthNode, connectedFaceNode, edgeColorMap);
+						connectFace(faces, prevDepthNode, depthNode, connectedFaceNode, faceColorMap);
+						connectFace(faces, prevDepthNode, connectedFaceNode, nodeTowardA, faceColorMap);
+					} else {
+						abInter.push(prevDepthNodeName);
+					}
+				}
+
+				if (!previouslySlidDown && bw > 1) {
+					// draw down-specific nodes and edges
+					const rightNode = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aw + slide, bw - (2 * slide), cw + slide)).node;
+					connectEdge(edges, depthNode, rightNode, edgeColorMap);
+					connectFace(faces, prevDepthNode, depthNode, rightNode, faceColorMap);
+				}
+
+				// draw layer nodes
+				let prevWidthNodeName = depthNodeName;
+				let [aww, bww, cww] = [aw, bw, cw];
+
+				while (aww > .1 && bww > .1) { // make sure aww and bww are not 'zero' (rounded)
+					// slide toward C
+					aww -= slide;
+					bww -= slide;
+					cww += 2 * slide;
+					const widthNodeName = generateNodeKey(a.name, b.name, c.name, aww, bww, cww);
+
+					if (!getNode(nodes, widthNodeName).node) {
+						const cmCoords = calcMidNodeCoords(a, b, c, aww, bww, cww);
+						const nCoords = normalizeNode(...cmCoords, radius);
+						const newNode = new Node(...nCoords, widthNodeName);
+						const nodeIsNear = isNear([newNode.z]) ? 'near' : 'far';
+						nodes[nodeIsNear].set(widthNodeName, newNode);
+					}
+
+					const prevWidthNode = getNode(nodes, prevWidthNodeName).node;
+					const widthNode = getNode(nodes, widthNodeName).node;
+					connectEdge(edges, prevWidthNode, widthNode, edgeColorMap);
+
+					// connect interFace connections on edge AC
+					if (bww < .1) {
+						if (interFaceConnections.has(acEdgeKey)) {
+							const connectedFaceNode = getNode(nodes, interFaceConnections.get(acEdgeKey)[(Math.round(cww) / 2) - 1]).node;
+							const nodeTowardA = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aww + 2, bww, cww - 2)).node;
+							connectEdge(edges, prevWidthNode, connectedFaceNode, edgeColorMap);
+							connectFace(faces, prevWidthNode, widthNode, connectedFaceNode, faceColorMap);
+							connectFace(faces, prevWidthNode, connectedFaceNode, nodeTowardA, faceColorMap);
+						} else {
+							acInter.push(prevWidthNodeName);
+						}
+					}
+
+					// connect interFace connections on edge BC
+					if (aww < .1) {
+						if (interFaceConnections.has(bcEdgeKey)) {
+							const connectedFaceNode = getNode(nodes, interFaceConnections.get(bcEdgeKey)[(Math.round(cww) / 2) - 1]).node;
+							const nodeTowardB = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aww, bww + 2, cww - 2)).node;
+							connectEdge(edges, prevWidthNode, connectedFaceNode, edgeColorMap);
+							connectFace(faces, prevWidthNode, widthNode, connectedFaceNode, faceColorMap);
+							connectFace(faces, prevWidthNode, connectedFaceNode, nodeTowardB, faceColorMap);
+						} else {
+							bcInter.unshift(prevWidthNodeName);
+						}
+					}
+
+					// if b > ~0 connect edge towards A
+					if (bww > .1) {
+						const upNode = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aww + (2 * slide), bww - slide, cww - slide)).node;
+						connectEdge(edges, widthNode, upNode, edgeColorMap);
+						connectFace(faces, prevWidthNode, widthNode, upNode, faceColorMap);
+						// if b > 1 connect edge away from B
+						if (bww > 1) {
+							const rightNode = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aww + slide, bww - (2 * slide), cww + slide)).node;
+							connectEdge(edges, widthNode, rightNode, edgeColorMap);
+							connectFace(faces, widthNode, upNode, rightNode, faceColorMap);
+						}
+					}
+
+
+					prevWidthNodeName = widthNodeName;
+				}
+
+				previouslySlidDown = !previouslySlidDown;
+				prevDepthNodeName = depthNodeName;
+			}
+
+			// update interFace connections
+			if (!interFaceConnections.has(abEdgeKey)) interFaceConnections.set(abEdgeKey, abInter);
+			if (!interFaceConnections.has(acEdgeKey)) interFaceConnections.set(acEdgeKey, acInter);
+			if (!interFaceConnections.has(bcEdgeKey)) interFaceConnections.set(bcEdgeKey, bcInter);
+		});
+	}
 	return { nodes, edges, faces };
 }
 

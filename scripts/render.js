@@ -232,10 +232,10 @@ class Renderer {
 		return str.join("");
 	}
 
-	labelNode = (node) => {
-		this.ctx.fillStyle = "blue";
-		this.ctx.font = "10px serif";
-		this.ctx.fillText(node.name, node.x + this.cX, node.y + this.cY);
+	labelNode = (node, color = "white", style = "bold 40px serif") => {
+		this.ctx.fillStyle = color;
+		this.ctx.font = style;
+		this.ctx.fillText(node.name.toUpperCase(), node.x + this.cX, node.y + this.cY);
 	}
 
 	/**
@@ -247,6 +247,10 @@ class Renderer {
 		if (!styles.show) return;
 		nodes.forEach((node, _) => {
 			this.drawNode(node.x + this.cX, node.y + this.cY, styles.size, styles.color);
+			/*
+			if (node.name.length < 2) { this.labelNode(node) }
+			else { this.labelNode(node, "white", "8px serif") }
+			*/
 		});
 	}
 
