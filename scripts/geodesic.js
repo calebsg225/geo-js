@@ -60,8 +60,9 @@ const buildIcosahedronAtFrequency = (options) => {
 		layers: [],
 	}
 
-	structure.layers.push(generateBaseTetrahedron(options));
-	structure.layers.push(classIILayer(
+	structure.layers.push(generateBaseOctahedron(options));
+
+	structure.layers.push(classILayer(
 		structure.layers[structure.layers.length - 1],
 		options
 	));
@@ -306,7 +307,72 @@ const generateBaseTetrahedron = (options) => {
 		nodes[nodeDistType].set(nodeName, node);
 	}
 
-	return { nodes, edges, faces, maxEdgeLength: edges.near.keys.length };
+	return { nodes, edges, faces, maxEdgeLength: edges.near.get('a-b').length };
+}
+
+/**
+ * generates base octahedron structure
+ * @param {Object} options
+ * @returns {StructureLayer}
+ */
+const generateBaseOctahedron = (options) => {
+	const r = options.sizeConstraint * options.fillPercentage / 2;
+
+	// octahedron node coords
+	const coords = [
+		[r, 0, 0],
+		[-r, 0, 0],
+		[0, r, 0],
+		[0, -r, 0],
+		[0, 0, r],
+		[0, 0, -r],
+	];
+
+	/** @type {Nodes} */
+	const nodes = {
+		near: new Map(),
+		far: new Map()
+	};
+
+	/** @type {Edges} */
+	const edges = {
+		near: new Map(),
+		far: new Map()
+	};
+
+	/** @type {Faces} */
+	const faces = {
+		near: new Map(),
+		far: new Map()
+	};
+
+	/** @type {Map<number, number>} */
+	const edgeColorMap = new Map();
+
+	/** @type {Map<number, number>} */
+	const faceColorMap = new Map();
+
+	for (let i = 0; i < 6; i++) {
+		const nodeName = numToChar(i);
+		const node = new Node(...coords[i], nodeName);
+
+		for (let j = 0; j < 2; j++) {
+			if (i < 2) continue;
+			const connectedNode = getNode(nodes, numToChar(j)).node;
+			connectEdge(edges, node, connectedNode, edgeColorMap);
+			for (let k = 2; k < 4; k++) {
+				if (i < 4) continue;
+				const connectedMidNode = getNode(nodes, numToChar(k)).node;
+				connectEdge(edges, node, connectedMidNode, edgeColorMap);
+				connectFace(faces, node, connectedNode, connectedMidNode, faceColorMap);
+			}
+		}
+
+		const nodeDistType = isNear([node.z]) ? 'near' : 'far';
+		nodes[nodeDistType].set(nodeName, node);
+	}
+
+	return { nodes, edges, faces, maxEdgeLength: edges.near.get('a-c').length };
 }
 
 /**

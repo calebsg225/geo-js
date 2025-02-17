@@ -46,8 +46,8 @@ const renderOptions = {
 	edges: {
 		near: {
 			show: true,
-			colorLength: true,
-			color: 'grey',
+			colorLength: false,
+			color: 'white',
 			size: 3
 		},
 		far: {
@@ -65,7 +65,7 @@ const renderOptions = {
 		},
 		far: {
 			show: false,
-			colorArea: true,
+			colorArea: false,
 			color: 'black',
 		},
 	}
