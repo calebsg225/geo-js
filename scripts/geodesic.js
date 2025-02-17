@@ -60,16 +60,21 @@ const buildIcosahedronAtFrequency = (options) => {
 		layers: [],
 	}
 
-	structure.layers.push(generateBaseIcosahedron(options));
-	structure.layers.push(classILayer(
-		structure.layers[structure.layers.length - 1],
-		options
-	));
+	structure.layers.push(generateBaseTetrahedron(options));
 	structure.layers.push(classIILayer(
 		structure.layers[structure.layers.length - 1],
 		options
 	));
 
+	structure.layers.push(classILayer(
+		structure.layers[structure.layers.length - 1],
+		options
+	));
+
+	structure.layers.push(classIILayer(
+		structure.layers[structure.layers.length - 1],
+		options
+	));
 	return structure;
 };
 
@@ -239,6 +244,69 @@ const generateBaseIcosahedron = (options) => {
 		addedNodes.add(nodeName);
 	}
 	return { nodes, edges, faces, maxEdgeLength }
+}
+
+/**
+ * generates base tetrahedron structure
+ * @param {Object} options
+ * @returns {StructureLayer}
+ */
+const generateBaseTetrahedron = (options) => {
+	const r = options.sizeConstraint * options.fillPercentage / 2;
+	// x, y, and z vectors result in radius vector
+	const d = Math.sqrt(r ** 2 / 3);
+
+	// tetrahedron node coords
+	const coords = [
+		[d, d, d],
+		[-d, d, -d],
+		[d, -d, -d],
+		[-d, -d, d],
+	];
+
+	/** @type {Nodes} */
+	const nodes = {
+		near: new Map(),
+		far: new Map()
+	};
+
+	/** @type {Edges} */
+	const edges = {
+		near: new Map(),
+		far: new Map()
+	};
+
+	/** @type {Faces} */
+	const faces = {
+		near: new Map(),
+		far: new Map()
+	};
+
+	/** @type {Map<number, number>} */
+	const edgeColorMap = new Map();
+
+	/** @type {Map<number, number>} */
+	const faceColorMap = new Map();
+
+	for (let i = 0; i < 4; i++) {
+		const nodeName = numToChar(i);
+		const node = new Node(...coords[i], nodeName);
+
+		// connect edges from nodes B, C, and D
+		for (let j = i - 1; j >= 0; j--) {
+			const connectedEdgeNode = getNode(nodes, numToChar(j)).node;
+			connectEdge(edges, node, connectedEdgeNode, edgeColorMap);
+			// connect faces from nodes C and D
+			for (let k = j - 1; k >= 0; k--) {
+				connectFace(faces, node, connectedEdgeNode, getNode(nodes, numToChar(k)).node, faceColorMap);
+			}
+		}
+
+		const nodeDistType = isNear([node.z]) ? 'near' : 'far';
+		nodes[nodeDistType].set(nodeName, node);
+	}
+
+	return { nodes, edges, faces, maxEdgeLength: edges.near.keys.length };
 }
 
 /**
