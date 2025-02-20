@@ -122,32 +122,11 @@ const generateBaseIcosahedron = (options) => {
 		far: new Map()
 	};
 
-	/** @type {number} */
-	let maxEdgeLength = -Infinity;
-
 	/** @type {Map<number, number>} */
 	const edgeColorMap = new Map();
 
 	/** @type {Map<number, number>} */
 	const faceColorMap = new Map();
-
-	/**
-	 * gets a Node
-	 * @param {string} key points to desired node
-	 * @returns {Node}
-	 */
-	const getBaseNode = (key) => {
-		return nodes.near.get(key) || nodes.far.get(key);
-	};
-
-	/** @type {Set<string>} */
-	const addedNodes = new Set();
-
-	/** @type {Set<string>} */
-	const addedEdges = new Set();
-
-	/** @type {Set<string>} */
-	const addedFaces = new Set();
 
 	for (let i = 0; i < 12; i++) {
 		const nodeName = numToChar(i);
@@ -166,73 +145,24 @@ const generateBaseIcosahedron = (options) => {
 			const edgeName = [nodeName, conName].sort().join('-');
 			const faceName = [nodeName, conName, con2Name].sort().join('-');
 
+			const conNode = getNode(nodes, conName).node;
+
 			// connect edges
 			if (
-				addedNodes.has(conName) &&
-				!addedEdges.has(edgeName)
+				getNode(nodes, conName).node &&
+				!getEdge(edges, edgeName).edge
 			) {
-				// both nodes required for edge have been added
-				// edge has not already been added
-
-				const conNode = getBaseNode(conName);
-
-				const edge = new Edge(node, conNode);
-				node.addEdge(edgeName);
-				conNode.addEdge(edgeName);
-
-				maxEdgeLength = Math.max(maxEdgeLength, edge.length);
-
-				const edgeColorKey = parseFloat(edge.length.toPrecision(10));
-				if (edgeColorMap.has(edgeColorKey)) {
-					edge.colorCode = edgeColorMap.get(edgeColorKey);
-				} else {
-					const edgeColorCode = edgeColorMap.size;
-					edgeColorMap.set(edgeColorKey, edgeColorCode);
-					edge.colorCode = edgeColorCode;
-				}
-
-				// add edge to edges
-				if (isNear([node.z, conNode.z])) {
-					edges.near.set(edgeName, edge);
-				} else {
-					edges.far.set(edgeName, edge);
-				}
-				addedEdges.add(edgeName);
+				connectEdge(edges, node, conNode, edgeColorMap);
 			}
 
 			// connect faces
 			if (
-				addedNodes.has(conName) &&
-				addedNodes.has(con2Name) &&
-				!addedFaces.has(faceName)
+				getNode(nodes, conName).node &&
+				getNode(nodes, con2Name).node &&
+				!getFace(faces, faceName).face
 			) {
-				// all nodes required for face have been added
-				// face has not already been added
-
-				const conNode = getBaseNode(conName);
-				const con2Node = getBaseNode(con2Name);
-
-				const face = new Face(node, conNode, con2Node);
-				node.addFace(faceName);
-				conNode.addFace(faceName);
-				con2Node.addFace(faceName);
-
-				const faceColorKey = parseFloat(face.area.toPrecision(10));
-				if (faceColorMap.has(faceColorKey)) {
-					face.colorCode = faceColorMap.get(faceColorKey);
-				} else {
-					const faceColorCode = faceColorMap.size;
-					faceColorMap.set(faceColorKey, faceColorCode);
-					face.colorCode = faceColorCode;
-				}
-
-				// add face to faces
-				if (isNear([node.z, conNode.z, con2Node.z])) {
-					faces.near.set(faceName, face);
-				} else {
-					faces.far.set(faceName, face);
-				}
-				addedFaces.add(faceName);
+				const con2Node = getNode(nodes, con2Name).node;
+				connectFace(faces, node, conNode, con2Node, faceColorMap);
 			}
 		}
 
@@ -242,9 +172,8 @@ const generateBaseIcosahedron = (options) => {
 		} else {
 			nodes.far.set(node.name, node);
 		}
-		addedNodes.add(nodeName);
 	}
-	return { nodes, edges, faces, maxEdgeLength }
+	return { nodes, edges, faces, maxEdgeLength: edges.near.get('a-b').length }
 }
 
 /**
