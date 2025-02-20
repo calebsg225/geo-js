@@ -40,32 +40,32 @@ const renderOptions = {
 		far: {
 			show: true,
 			color: 'red',
-			size: 2
+			size: 4
 		},
 	},
 	edges: {
 		near: {
 			show: true,
-			colorLength: true,
-			color: 'grey',
-			size: 2
+			colorLength: false,
+			color: 'white',
+			size: 3
 		},
 		far: {
-			show: false,
+			show: true,
 			colorLength: false,
 			color: 'grey',
-			size: 1
+			size: 3
 		},
 	},
 	faces: {
 		near: {
-			show: false,
+			show: true,
 			colorArea: true,
 			color: '#FFFF0055',
 		},
 		far: {
 			show: false,
-			colorArea: true,
+			colorArea: false,
 			color: 'black',
 		},
 	}
