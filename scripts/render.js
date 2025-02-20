@@ -1,5 +1,5 @@
 import { Node, Face, Edge } from "./structures.js";
-import { rotateNode, isNear, getNode, getEdge, getFace } from "./util.js";
+import { rotateNode, isNear, getNode, getEdge, getFace, isFaceNear } from "./util.js";
 
 /**
  * manages render
@@ -84,7 +84,6 @@ class Renderer {
 	rotate = (dX, dY) => {
 		// rotate all nodes
 		// update near and far nodes accordingly
-		// TODO: determine whether edges/faces need to be moved to near/far
 
 		/**
 		 * @type {Set<string>}
@@ -154,7 +153,7 @@ class Renderer {
 			const { node: node2 } = getNode(this.layer.nodes, face.nodes[1]);
 			const { node: node3 } = getNode(this.layer.nodes, face.nodes[2]);
 
-			const newDist = isNear([node1.z, node2.z, node3.z]) ? "near" : "far";
+			const newDist = isFaceNear(node1, node2, node3) ? "near" : "far";
 
 			// if face used to be near and is now far (or vice versa)
 			if (newDist !== distType) {
