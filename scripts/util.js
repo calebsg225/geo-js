@@ -26,6 +26,48 @@ const isNear = (zs) => {
 }
 
 /**
+ * calulates the normal vector of a face (points away from origin)
+ * @param {Node} a
+ * @param {Node} b
+ * @param {Node} c
+ * @returns {number[]} [x, y, z]
+ */
+const faceNormal = (a, b, c) => {
+	const ab = [b.x - a.x, b.y - a.y, b.z - a.z];
+	const ac = [c.x - a.x, c.y - a.y, c.z - a.z];
+
+	// calculate coordinates of normal vertex
+	const nx = ab[1] * ac[2] - ab[2] * ac[1];
+	const ny = ab[2] * ac[0] - ab[0] * ac[2];
+	const nz = ab[0] * ac[1] - ab[1] * ac[0];
+
+	// find the angle between a and the normal vector
+	const theta = Math.acos((a.x * nx + a.y * ny + a.z * nz) / (Math.sqrt(a.x ** 2 + a.y ** 2 + a.z ** 2) * Math.sqrt(nx ** 2 + ny ** 2 + nz ** 2)));
+
+	// swap if needed
+	if (theta > Math.PI / 2) return [nx * -1, ny * -1, nz * -1];
+	return [nx, ny, nz];
+}
+
+/**
+ * determines whether a face is near or far based on its normal vector
+ * @param {Node} n1
+ * @param {Node} n2
+ * @param {Node} n3
+ * @returns {boolean}
+ */
+const isFaceNear = (n1, n2, n3) => {
+	// deal with any stray inputs, less computation required for these
+	if (n1.z > 0 && n2.z > 0 && n3.z > 0) return false;
+	if (n1.z <= 0 && n2.z <= 0 && n3.z <= 0) return true;
+
+	// get normal and determine distance
+	const nv = faceNormal(n1, n2, n3);
+	if (nv[2] <= 0) return true;
+	return false;
+}
+
+/**
  * calculates the area of a triangle given 3 node positions
  * @param {number} x1
  * @param {number} y1
@@ -292,6 +334,7 @@ export {
 	numToChar,
 	charToNum,
 	isNear,
+	isFaceNear,
 	rotateNode,
 	calcMidNodeCoords,
 	normalizeNode,
