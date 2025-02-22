@@ -35,7 +35,7 @@ import {
  */
 
 /**
- * @typedef {object} StructureLayer
+ * @typedef {Object} StructureLayer
  * @property {Nodes} nodes
  * @property {Edges} edges
  * @property {Faces} faces
@@ -53,31 +53,6 @@ import {
  * @param {Object} options build options
  * @returns {Structure}
  */
-const buildIcosahedronAtFrequency = (options) => {
-
-	/** @type {Structure} */
-	const structure = {
-		layers: [],
-	}
-
-	structure.layers.push(generateBaseOctahedron(options));
-
-	structure.layers.push(classILayer(
-		structure.layers[structure.layers.length - 1],
-		options
-	));
-
-	structure.layers.push(classILayer(
-		structure.layers[structure.layers.length - 1],
-		options
-	));
-
-	structure.layers.push(classIILayer(
-		structure.layers[structure.layers.length - 1],
-		options
-	));
-	return structure;
-};
 
 /**
  * generates base icosahedron structure
@@ -308,10 +283,10 @@ const generateBaseOctahedron = (options) => {
  * creates a class I subdivision of the inputed structure layer
  * @param {StructureLayer} layer
  * @param {Object} options
+ * @param {number} nv frequency
  * @returns {StructureLayer}
  */
-const classILayer = (layer, options) => {
-	const nv = options.frequency;
+const classILayer = (layer, options, nv) => {
 	const radius = options.sizeConstraint * options.fillPercentage / 2;
 
 	const nodes = {
@@ -460,10 +435,10 @@ const classILayer = (layer, options) => {
  * creates a class II subdivision of the inputed structure layer
  * @param {StructureLayer} layer
  * @param {Object} options
+ * @param {number} nv frequency
  * @returns {StructureLayer}
  */
-const classIILayer = (layer, options) => {
-	const nv = options.frequency;
+const classIILayer = (layer, options, nv) => {
 	const radius = options.sizeConstraint * options.fillPercentage / 2;
 
 	// store nodes between faces
@@ -733,5 +708,9 @@ const connectFace = (faces, node1, node2, node3, faceColorMap) => {
 }
 
 export {
-	buildIcosahedronAtFrequency
+	generateBaseIcosahedron,
+	generateBaseOctahedron,
+	generateBaseTetrahedron,
+	classILayer,
+	classIILayer,
 }
