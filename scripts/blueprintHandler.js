@@ -40,6 +40,14 @@ class BlueprintHandler {
 	}
 
 	/**
+	 * updates the blueprint by replacing the previous base shape with the new base shape
+	 * @param {string} newBaseShape
+	 */
+	setBaseShape = (newBaseShape) => {
+		this.blueprint.baseShape = newBaseShape;
+	}
+
+	/**
 	 * adds a layer to the blueprint
 	 * @param {Object[]} layers
 	 * @param {string} subClass

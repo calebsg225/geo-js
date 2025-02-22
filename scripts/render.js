@@ -324,7 +324,8 @@ class Renderer {
 	*/
 	setStructure = (structure) => {
 		this.structure = structure;
-		this.render();
+		this.renderLayer = structure.layers.length - 1;
+		this.layer = structure.layers[this.renderLayer];
 	}
 
 	/**

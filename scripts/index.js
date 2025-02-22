@@ -9,9 +9,28 @@ const body = document.querySelectorAll('body')[0];
 body.innerHTML = `
 	<div id="main" >
 		<canvas id="geo-canvas"></canvas>
-		<div id="interface"></div>
+		<div id="interface">
+			<form>
+				<label for="baseShapes">Base Shape</label>
+				<select name="baseShapes" id="selectBaseShape">
+					<optgroup label="Traditional">
+						<option value="tetrahedron">Tetrahedron</option>
+						<option value="octahedron">Octahedron</option>
+						<option value="icosahedron">Icosahedron</option>
+					</optgroup>
+					<optgroup label="Geometric"></optgroup>
+					<optgroup label="Unusual"></optgroup>
+				</select>
+				<input id="generate" type="submit" value="Generate"/>
+			</form>
+		</div>
 	</div>
 `;
+
+// set the default base shape to match the options
+const selectedBaseShape = blueprintHandler.blueprint.baseShape;
+const selectedBaseShapeOption = document.querySelector(`select#selectBaseShape option[value=${selectedBaseShape}]`);
+selectedBaseShapeOption.selected = "selected";
 
 let width = body.clientWidth;
 let height = body.clientHeight;
@@ -74,6 +93,24 @@ geoCanvas.addEventListener('touchmove', (e) => {
 	prevTouchY = touchY;
 
 	renderer.rotate(deltaX, deltaY);
+});
+
+// events for interface elements
+
+// generates structure from the current blueprint
+document.querySelector('#generate').addEventListener('click', (e) => {
+	// stop from reloading
+	e.preventDefault();
+
+	// generate new structure from blueprint and render
+	const newStructure = blueprintHandler.buildStructure(buildOptions);
+	renderer.setStructure(newStructure);
+	renderer.render();
+});
+
+// update the base shape in the blueprint
+document.querySelector('#selectBaseShape').addEventListener('change', (e) => {
+	blueprintHandler.setBaseShape(e.target.value);
 });
 
 // update canvas width and height to match client window size
