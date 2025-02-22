@@ -1,6 +1,8 @@
-import { buildIcosahedronAtFrequency } from "./geodesic.js";
+import { BlueprintHandler } from "./blueprintHandler.js";
 import Renderer from "./render.js";
 import { buildOptions, renderOptions } from "./defaultOptions.js";
+
+const blueprintHandler = new BlueprintHandler();
 
 const body = document.querySelectorAll('body')[0];
 
@@ -23,7 +25,7 @@ buildOptions.sizeConstraint = Math.min(width, height);
 const renderer = new Renderer(
 	geoCanvas,
 	renderOptions,
-	buildIcosahedronAtFrequency(buildOptions),
+	blueprintHandler.buildStructure(buildOptions),
 );
 
 const geoInterface = document.querySelector('#interface');
