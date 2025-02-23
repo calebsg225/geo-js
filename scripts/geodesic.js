@@ -1,3 +1,4 @@
+import * as Types from "./types.js";
 import { Node, Edge, Face } from "./structures.js";
 import {
 	getNode,
@@ -13,51 +14,10 @@ import {
 	calcMidNodeCoords
 } from "./util.js";
 
-// TODO: put types in a separate file
-// TODO: try out generic types?
-
-/**
- * @typedef {Object} Nodes
- * @property {Map<string, Node>} near
- * @property {Map<string, Node>} far
- */
-
-/**
- * @typedef {Object} Edges
- * @property {Map<string, Edge>} near
- * @property {Map<string, Edge>} far
- */
-
-/**
- * @typedef {Object} Faces
- * @property {Map<string, Face>} near
- * @property {Map<string, Face>} far
- */
-
-/**
- * @typedef {Object} StructureLayer
- * @property {Nodes} nodes
- * @property {Edges} edges
- * @property {Faces} faces
- * @property {number} maxEdgeLength
- */
-
-/**
- * geodesic structure data
- * @typedef {Object} Structure
- * @property {StructureLayer[]} layers
- */
-
-/**
- * generates icosahedron structure
- * @param {Object} options build options
- * @returns {Structure}
- */
-
 /**
  * generates base icosahedron structure
- * @param {Object} options
- * @returns {StructureLayer}
+ * @param {Types.BuildOptions} options
+ * @returns {Types.StructureLayer}
  */
 const generateBaseIcosahedron = (options) => {
 	const radius = options.sizeConstraint * options.fillPercentage / 2;
@@ -79,19 +39,19 @@ const generateBaseIcosahedron = (options) => {
 		[1, 0, g]
 	];
 
-	/** @type {Nodes} */
+	/** @type {Types.Nodes} */
 	const nodes = {
 		near: new Map(),
 		far: new Map()
 	};
 
-	/** @type {Edges} */
+	/** @type {Types.Edges} */
 	const edges = {
 		near: new Map(),
 		far: new Map()
 	};
 
-	/** @type {Faces} */
+	/** @type {Types.Faces} */
 	const faces = {
 		near: new Map(),
 		far: new Map()
@@ -153,8 +113,8 @@ const generateBaseIcosahedron = (options) => {
 
 /**
  * generates base tetrahedron structure
- * @param {Object} options
- * @returns {StructureLayer}
+ * @param {BuildOptions} options
+ * @returns {Types.StructureLayer}
  */
 const generateBaseTetrahedron = (options) => {
 	const r = options.sizeConstraint * options.fillPercentage / 2;
@@ -169,19 +129,19 @@ const generateBaseTetrahedron = (options) => {
 		[-d, -d, d],
 	];
 
-	/** @type {Nodes} */
+	/** @type {Types.Nodes} */
 	const nodes = {
 		near: new Map(),
 		far: new Map()
 	};
 
-	/** @type {Edges} */
+	/** @type {Types.Edges} */
 	const edges = {
 		near: new Map(),
 		far: new Map()
 	};
 
-	/** @type {Faces} */
+	/** @type {Types.Faces} */
 	const faces = {
 		near: new Map(),
 		far: new Map()
@@ -216,8 +176,8 @@ const generateBaseTetrahedron = (options) => {
 
 /**
  * generates base octahedron structure
- * @param {Object} options
- * @returns {StructureLayer}
+ * @param {BuildOptions} options
+ * @returns {Types.StructureLayer}
  */
 const generateBaseOctahedron = (options) => {
 	const r = options.sizeConstraint * options.fillPercentage / 2;
@@ -232,19 +192,19 @@ const generateBaseOctahedron = (options) => {
 		[0, 0, -r],
 	];
 
-	/** @type {Nodes} */
+	/** @type {Types.Nodes} */
 	const nodes = {
 		near: new Map(),
 		far: new Map()
 	};
 
-	/** @type {Edges} */
+	/** @type {Types.Edges} */
 	const edges = {
 		near: new Map(),
 		far: new Map()
 	};
 
-	/** @type {Faces} */
+	/** @type {Types.Faces} */
 	const faces = {
 		near: new Map(),
 		far: new Map()
@@ -281,10 +241,10 @@ const generateBaseOctahedron = (options) => {
 
 /**
  * creates a class I subdivision of the inputed structure layer
- * @param {StructureLayer} layer
- * @param {Object} options
+ * @param {Types.StructureLayer} layer
+ * @param {BuildOptions} options
  * @param {number} nv frequency
- * @returns {StructureLayer}
+ * @returns {Types.StructureLayer}
  */
 const classILayer = (layer, options, nv) => {
 	const radius = options.sizeConstraint * options.fillPercentage / 2;
@@ -306,11 +266,13 @@ const classILayer = (layer, options, nv) => {
 		});
 	}
 
+	/** @type {Types.Edges} */
 	const edges = {
 		near: new Map(),
 		far: new Map()
 	};
 
+	/** @type {Types.Faces} */
 	const faces = {
 		near: new Map(),
 		far: new Map()
@@ -433,10 +395,10 @@ const classILayer = (layer, options, nv) => {
 
 /**
  * creates a class II subdivision of the inputed structure layer
- * @param {StructureLayer} layer
- * @param {Object} options
+ * @param {Types.StructureLayer} layer
+ * @param {BuildOptions} options
  * @param {number} nv frequency
- * @returns {StructureLayer}
+ * @returns {Types.StructureLayer}
  */
 const classIILayer = (layer, options, nv) => {
 	const radius = options.sizeConstraint * options.fillPercentage / 2;
@@ -639,9 +601,9 @@ const classIILayer = (layer, options, nv) => {
 
 /**
  * given 2 existing nodes, add a connected edge between them
- * @param {Edges} edges
- * @param {Node} node1
- * @param {Node} node2
+ * @param {Types.Edges} edges
+ * @param {Types.Nodes} node1
+ * @param {Types.Nodes} node2
  * @param {Map<number, number>} edgeColorMap
  */
 const connectEdge = (edges, node1, node2, edgeColorMap) => {
@@ -672,10 +634,10 @@ const connectEdge = (edges, node1, node2, edgeColorMap) => {
 
 /**
  * given 3 existing nodes, add a connected face between them
- * @param {Faces} faces
- * @param {Node} node1
- * @param {Node} node2
- * @param {Node} node3
+ * @param {Types.Faces} faces
+ * @param {Types.Nodes} node1
+ * @param {Types.Nodes} node2
+ * @param {Types.Nodes} node3
  * @param {string} faceType
  * @param {Map<number, number>} faceColorMap
  */

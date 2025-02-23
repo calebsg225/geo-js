@@ -16,7 +16,9 @@ body.innerHTML = `
 let width = body.clientWidth;
 let height = body.clientHeight;
 
+/** @type {HTMLCanvasElement} */
 const geoCanvas = document.querySelector('#geo-canvas');
+
 geoCanvas.width = width;
 geoCanvas.height = height;
 
@@ -28,10 +30,15 @@ const renderer = new Renderer(
 	blueprintHandler.buildStructure(buildOptions),
 );
 
+/** @type {HTMLCanvasElement} */
 const geoInterface = document.querySelector('#interface');
+
+/** @type {boolean} */
 let mouseIsDown = false;
 
+/** @type {number} */
 let prevTouchX = 0;
+/** @type {number} */
 let prevTouchY = 0;
 
 geoInterface.addEventListener("click", (e) => {
@@ -86,4 +93,5 @@ window.addEventListener('resize', () => {
 	renderer.updateCenter(width, height);
 	renderer.render();
 });
+
 renderer.render();
