@@ -19,7 +19,7 @@ class BlueprintHandler {
 	getDefaultBlueprint = () => {
 		/** @type {Types.Blueprint} */
 		const defaultBlueprint = {
-			baseShape: "octahedron",
+			baseShape: "icosahedron",
 			layers: [],
 		};
 		this.addLayer(defaultBlueprint.layers, "classII", 2);
@@ -27,14 +27,6 @@ class BlueprintHandler {
 		this.addLayer(defaultBlueprint.layers, "classI", 2);
 
 		return defaultBlueprint;
-	}
-
-	/**
-	 * updates the blueprint by replacing the previous base shape with the new base shape
-	 * @param {string} newBaseShape
-	 */
-	setBaseShape = (newBaseShape) => {
-		this.blueprint.baseShape = newBaseShape;
 	}
 
 	/**
@@ -48,6 +40,32 @@ class BlueprintHandler {
 			class: subClass,
 			frequency: frequency
 		});
+	}
+
+	/**
+	 * updates the blueprint by replacing the previous base shape with the new base shape
+	 * @param {string} newBaseShape
+	 */
+	updateBaseShape = (newBaseShape) => {
+		this.blueprint.baseShape = newBaseShape;
+	}
+
+	/**
+	 * updates the class of a layer
+	 * @param {number} layerIndex
+	 * @param {string} newSubClass
+	 */
+	updateClassOfLayer = (layerIndex, newSubClass) => {
+		this.blueprint.layers[layerIndex].class = newSubClass;
+	}
+
+	/**
+	 * updates the frequency of a layer
+	 * @param {number} layerIndex
+	 * @param {number} newFrequency
+	 */
+	updateFrequencyOfLayer = (layerIndex, newFrequency) => {
+		this.blueprint.layers[layerIndex].frequency = newFrequency;
 	}
 
 	/**
