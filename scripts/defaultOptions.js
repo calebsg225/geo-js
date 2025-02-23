@@ -1,8 +1,12 @@
+import * as Types from "./types.js";
+
+/** @type {Types.BuildOptions} */
 const buildOptions = {
 	sizeConstraint: 1000, // min of canvas width and height
 	fillPercentage: .98, // percentage of sizeConstraint that the structure should fill initially
 };
 
+/** @type {Types.RenderOptions} */
 const renderOptions = {
 	backgroundColor: "black",
 	rotationStep: 0.003,

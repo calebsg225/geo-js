@@ -1,19 +1,9 @@
+import * as Types from "./types.js";
 import * as geo from "./geodesic.js";
-/**
- * @typedef {Object} SubdivisionLayer
- * @property {string} class
- * @property {number} frequency
- */
-
-/**
- * @typedef {Object} Blueprint
- * @property {string} baseShape
- * @property {SubdivisionLayer[]} layers
- */
 
 class BlueprintHandler {
 	constructor() {
-		/** @type {Blueprint} */
+		/** @type {Types.Blueprint} */
 		this.blueprint = this.getDefaultBlueprint();
 
 		this.blueprintMap = {
@@ -27,7 +17,7 @@ class BlueprintHandler {
 	}
 
 	getDefaultBlueprint = () => {
-		/** @type {Blueprint} */
+		/** @type {Types.Blueprint} */
 		const defaultBlueprint = {
 			baseShape: "octahedron",
 			layers: [],
@@ -49,24 +39,24 @@ class BlueprintHandler {
 
 	/**
 	 * adds a layer to the blueprint
-	 * @param {Object[]} layers
+	 * @param {Types.SubdivisionLayer[]} layers
 	 * @param {string} subClass
 	 * @param {number} frequency
 	 */
 	addLayer = (layers, subClass, frequency) => {
 		layers.push({
-			"class": subClass,
-			"frequency": frequency
+			class: subClass,
+			frequency: frequency
 		});
 	}
 
 	/**
 	 * takes in a Blueprint and returns a Structure
-	 * @param {Object} options build options
-	 * @return {Structure}
+	 * @param {Types.BuildOptions} options build options
+	 * @return {Types.Structure}
 	 */
 	buildStructure = (options) => {
-		/** @type {Structure} */
+		/** @type {Types.Structure} */
 		const structure = {
 			layers: [],
 		}

@@ -1,15 +1,19 @@
-import { Node, Face, Edge } from "./structures.js";
+import * as Types from "./types.js";
+import { Node, Edge, Face } from "./structures.js";
 import { rotateNode, isNear, getNode, getEdge, getFace, isFaceNear } from "./util.js";
 
 /**
- * manages render
  * @class
+ * @classdesc Handles geodesic structure rendering to an HTMLCanvasElement
  */
 class Renderer {
 
+	// TODO: remove 'structure' from input: should not be required for initializing the renderer
 	/**
 	 * @constructor
-	 * @param {HTMLCanvasElement} canvas 
+	 * @param {HTMLCanvasElement} canvas
+	 * @param {Types.RenderOptions} defaultOptions
+	 * @param {Types.Structure} structure
 	 */
 	constructor(canvas, defaultOptions, structure) {
 		this.canvas = canvas;
@@ -240,7 +244,7 @@ class Renderer {
 	/**
 	 * draws inputed nodes using the inputed styles
 	 * @param {Map<Node>} nodes
-	 * @param {Object} styles
+	 * @param {Types.NodesOptions} styles
 	 */
 	drawNodes = (nodes, styles) => {
 		if (!styles.show) return;
@@ -256,7 +260,7 @@ class Renderer {
 	/**
 	 * draws inputed edges using the inputed styles
 	 * @param {Map<string, Edge>} edges
-	 * @param {Object} styles
+	 * @param {Types.EdgesOptions} styles
 	 * @param {string[]} defaultColors
 	 */
 	drawEdges = (edges, styles, defaultColors) => {
@@ -289,7 +293,7 @@ class Renderer {
 	/**
 	 * draws inputed faces using the inputed styles
 	 * @param {Map<string, Face>} faces
-	 * @param {Object} styles
+	 * @param {Types.FacesOptions} styles
 	 * @param {string[]} defaultColors
 	 */
 	drawFaces = (faces, styles, defaultColors) => {
@@ -320,8 +324,9 @@ class Renderer {
 
 	// TODO: put Structure type in a differnet file so type can be accessed here
 	/**
-	* sets 3d object structure to render
-	*/
+	 * sets 3d object structure to render
+	 * @param {Types.Structure} strucrure
+	 */
 	setStructure = (structure) => {
 		this.structure = structure;
 		this.renderLayer = structure.layers.length - 1;
