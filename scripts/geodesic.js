@@ -243,10 +243,11 @@ const generateBaseOctahedron = (options) => {
  * creates a class I subdivision of the inputed structure layer
  * @param {Types.StructureLayer} layer
  * @param {BuildOptions} options
- * @param {number} nv frequency
+ * @param {number[]} frequency
  * @returns {Types.StructureLayer}
  */
-const classILayer = (layer, options, nv) => {
+const classILayer = (layer, options, frequency) => {
+	const nv = frequency[0] + frequency[1];
 	const radius = options.sizeConstraint * options.fillPercentage / 2;
 
 	const nodes = {
@@ -397,10 +398,11 @@ const classILayer = (layer, options, nv) => {
  * creates a class II subdivision of the inputed structure layer
  * @param {Types.StructureLayer} layer
  * @param {BuildOptions} options
- * @param {number} nv frequency
+ * @param {number[]} frequency
  * @returns {Types.StructureLayer}
  */
-const classIILayer = (layer, options, nv) => {
+const classIILayer = (layer, options, frequency) => {
+	const nv = frequency[0] + frequency[1];
 	const radius = options.sizeConstraint * options.fillPercentage / 2;
 
 	// store nodes between faces

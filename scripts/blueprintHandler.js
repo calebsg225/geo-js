@@ -22,9 +22,9 @@ class BlueprintHandler {
 			baseShape: "icosahedron",
 			layers: [],
 		};
-		this.addLayer(defaultBlueprint.layers, "classII", 2);
-		this.addLayer(defaultBlueprint.layers, "classI", 3);
-		this.addLayer(defaultBlueprint.layers, "classI", 2);
+		this.addLayer(defaultBlueprint.layers, [2, 0]);
+		this.addLayer(defaultBlueprint.layers, [3, 3]);
+		this.addLayer(defaultBlueprint.layers, [2, 0]);
 
 		return defaultBlueprint;
 	}
@@ -32,14 +32,18 @@ class BlueprintHandler {
 	/**
 	 * adds a layer to the blueprint
 	 * @param {Types.SubdivisionLayer[]} layers
-	 * @param {string} subClass
-	 * @param {number} frequency
+	 * @param {number[]} fs frequency
 	 */
-	addLayer = (layers, subClass, frequency) => {
-		layers.push({
-			class: subClass,
-			frequency: frequency
-		});
+	addLayer = (layers, fs) => {
+		const layer = {
+			frequency: fs,
+			subClass: 'classI',
+		}
+		console.log(fs);
+		if (fs[0] && fs[1]) layer.subClass = "classIII";
+		if (fs[0] === fs[1]) layer.subClass = "classII";
+		console.log(layer);
+		layers.push(layer);
 	}
 
 	/**
@@ -70,7 +74,7 @@ class BlueprintHandler {
 
 	generateBlueprintLayerInterface = (parentElement) => {
 		for (const layer of this.blueprint.layers) {
-			this.appendBlueprintLayer(parentElement, layer.class, layer.frequency);
+			this.appendBlueprintLayer(parentElement, layer.subClass, layer.frequency);
 		}
 	}
 
@@ -100,7 +104,7 @@ class BlueprintHandler {
 		const inputSubFrequency = blueprintLayerDiv.querySelectorAll('input.subFrequency')[0];
 
 		blueprintLayerDiv.querySelectorAll(`option[value=${subClass}]`)[0].selected = "selected";
-		inputSubFrequency.value = frequency;
+		inputSubFrequency.value = frequency[0];
 
 
 		// update the subdivision class of a layer in the blueprint
@@ -131,9 +135,10 @@ class BlueprintHandler {
 
 		// subdivide one layer at a time
 		for (let i = 0; i < this.blueprint.layers.length; i++) {
+			const { subClass, frequency } = this.blueprint.layers[i];
 			const previousLayer = structure.layers[structure.layers.length - 1];
-			const subdivideFunction = this.blueprintMap[this.blueprint.layers[i].class];
-			const newLayer = subdivideFunction(previousLayer, options, this.blueprint.layers[i].frequency);
+			const subdivideFunction = this.blueprintMap[subClass];
+			const newLayer = subdivideFunction(previousLayer, options, frequency);
 			structure.layers.push(newLayer);
 		}
 

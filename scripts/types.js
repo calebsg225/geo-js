@@ -101,8 +101,8 @@ import { Node, Edge, Face } from "./structures.js";
 
 /**
  * @typedef {Object} SubdivisionLayer
- * @property {string} class
- * @property {number} frequency
+ * @property {string} subClass
+ * @property {number[]} frequency
  */
 
 /**
