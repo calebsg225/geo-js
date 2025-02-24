@@ -30,6 +30,28 @@ class BlueprintHandler {
 	}
 
 	/**
+	 * given 2 numbers representing the frequency of a layer, return the class type of that layer
+	 * @param {number} n1 first frequency number
+	 * @param {number} n2 second frequency number
+	 * @returns {string} class type
+	 */
+	getClassType = (n1, n2) => {
+		if (n1 === n2) return "II";
+		if (n1 && n2) return "III";
+		return "I";
+	}
+
+	/**
+	 * given 2 numbers representing the frequency of a layer, return the name of that layer
+	 * @param {number} n1 first frequency number
+	 * @param {number} n2 second frequency number
+	 * @returns {string} class name
+	 */
+	getLayerName = (n1, n2) => {
+		return "Class " + this.getClassType(n1, n2) + " {" + n1 + ", " + n2 + "} " + (n1 + n2) + "v";
+	}
+
+	/**
 	 * adds a layer to the blueprint
 	 * @param {Types.SubdivisionLayer[]} layers
 	 * @param {number[]} fs frequency
@@ -37,12 +59,8 @@ class BlueprintHandler {
 	addLayer = (layers, fs) => {
 		const layer = {
 			frequency: fs,
-			subClass: 'classI',
+			subClass: 'class' + this.getClassType(...fs),
 		}
-		console.log(fs);
-		if (fs[0] && fs[1]) layer.subClass = "classIII";
-		if (fs[0] === fs[1]) layer.subClass = "classII";
-		console.log(layer);
 		layers.push(layer);
 	}
 
@@ -54,36 +72,17 @@ class BlueprintHandler {
 		this.blueprint.baseShape = newBaseShape;
 	}
 
-	/**
-	 * updates the class of a layer
-	 * @param {number} layerIndex
-	 * @param {string} newSubClass
-	 */
-	updateClassOfLayer = (layerIndex, newSubClass) => {
-		this.blueprint.layers[layerIndex].class = newSubClass;
-	}
-
-	/**
-	 * updates the frequency of a layer
-	 * @param {number} layerIndex
-	 * @param {number} newFrequency
-	 */
-	updateFrequencyOfLayer = (layerIndex, newFrequency) => {
-		this.blueprint.layers[layerIndex].frequency = newFrequency;
-	}
-
 	generateBlueprintLayerInterface = (parentElement) => {
 		for (const layer of this.blueprint.layers) {
-			this.appendBlueprintLayer(parentElement, layer.subClass, layer.frequency);
+			this.appendBlueprintLayer(parentElement, layer.frequency);
 		}
 	}
 
 	/**
 	 * @param {HTMLElement} parentElement
-	 * @param {string} subClass
 	 * @param {number} frequency
 	 */
-	appendBlueprintLayer = (parentElement, subClass, frequency) => {
+	appendBlueprintLayer = (parentElement, frequency) => {
 		const index = parentElement.childElementCount;
 
 		/** @type HTMLDivElement */
@@ -91,31 +90,31 @@ class BlueprintHandler {
 		blueprintLayerDiv.className = "blueprint-layer";
 
 		blueprintLayerDiv.innerHTML = `
-			<div>
-				<select name="subClass" class="selectSubClass" >
-					<option value="classI">Class I</option>
-					<option value="classII">Class II</option>
-					<option value="classIII">Class III</option>
-				</select>
-				<input class="subFrequency" type="number"/>
+			<div class="layer-info">
+				<h3 class="layer-name">${this.getLayerName(...frequency)}</h3>
+				<input
+					class="sub-freq freq1"
+					type="number"
+					min="1"
+					value="${frequency[0]}"
+				/>
+				<input 
+					class="sub-freq freq2"
+					type="number"
+					min="0"
+					value="${frequency[1]}"
+				/>
 			</div>
 		`;
 
-		const inputSubFrequency = blueprintLayerDiv.querySelectorAll('input.subFrequency')[0];
-
-		blueprintLayerDiv.querySelectorAll(`option[value=${subClass}]`)[0].selected = "selected";
-		inputSubFrequency.value = frequency[0];
-
-
-		// update the subdivision class of a layer in the blueprint
-		blueprintLayerDiv.querySelectorAll('select.selectSubClass')[0].addEventListener('change', (e) => {
-			this.updateClassOfLayer(index, e.target.value);
-		});
-
-		// update the frequency of a layer in the blueprint
-		inputSubFrequency.addEventListener('change', (e) => {
-			this.updateFrequencyOfLayer(index, +e.target.value);
-		});
+		for (let i = 0; i <= 1; i++) {
+			blueprintLayerDiv.querySelector(`.freq${i + 1}`).addEventListener("change", (e) => {
+				const layer = this.blueprint.layers[index];
+				layer.frequency[i] = +e.target.value;
+				layer.subClass = 'class' + this.getClassType(...layer.frequency);
+				blueprintLayerDiv.querySelector('h3.layer-name').innerText = this.getLayerName(...layer.frequency);
+			});
+		}
 
 		parentElement.appendChild(blueprintLayerDiv);
 	}
