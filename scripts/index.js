@@ -21,9 +21,12 @@ body.innerHTML = `
 					<optgroup label="Geometric"></optgroup>
 					<optgroup label="Unusual"></optgroup>
 				</select>
-				<div id="layers-container">
+				<div id="layers-interface">
+					<div id="layers-container">
+					</div>
+					<button id="add-layer-button" class="button">+</button>
 				</div>
-				<input id="generate" type="submit" value="Generate"/>
+				<input id="generate" class="button" type="submit" value="Generate"/>
 			</form>
 		</div>
 	</div>
@@ -127,6 +130,12 @@ document.querySelector('#selectBaseShape').addEventListener('change', (e) => {
 	blueprintHandler.updateBaseShape(e.target.value);
 });
 
+// add a new blueprint layer
+document.querySelector('#add-layer-button').addEventListener('click', (e) => {
+	e.preventDefault();
+	blueprintHandler.appendBlueprintLayer(layersContainer, [1, 0]);
+	blueprintHandler.addLayer([1, 0]);
+});
 
 // update canvas width and height to match client window size
 window.addEventListener('resize', () => {

@@ -4,7 +4,8 @@ import * as geo from "./geodesic.js";
 class BlueprintHandler {
 	constructor() {
 		/** @type {Types.Blueprint} */
-		this.blueprint = this.getDefaultBlueprint();
+		this.blueprint = {};
+		this.buildDefaultBlueprint();
 
 		this.blueprintMap = {
 			"tetrahedron": geo.generateBaseTetrahedron,
@@ -16,17 +17,17 @@ class BlueprintHandler {
 
 	}
 
-	getDefaultBlueprint = () => {
-		/** @type {Types.Blueprint} */
-		const defaultBlueprint = {
+	/**
+	 * this function builds a default blueprint
+	 */
+	buildDefaultBlueprint = () => {
+		this.blueprint = {
 			baseShape: "icosahedron",
 			layers: [],
 		};
-		this.addLayer(defaultBlueprint.layers, [2, 0]);
-		this.addLayer(defaultBlueprint.layers, [3, 3]);
-		this.addLayer(defaultBlueprint.layers, [2, 0]);
-
-		return defaultBlueprint;
+		this.addLayer([2, 0]);
+		this.addLayer([3, 3]);
+		this.addLayer([2, 0]);
 	}
 
 	/**
@@ -53,15 +54,14 @@ class BlueprintHandler {
 
 	/**
 	 * adds a layer to the blueprint
-	 * @param {Types.SubdivisionLayer[]} layers
 	 * @param {number[]} fs frequency
 	 */
-	addLayer = (layers, fs) => {
+	addLayer = (fs) => {
 		const layer = {
 			frequency: fs,
 			subClass: 'class' + this.getClassType(...fs),
 		}
-		layers.push(layer);
+		this.blueprint.layers.push(layer);
 	}
 
 	/**
