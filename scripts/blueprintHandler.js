@@ -68,6 +68,54 @@ class BlueprintHandler {
 		this.blueprint.layers[layerIndex].frequency = newFrequency;
 	}
 
+	generateBlueprintLayerInterface = (parentElement) => {
+		for (const layer of this.blueprint.layers) {
+			this.appendBlueprintLayer(parentElement, layer.class, layer.frequency);
+		}
+	}
+
+	/**
+	 * @param {HTMLElement} parentElement
+	 * @param {string} subClass
+	 * @param {number} frequency
+	 */
+	appendBlueprintLayer = (parentElement, subClass, frequency) => {
+		const index = parentElement.childElementCount;
+
+		/** @type HTMLDivElement */
+		const blueprintLayerDiv = document.createElement('div');
+		blueprintLayerDiv.className = "blueprint-layer";
+
+		blueprintLayerDiv.innerHTML = `
+			<div>
+				<select name="subClass" class="selectSubClass" >
+					<option value="classI">Class I</option>
+					<option value="classII">Class II</option>
+					<option value="classIII">Class III</option>
+				</select>
+				<input class="subFrequency" type="number"/>
+			</div>
+		`;
+
+		const inputSubFrequency = blueprintLayerDiv.querySelectorAll('input.subFrequency')[0];
+
+		blueprintLayerDiv.querySelectorAll(`option[value=${subClass}]`)[0].selected = "selected";
+		inputSubFrequency.value = frequency;
+
+
+		// update the subdivision class of a layer in the blueprint
+		blueprintLayerDiv.querySelectorAll('select.selectSubClass')[0].addEventListener('change', (e) => {
+			this.updateClassOfLayer(index, e.target.value);
+		});
+
+		// update the frequency of a layer in the blueprint
+		inputSubFrequency.addEventListener('change', (e) => {
+			this.updateFrequencyOfLayer(index, +e.target.value);
+		});
+
+		parentElement.appendChild(blueprintLayerDiv);
+	}
+
 	/**
 	 * takes in a Blueprint and returns a Structure
 	 * @param {Types.BuildOptions} options build options

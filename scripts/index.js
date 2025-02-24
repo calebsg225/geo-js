@@ -29,41 +29,10 @@ body.innerHTML = `
 	</div>
 `;
 
-/**
- * @param {HTMLElement} parentElement
- * @param {string} subClass
- * @param {number} frequency
- */
-const appendBlueprintLayer = (parentElement, subClass, frequency) => {
-
-	/** @type HTMLDivElement */
-	const blueprintLayerDiv = document.createElement('div');
-
-	blueprintLayerDiv.innerHTML = `
-		<div class="blueprint-layer">
-			<div>
-				<select name="subClass" class="selectSubClass" >
-					<option value="classI">Class I</option>
-					<option value="classII">Class II</option>
-					<option value="classIII">Class III</option>
-				</select>
-				<input class="subFrequency" type="text" value="1"/>
-			</div>
-		</div>
-	`;
-
-	blueprintLayerDiv.querySelectorAll(`option[value=${subClass}]`)[0].selected = "selected";
-	blueprintLayerDiv.querySelectorAll(`input.subFrequency`)[0].value = frequency + '';
-
-	parentElement.appendChild(blueprintLayerDiv);
-}
-
 /** @type HTMLDivElement */
 const layersContainer = document.querySelector('#layers-container');
 
-for (const layer of blueprintHandler.blueprint.layers) {
-	appendBlueprintLayer(layersContainer, layer.class, layer.frequency);
-}
+blueprintHandler.generateBlueprintLayerInterface(layersContainer);
 
 // set the default base shape to match the options
 const selectedBaseShape = blueprintHandler.blueprint.baseShape;
@@ -158,19 +127,6 @@ document.querySelector('#selectBaseShape').addEventListener('change', (e) => {
 	blueprintHandler.updateBaseShape(e.target.value);
 });
 
-// update the subdivision class of a layer in the blueprint
-document.querySelectorAll('select.selectSubClass').forEach((element, index) => {
-	element.addEventListener('change', (e) => {
-		blueprintHandler.updateClassOfLayer(index, e.target.value);
-	});
-});
-
-// update the frequency of a layer in the blueprint
-document.querySelectorAll('input.subFrequency').forEach((element, index) => {
-	element.addEventListener('change', (e) => {
-		blueprintHandler.updateFrequencyOfLayer(index, +e.target.value);
-	});
-});
 
 // update canvas width and height to match client window size
 window.addEventListener('resize', () => {
