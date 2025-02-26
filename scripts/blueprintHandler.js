@@ -13,6 +13,7 @@ class BlueprintHandler {
 			"icosahedron": geo.generateBaseIcosahedron,
 			"classI": geo.classILayer,
 			"classII": geo.classIILayer,
+			"classIII": geo.classIIILayer,
 		};
 
 	}
@@ -25,9 +26,12 @@ class BlueprintHandler {
 			baseShape: "icosahedron",
 			layers: [],
 		};
-		this.addLayer([2, 0]);
-		this.addLayer([3, 3]);
-		this.addLayer([2, 0]);
+		const dLayerV = [
+			[5, 2],
+		];
+		for (let i = 0; i < dLayerV.length; i++) {
+			this.addLayer(dLayerV[i]);
+		}
 	}
 
 	/**

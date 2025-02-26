@@ -35,7 +35,7 @@ const renderOptions = {
 	],
 	nodes: {
 		near: {
-			show: false,
+			show: true,
 			color: 'green',
 			size: 4
 		},

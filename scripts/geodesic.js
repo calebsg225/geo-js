@@ -602,6 +602,126 @@ const classIILayer = (layer, options, frequency) => {
 }
 
 /**
+ * creates a class III subdivision of the inputed structure layer
+ * @param {StructureLayer} layer
+ * @param {Object} options
+ * @param {number[]} frequency
+ * @returns {StructureLayer}
+ */
+const classIIILayer = (layer, options, frequency) => {
+	const [m, n] = frequency;
+	const v = m + n;
+	const radius = options.sizeConstraint * options.fillPercentage / 2;
+
+	const s3 = Math.sqrt(3);
+	// calculate the number of triangles resulting from Class III subdivision
+	const triangleCount = m ** 2 + m * n + n ** 2;
+	// height of equalateral triangle if side length is 1
+	const h = .5 * s3;
+
+	// calculate the ratio between the height of a classI v triangle and the height of a classIII v triangle
+	const u = v / Math.sqrt(triangleCount) / h;
+
+	// ratio of x to y
+	const rxy = (v + m) / (n * s3);
+
+	// calculate x, y, and xy slide values when navigating a class III subdivision
+	const uy = u / Math.sqrt(rxy ** 2 + 1); // slide along edge
+	const ux = Math.sqrt(u ** 2 - uy ** 2); // slide along left edge
+	const uxy = Math.abs(uy - ux); // slide along right edge
+
+	console.log(uy, ux, uxy);
+
+	// store nodes between faces
+	/** @type {Map<string, string[]>) */
+	const interFaceConnections = new Map();
+
+	const nodes = {
+		near: new Map(),
+		far: new Map()
+	};
+
+	// carry over nodes from previous layer without previous layer node connections
+	for (const distType of Object.keys(layer.nodes)) {
+		layer.nodes[distType].forEach((node, nodeKey) => {
+			nodes[distType].set(nodeKey, new Node(
+				node.x,
+				node.y,
+				node.z,
+				nodeKey
+			));
+		});
+	}
+
+	const edges = {
+		near: new Map(),
+		far: new Map()
+	};
+
+	const faces = {
+		near: new Map(),
+		far: new Map()
+	};
+
+	/** @type {Map<number, number>} */
+	const edgeColorMap = new Map();
+
+	/** @type {Map<number, number>} */
+	const faceColorMap = new Map();
+
+	for (const distType of Object.keys(layer.faces)) {
+		layer.faces[distType].forEach((face, _) => {
+			// get face nodes
+			const faceNodes = [];
+			for (const nodeKey of face.nodes.sort()) {
+				faceNodes.push(
+					layer.nodes.far.get(nodeKey) ||
+					layer.nodes.near.get(nodeKey)
+				);
+			}
+			// order with normal vector
+			const [a, b, c] = faceNodes;
+
+			// keep track of interFaceConnections
+			const abInter = [];
+			const bcInter = [];
+			const acInter = [];
+
+			const abEdgeKey = generateEdgeKey(a.name, b.name);
+			const bcEdgeKey = generateEdgeKey(b.name, c.name);
+			const acEdgeKey = generateEdgeKey(a.name, c.name);
+
+			// initialize node weights
+			let aw = v;
+			let bw = 0;
+			let cw = 0;
+
+			let prevDepthNodeName = generateNodeKey(a.name, b.name, c.name, aw, bw, cw);
+			while (aw > 1) {
+				console.log(uxy, uy);
+				aw -= ux;
+				bw += uxy;
+				cw += uy;
+
+				const depthNodeName = generateNodeKey(a.name, b.name, c.name, aw, bw, cw);
+
+				// create new node here if no node
+				if (!getNode(nodes, depthNodeName).node) {
+					const cmCoords = calcMidNodeCoords(a, b, c, aw, bw, cw);
+					//const nCoords = normalizeNode(...cmCoords, radius);
+					const newNode = new Node(...cmCoords, depthNodeName);
+					const nodeIsNear = isNear([newNode.z]) ? 'near' : 'far';
+					nodes[nodeIsNear].set(depthNodeName, newNode);
+				}
+				prevDepthNodeName = depthNodeName;
+			}
+
+		});
+	}
+	return { nodes, edges, faces };
+}
+
+/**
  * given 2 existing nodes, add a connected edge between them
  * @param {Types.Edges} edges
  * @param {Types.Nodes} node1
@@ -677,4 +797,5 @@ export {
 	generateBaseTetrahedron,
 	classILayer,
 	classIILayer,
+	classIIILayer,
 }
