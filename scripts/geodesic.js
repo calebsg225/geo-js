@@ -705,10 +705,17 @@ const classIIILayer = (layer, options, frequency) => {
 			let cw = 0;
 
 			let prevDepthNodeName = generateNodeKey(a.name, b.name, c.name, aw, bw, cw);
-			while (aw > 1) {
-				aw -= ux;
-				bw += uxy;
-				cw += uy;
+			while (aw - ux > 0) {
+				// try to slide along cb, otherwise slide along ab
+				if (cw - uxy > 0) {
+					aw -= uy;
+					bw += ux;
+					cw -= uxy;
+				} else {
+					aw -= ux;
+					bw += uxy;
+					cw += uy;
+				}
 
 				const depthNodeName = generateNodeKey(a.name, b.name, c.name, aw, bw, cw);
 
