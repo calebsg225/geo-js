@@ -6,6 +6,7 @@ import {
 	getFace,
 	getBaseIcosahedronConnections,
 	isNear,
+	faceNormal,
 	numToChar,
 	generateNodeKey,
 	generateEdgeKey,
@@ -679,8 +680,14 @@ const classIIILayer = (layer, options, frequency) => {
 					layer.nodes.near.get(nodeKey)
 				);
 			}
+
 			// order with normal vector
-			const [a, b, c] = faceNodes;
+			// if normal vector points to origin: swap b and c
+			const [a, bInitial, cInitial] = faceNodes;
+
+			const { flipped } = faceNormal(a, bInitial, cInitial);
+
+			const [b, c] = flipped ? [cInitial, bInitial] : [bInitial, cInitial];
 
 			// keep track of interFaceConnections
 			const abInter = [];
