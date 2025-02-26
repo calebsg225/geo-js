@@ -610,7 +610,9 @@ const classIILayer = (layer, options, frequency) => {
  * @returns {StructureLayer}
  */
 const classIIILayer = (layer, options, frequency) => {
-	const [m, n] = frequency;
+	const [mInitial, nInitial] = frequency;
+	let reverseOrder = mInitial < nInitial ? true : false;
+	const [m, n] = reverseOrder ? [nInitial, mInitial] : [mInitial, nInitial];
 	const v = m + n;
 	const radius = options.sizeConstraint * options.fillPercentage / 2;
 
@@ -630,8 +632,6 @@ const classIIILayer = (layer, options, frequency) => {
 	const uy = u / Math.sqrt(rxy ** 2 + 1); // slide along edge
 	const ux = Math.sqrt(u ** 2 - uy ** 2); // slide along left edge
 	const uxy = Math.abs(uy - ux); // slide along right edge
-
-	console.log(uy, ux, uxy);
 
 	// store nodes between faces
 	/** @type {Map<string, string[]>) */
@@ -687,7 +687,8 @@ const classIIILayer = (layer, options, frequency) => {
 
 			const { flipped } = faceNormal(a, bInitial, cInitial);
 
-			const [b, c] = flipped ? [cInitial, bInitial] : [bInitial, cInitial];
+			// if either flipped or reverse order, flip b and c
+			const [b, c] = flipped ^ reverseOrder ? [cInitial, bInitial] : [bInitial, cInitial];
 
 			// keep track of interFaceConnections
 			const abInter = [];
@@ -705,7 +706,6 @@ const classIIILayer = (layer, options, frequency) => {
 
 			let prevDepthNodeName = generateNodeKey(a.name, b.name, c.name, aw, bw, cw);
 			while (aw > 1) {
-				console.log(uxy, uy);
 				aw -= ux;
 				bw += uxy;
 				cw += uy;
