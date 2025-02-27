@@ -619,19 +619,18 @@ const classIIILayer = (layer, options, frequency) => {
 	const s3 = Math.sqrt(3);
 	// calculate the number of triangles resulting from Class III subdivision
 	const triangleCount = m ** 2 + m * n + n ** 2;
-	// height of equalateral triangle if side length is 1
-	const h = .5 * s3;
 
 	// calculate the ratio between the height of a classI v triangle and the height of a classIII v triangle
-	const u = v / Math.sqrt(triangleCount) / h;
+	const u = (2 * v) / (Math.sqrt(triangleCount) * s3);
 
-	// ratio of x to y
-	const rxy = (v + m) / (n * s3);
+	const rL = (m - n) / (v * s3);
+	const rM = (v + n) / (m * s3);
+	const rS = (v + m) / (n * s3);
 
-	// calculate x, y, and xy slide values when navigating a class III subdivision
-	const uy = u / Math.sqrt(rxy ** 2 + 1); // slide along edge
-	const ux = Math.sqrt(u ** 2 - uy ** 2); // slide along left edge
-	const uxy = Math.abs(uy - ux); // slide along right edge
+	// large, medium, and small slide values
+	const sL = u / Math.sqrt(rL ** 2 + 1);
+	const sM = u / Math.sqrt(rM ** 2 + 1);
+	const sS = u / Math.sqrt(rS ** 2 + 1);
 
 	// store nodes between faces
 	/** @type {Map<string, string[]>) */
@@ -705,27 +704,47 @@ const classIIILayer = (layer, options, frequency) => {
 			let cw = 0;
 
 			let prevDepthNodeName = generateNodeKey(a.name, b.name, c.name, aw, bw, cw);
-			while (aw - ux > 0) {
+			while (aw - sL > -0.00001) {
 				// try to slide along cb, otherwise slide along ab
-				if (cw - uxy > 0) {
-					aw -= uy;
-					bw += ux;
-					cw -= uxy;
+				if (cw - sM > -0.00001) {
+					aw -= sS;
+					bw += sL;
+					cw -= sM;
 				} else {
-					aw -= ux;
-					bw += uxy;
-					cw += uy;
+					aw -= sL;
+					bw += sM;
+					cw += sS;
 				}
 
 				const depthNodeName = generateNodeKey(a.name, b.name, c.name, aw, bw, cw);
-
 				// create new node here if no node
 				if (!getNode(nodes, depthNodeName).node) {
 					const cmCoords = calcMidNodeCoords(a, b, c, aw, bw, cw);
-					//const nCoords = normalizeNode(...cmCoords, radius);
-					const newNode = new Node(...cmCoords, depthNodeName);
+					const nCoords = normalizeNode(...cmCoords, radius);
+					const newNode = new Node(...nCoords, depthNodeName);
 					const nodeIsNear = isNear([newNode.z]) ? 'near' : 'far';
 					nodes[nodeIsNear].set(depthNodeName, newNode);
+				}
+
+				let [aww, bww, cww] = [aw, bw, cw];
+				let prevWidthNodeName = depthNodeName;
+
+				while (bww - sS >= -0.00001 && aww - sM >= -0.00001) {
+					aww -= sM;
+					bww -= sS;
+					cww += sL;
+
+					const widthNodeName = generateNodeKey(a.name, b.name, c.name, aww, bww, cww);
+					// create new node here if no node
+					if (!getNode(nodes, widthNodeName).node) {
+						const cmCoords = calcMidNodeCoords(a, b, c, aww, bww, cww);
+						const nCoords = normalizeNode(...cmCoords, radius);
+						const newNode = new Node(...nCoords, widthNodeName);
+						const nodeIsNear = isNear([newNode.z]) ? 'near' : 'far';
+						nodes[nodeIsNear].set(widthNodeName, newNode);
+					}
+
+					prevWidthNodeName = widthNodeName;
 				}
 				prevDepthNodeName = depthNodeName;
 			}

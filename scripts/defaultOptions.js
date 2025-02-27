@@ -37,12 +37,12 @@ const renderOptions = {
 		near: {
 			show: true,
 			color: 'green',
-			size: 4
+			size: 3
 		},
 		far: {
 			show: false,
 			color: 'red',
-			size: 4
+			size: 2
 		},
 	},
 	edges: {

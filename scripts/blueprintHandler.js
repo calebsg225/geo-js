@@ -27,7 +27,7 @@ class BlueprintHandler {
 			layers: [],
 		};
 		const dLayerV = [
-			[5, 2],
+			[6, 3],
 		];
 		for (let i = 0; i < dLayerV.length; i++) {
 			this.addLayer(dLayerV[i]);
