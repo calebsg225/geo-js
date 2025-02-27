@@ -632,6 +632,9 @@ const classIIILayer = (layer, options, frequency) => {
 	const sM = u / Math.sqrt(rM ** 2 + 1);
 	const sS = u / Math.sqrt(rS ** 2 + 1);
 
+	// approximate zero for accumulation error
+	const zero = -0.0000001;
+
 	// store nodes between faces
 	/** @type {Map<string, string[]>) */
 	const interFaceConnections = new Map();
@@ -704,9 +707,11 @@ const classIIILayer = (layer, options, frequency) => {
 			let cw = 0;
 
 			let prevDepthNodeName = generateNodeKey(a.name, b.name, c.name, aw, bw, cw);
-			while (aw - sL > -0.00001) {
+
+			while (aw - sS >= zero) {
+				let wentDown = false;
 				// try to slide along cb, otherwise slide along ab
-				if (cw - sM > -0.00001) {
+				if (cw - sM >= zero) {
 					aw -= sS;
 					bw += sL;
 					cw -= sM;
@@ -714,6 +719,7 @@ const classIIILayer = (layer, options, frequency) => {
 					aw -= sL;
 					bw += sM;
 					cw += sS;
+					wentDown = true;
 				}
 
 				const depthNodeName = generateNodeKey(a.name, b.name, c.name, aw, bw, cw);
@@ -726,10 +732,19 @@ const classIIILayer = (layer, options, frequency) => {
 					nodes[nodeIsNear].set(depthNodeName, newNode);
 				}
 
+				const depthNode = getNode(nodes, depthNodeName).node;
+				const prevDepthNode = getNode(nodes, prevDepthNodeName).node;
+				connectEdge(edges, prevDepthNode, depthNode, edgeColorMap);
+
+				if (wentDown && bw - sL >= zero) {
+					const rightNode = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aw + sS, bw - sL, cw + sM)).node;
+					connectEdge(edges, depthNode, rightNode, edgeColorMap);
+				}
+
 				let [aww, bww, cww] = [aw, bw, cw];
 				let prevWidthNodeName = depthNodeName;
 
-				while (bww - sS >= -0.00001 && aww - sM >= -0.00001) {
+				while (bww - sS >= zero && aww - sM >= zero) {
 					aww -= sM;
 					bww -= sS;
 					cww += sL;
@@ -742,6 +757,20 @@ const classIIILayer = (layer, options, frequency) => {
 						const newNode = new Node(...nCoords, widthNodeName);
 						const nodeIsNear = isNear([newNode.z]) ? 'near' : 'far';
 						nodes[nodeIsNear].set(widthNodeName, newNode);
+					}
+
+					const widthNode = getNode(nodes, widthNodeName).node;
+					const prevWidthNode = getNode(nodes, prevWidthNodeName).node;
+					connectEdge(edges, widthNode, prevWidthNode, edgeColorMap);
+
+					if (bww - sM >= zero) {
+						const upNode = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aww + sL, bww - sM, cww - sS)).node;
+						connectEdge(edges, widthNode, upNode, edgeColorMap);
+					}
+
+					if (bww - sL >= zero) {
+						const rightNode = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aww + sS, bww - sL, cww + sM)).node;
+						connectEdge(edges, widthNode, rightNode, edgeColorMap);
 					}
 
 					prevWidthNodeName = widthNodeName;

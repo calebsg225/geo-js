@@ -47,8 +47,8 @@ const renderOptions = {
 	},
 	edges: {
 		near: {
-			show: false,
-			colorLength: false,
+			show: true,
+			colorLength: true,
 			color: 'white',
 			size: 3
 		},
