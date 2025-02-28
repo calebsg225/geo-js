@@ -739,6 +739,7 @@ const classIIILayer = (layer, options, frequency) => {
 				if (wentDown && bw - sL >= zero) {
 					const rightNode = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aw + sS, bw - sL, cw + sM)).node;
 					connectEdge(edges, depthNode, rightNode, edgeColorMap);
+					connectFace(faces, prevDepthNode, depthNode, rightNode, faceColorMap);
 				}
 
 				let [aww, bww, cww] = [aw, bw, cw];
@@ -763,14 +764,17 @@ const classIIILayer = (layer, options, frequency) => {
 					const prevWidthNode = getNode(nodes, prevWidthNodeName).node;
 					connectEdge(edges, widthNode, prevWidthNode, edgeColorMap);
 
+
 					if (bww - sM >= zero) {
 						const upNode = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aww + sL, bww - sM, cww - sS)).node;
 						connectEdge(edges, widthNode, upNode, edgeColorMap);
-					}
+						connectFace(faces, prevWidthNode, widthNode, upNode, faceColorMap);
 
-					if (bww - sL >= zero) {
-						const rightNode = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aww + sS, bww - sL, cww + sM)).node;
-						connectEdge(edges, widthNode, rightNode, edgeColorMap);
+						if (bww - sL >= zero) {
+							const rightNode = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aww + sS, bww - sL, cww + sM)).node;
+							connectEdge(edges, widthNode, rightNode, edgeColorMap);
+							connectFace(faces, widthNode, upNode, rightNode, faceColorMap);
+						}
 					}
 
 					prevWidthNodeName = widthNodeName;
