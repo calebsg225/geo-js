@@ -35,7 +35,7 @@ const renderOptions = {
 	],
 	nodes: {
 		near: {
-			show: true,
+			show: false,
 			color: 'green',
 			size: 3
 		},
@@ -50,7 +50,7 @@ const renderOptions = {
 			show: true,
 			colorLength: true,
 			color: 'white',
-			size: 3
+			size: 2
 		},
 		far: {
 			show: false,
@@ -61,7 +61,7 @@ const renderOptions = {
 	},
 	faces: {
 		near: {
-			show: true,
+			show: false,
 			colorArea: true,
 			color: '#FFFF0055',
 		},

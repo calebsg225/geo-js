@@ -632,7 +632,7 @@ const classIIILayer = (layer, options, frequency) => {
 	const sM = u / Math.sqrt(rM ** 2 + 1);
 	const sS = u / Math.sqrt(rS ** 2 + 1);
 
-	// approximate zero for accumulation error
+	// approximate zero (lower bound) for rounding error
 	const zero = -0.0000001;
 
 	// store nodes between faces
@@ -689,12 +689,15 @@ const classIIILayer = (layer, options, frequency) => {
 
 			const { flipped } = faceNormal(a, bInitial, cInitial);
 
+			// keep track of whether a and b were swapped
+			const swapped = flipped ^ reverseOrder;
+
 			// if either flipped or reverse order, flip b and c
-			const [b, c] = flipped ^ reverseOrder ? [cInitial, bInitial] : [bInitial, cInitial];
+			const [b, c] = swapped ? [cInitial, bInitial] : [bInitial, cInitial];
 
 			// keep track of interFaceConnections
 			const abInter = [];
-			const bcInter = [];
+			const bcInter = new Array(v - 1);
 			const acInter = [];
 
 			const abEdgeKey = generateEdgeKey(a.name, b.name);
@@ -708,6 +711,7 @@ const classIIILayer = (layer, options, frequency) => {
 
 			let prevDepthNodeName = generateNodeKey(a.name, b.name, c.name, aw, bw, cw);
 
+			console.log('foo');
 			while (aw - sS >= zero) {
 				let wentDown = false;
 				// try to slide along cb, otherwise slide along ab
@@ -732,6 +736,7 @@ const classIIILayer = (layer, options, frequency) => {
 					nodes[nodeIsNear].set(depthNodeName, newNode);
 				}
 
+				// draw internal edges along base edge AB
 				const depthNode = getNode(nodes, depthNodeName).node;
 				const prevDepthNode = getNode(nodes, prevDepthNodeName).node;
 				connectEdge(edges, prevDepthNode, depthNode, edgeColorMap);
@@ -740,6 +745,53 @@ const classIIILayer = (layer, options, frequency) => {
 					const rightNode = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aw + sS, bw - sL, cw + sM)).node;
 					connectEdge(edges, depthNode, rightNode, edgeColorMap);
 					connectFace(faces, prevDepthNode, depthNode, rightNode, faceColorMap);
+				}
+
+				// connect interFace connections on edge AB
+				if (cw - sL <= -zero) {
+					const ind = v - Math.ceil(aw + zero) - 1;
+					if (interFaceConnections.has(abEdgeKey)) {
+						const connectedFaceNode = getNode(nodes, interFaceConnections.get(abEdgeKey)[ind]).node;
+						if (wentDown) {
+							connectEdge(edges, depthNode, connectedFaceNode, edgeColorMap);
+							if (ind) {
+								connectEdge(edges, prevDepthNode, connectedFaceNode, edgeColorMap);
+							}
+						} else {
+							// node is not on the AB edge
+							if (cw >= -zero) {
+								const prevConnectedFaceNode = getNode(nodes, interFaceConnections.get(abEdgeKey)[ind - 1]).node;
+								connectEdge(edges, depthNode, connectedFaceNode, edgeColorMap);
+								connectEdge(edges, depthNode, prevConnectedFaceNode, edgeColorMap);
+							}
+						}
+					} else if (bw < v + zero) {
+						abInter.push(depthNodeName);
+					}
+				}
+
+				// add first interFace node on edge AC
+				if (aw + sL >= v + zero) {
+					if (interFaceConnections.has(acEdgeKey)) {
+						const connectedFaceNode = getNode(nodes, interFaceConnections.get(acEdgeKey)[0]).node;
+						connectEdge(edges, depthNode, connectedFaceNode, edgeColorMap);
+					} else {
+						acInter.push(depthNodeName);
+					}
+				}
+
+				// add first interFace node on edge BC
+				if (bw + sL >= v + zero && bw <= v + zero) {
+					// if nodes B and C were swapped on this face, reverse bcInter order
+					const ind = swapped ? v - 2 : 0;
+					if (interFaceConnections.has(bcEdgeKey)) {
+						const connectedFaceNode = getNode(nodes, interFaceConnections.get(bcEdgeKey)[ind]).node;
+						const nextConnectedFaceNode = getNode(nodes, interFaceConnections.get(bcEdgeKey)[ind + (swapped ? -1 : 1)]).node;
+						connectEdge(edges, depthNode, connectedFaceNode, edgeColorMap);
+						connectEdge(edges, depthNode, nextConnectedFaceNode, edgeColorMap);
+					} else {
+						bcInter[ind] = depthNodeName;
+					}
 				}
 
 				let [aww, bww, cww] = [aw, bw, cw];
@@ -760,11 +812,13 @@ const classIIILayer = (layer, options, frequency) => {
 						nodes[nodeIsNear].set(widthNodeName, newNode);
 					}
 
+					// draw main internal edges towards base node C
 					const widthNode = getNode(nodes, widthNodeName).node;
 					const prevWidthNode = getNode(nodes, prevWidthNodeName).node;
 					connectEdge(edges, widthNode, prevWidthNode, edgeColorMap);
 
 
+					// draw secondary internal edges and faces
 					if (bww - sM >= zero) {
 						const upNode = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aww + sL, bww - sM, cww - sS)).node;
 						connectEdge(edges, widthNode, upNode, edgeColorMap);
@@ -777,10 +831,65 @@ const classIIILayer = (layer, options, frequency) => {
 						}
 					}
 
+					// connect interFace connections on edge AC
+					if (bww - sL <= zero) {
+						const ind = Math.ceil(cww + zero) - 1;
+						if (interFaceConnections.has(acEdgeKey)) {
+							const connectedFaceNode = getNode(nodes, interFaceConnections.get(acEdgeKey)[ind]).node;
+							if (bww >= -zero) {
+								const prevConnectedFaceNode = getNode(nodes, interFaceConnections.get(acEdgeKey)[ind - 1]).node;
+								const nextConnectedFaceNode = getNode(nodes, interFaceConnections.get(acEdgeKey)[ind + 1]).node;
+								connectEdge(edges, widthNode, connectedFaceNode, edgeColorMap);
+								// up node is on other face
+								if (bww - sM <= zero) {
+									connectEdge(edges, widthNode, prevConnectedFaceNode, edgeColorMap);
+								}
+								// down node is on other face
+								if (bww - sS <= zero) {
+									connectEdge(edges, widthNode, nextConnectedFaceNode, edgeColorMap);
+								}
+							}
+						} else if (cww < v + zero) {
+							acInter.push(widthNodeName);
+						}
+					}
+
+					// connect interFace connections on edge BC
+					if (aww - sL <= zero) {
+						// if nodes B and C were swapped on this face, reverse bcInter order
+						const ind = swapped ? v - Math.ceil(cww + zero) - 1 : Math.ceil(cww + zero) - 1;
+						if (interFaceConnections.has(bcEdgeKey)) {
+							const connectedFaceNode = getNode(nodes, interFaceConnections.get(bcEdgeKey)[ind]).node;
+							if (aww >= -zero) {
+								// previous and next node order depends on if B and C were swapped
+								const prevConnectedFaceNode = getNode(nodes, interFaceConnections.get(bcEdgeKey)[ind + (swapped ? -1 : 1)]).node;
+								const nextConnectedFaceNode = getNode(nodes, interFaceConnections.get(bcEdgeKey)[ind + (swapped ? 1 : -1)]).node;
+								connectEdge(edges, widthNode, connectedFaceNode, edgeColorMap);
+								// up node is on other face
+								if (aww - sM <= zero) {
+									connectEdge(edges, widthNode, prevConnectedFaceNode, edgeColorMap);
+								}
+								// down node is on other face
+								if (aww - sS <= zero) {
+									connectEdge(edges, widthNode, nextConnectedFaceNode, edgeColorMap);
+								}
+							}
+						} else if (cww < v + zero) {
+							bcInter[ind] = widthNodeName;
+						}
+					}
+
 					prevWidthNodeName = widthNodeName;
 				}
 				prevDepthNodeName = depthNodeName;
 			}
+			// update interFace connections
+			if (!interFaceConnections.has(abEdgeKey)) interFaceConnections.set(abEdgeKey, abInter);
+			if (!interFaceConnections.has(acEdgeKey)) interFaceConnections.set(acEdgeKey, acInter);
+			if (!interFaceConnections.has(bcEdgeKey)) interFaceConnections.set(bcEdgeKey, bcInter);
+			//console.log(interFaceConnections.get('a-b'));
+			//console.log(interFaceConnections.get('k-l'));
+			console.log(interFaceConnections);
 
 		});
 	}
