@@ -19,6 +19,7 @@ class BlueprintHandler {
 			"icosahedron": geo.generateBaseIcosahedron,
 			"classI": geo.classILayer,
 			"classII": geo.classIILayer,
+			"classIII": geo.classIIILayer,
 		};
 
 	}
@@ -31,9 +32,14 @@ class BlueprintHandler {
 			baseShape: "icosahedron",
 			layers: [],
 		};
-		this.addLayerToInterface([2, 0]);
-		this.addLayerToInterface([3, 3]);
-		this.addLayerToInterface([2, 0]);
+		const dLayerV = [
+			[2, 0],
+			[3, 2],
+			[2, 0],
+		];
+		for (let i = 0; i < dLayerV.length; i++) {
+			this.addLayerToInterface(dLayerV[i]);
+		}
 	}
 
 	/**
@@ -64,12 +70,6 @@ class BlueprintHandler {
 	 */
 	updateBaseShape = (newBaseShape) => {
 		this.blueprint.baseShape = newBaseShape;
-	}
-
-	generateBlueprintLayerInterface = () => {
-		for (const layer of this.blueprint.layers) {
-			this.addLayerToInterface(this.parentElement, layer.frequency);
-		}
 	}
 
 	/**

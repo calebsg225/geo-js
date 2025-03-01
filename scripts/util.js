@@ -30,7 +30,7 @@ const isNear = (zs) => {
  * @param {Node} a
  * @param {Node} b
  * @param {Node} c
- * @returns {number[]} [x, y, z]
+ * @returns {{coords: number[], flipped: boolean}}
  */
 const faceNormal = (a, b, c) => {
 	const ab = [b.x - a.x, b.y - a.y, b.z - a.z];
@@ -45,8 +45,8 @@ const faceNormal = (a, b, c) => {
 	const theta = Math.acos((a.x * nx + a.y * ny + a.z * nz) / (Math.sqrt(a.x ** 2 + a.y ** 2 + a.z ** 2) * Math.sqrt(nx ** 2 + ny ** 2 + nz ** 2)));
 
 	// swap if needed
-	if (theta > Math.PI / 2) return [nx * -1, ny * -1, nz * -1];
-	return [nx, ny, nz];
+	if (theta > Math.PI / 2) return { coords: [nx * -1, ny * -1, nz * -1], flipped: true };
+	return { coords: [nx, ny, nz], flipped: false };
 }
 
 /**
@@ -62,7 +62,7 @@ const isFaceNear = (n1, n2, n3) => {
 	if (n1.z <= 0 && n2.z <= 0 && n3.z <= 0) return true;
 
 	// get normal and determine distance
-	const nv = faceNormal(n1, n2, n3);
+	const { coords: nv } = faceNormal(n1, n2, n3);
 	if (nv[2] <= 0) return true;
 	return false;
 }
@@ -334,6 +334,7 @@ export {
 	numToChar,
 	charToNum,
 	isNear,
+	faceNormal,
 	isFaceNear,
 	rotateNode,
 	calcMidNodeCoords,
