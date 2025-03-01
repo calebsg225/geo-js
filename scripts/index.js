@@ -2,8 +2,6 @@ import { BlueprintHandler } from "./blueprintHandler.js";
 import Renderer from "./render.js";
 import { buildOptions, renderOptions } from "./defaultOptions.js";
 
-const blueprintHandler = new BlueprintHandler();
-
 const body = document.querySelectorAll('body')[0];
 
 body.innerHTML = `
@@ -35,7 +33,7 @@ body.innerHTML = `
 /** @type HTMLDivElement */
 const layersContainer = document.querySelector('#layers-container');
 
-blueprintHandler.generateBlueprintLayerInterface(layersContainer);
+const blueprintHandler = new BlueprintHandler(layersContainer);
 
 // set the default base shape to match the options
 const selectedBaseShape = blueprintHandler.blueprint.baseShape;
@@ -133,8 +131,7 @@ document.querySelector('#selectBaseShape').addEventListener('change', (e) => {
 // add a new blueprint layer
 document.querySelector('#add-layer-button').addEventListener('click', (e) => {
 	e.preventDefault();
-	blueprintHandler.appendBlueprintLayer(layersContainer, [1, 0]);
-	blueprintHandler.addLayer([1, 0]);
+	blueprintHandler.addLayerToInterface([1, 0]);
 });
 
 // update canvas width and height to match client window size

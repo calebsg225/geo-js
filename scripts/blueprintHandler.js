@@ -2,9 +2,15 @@ import * as Types from "./types.js";
 import * as geo from "./geodesic.js";
 
 class BlueprintHandler {
-	constructor() {
+
+	/*
+	 * @constructor
+	 * @param {HTMLElement} parentElement
+	 */
+	constructor(parentElement) {
 		/** @type {Types.Blueprint} */
 		this.blueprint = {};
+		this.parentElement = parentElement;
 		this.buildDefaultBlueprint();
 
 		this.blueprintMap = {
@@ -25,9 +31,9 @@ class BlueprintHandler {
 			baseShape: "icosahedron",
 			layers: [],
 		};
-		this.addLayer([2, 0]);
-		this.addLayer([3, 3]);
-		this.addLayer([2, 0]);
+		this.addLayerToInterface([2, 0]);
+		this.addLayerToInterface([3, 3]);
+		this.addLayerToInterface([2, 0]);
 	}
 
 	/**
@@ -53,18 +59,6 @@ class BlueprintHandler {
 	}
 
 	/**
-	 * adds a layer to the blueprint
-	 * @param {number[]} fs frequency
-	 */
-	addLayer = (fs) => {
-		const layer = {
-			frequency: fs,
-			subClass: 'class' + this.getClassType(...fs),
-		}
-		this.blueprint.layers.push(layer);
-	}
-
-	/**
 	 * updates the blueprint by replacing the previous base shape with the new base shape
 	 * @param {string} newBaseShape
 	 */
@@ -72,18 +66,23 @@ class BlueprintHandler {
 		this.blueprint.baseShape = newBaseShape;
 	}
 
-	generateBlueprintLayerInterface = (parentElement) => {
+	generateBlueprintLayerInterface = () => {
 		for (const layer of this.blueprint.layers) {
-			this.appendBlueprintLayer(parentElement, layer.frequency);
+			this.addLayerToInterface(this.parentElement, layer.frequency);
 		}
 	}
 
 	/**
 	 * @param {HTMLElement} parentElement
-	 * @param {number} frequency
+	 * @param {number[]} frequency
 	 */
-	appendBlueprintLayer = (parentElement, frequency) => {
-		const index = parentElement.childElementCount;
+	addLayerToInterface = (frequency) => {
+		const layer = {
+			frequency: frequency,
+			subClass: 'class' + this.getClassType(...frequency),
+		}
+		this.blueprint.layers.push(layer);
+		const index = this.blueprint.layers.length - 1;
 
 		/** @type HTMLDivElement */
 		const blueprintLayerDiv = document.createElement('div');
@@ -104,6 +103,7 @@ class BlueprintHandler {
 					min="0"
 					value="${frequency[1]}"
 				/>
+				<button class="remove-layer-button button" >remove this layer</button>
 			</div>
 		`;
 
@@ -116,7 +116,13 @@ class BlueprintHandler {
 			});
 		}
 
-		parentElement.appendChild(blueprintLayerDiv);
+		blueprintLayerDiv.querySelector('button.remove-layer-button').addEventListener("click", (e) => {
+			e.preventDefault();
+			this.blueprint.layers[index] = null;
+			blueprintLayerDiv.parentElement.removeChild(blueprintLayerDiv);
+		});
+
+		this.parentElement.appendChild(blueprintLayerDiv);
 	}
 
 	/**
@@ -134,6 +140,7 @@ class BlueprintHandler {
 
 		// subdivide one layer at a time
 		for (let i = 0; i < this.blueprint.layers.length; i++) {
+			if (!this.blueprint.layers[i]) continue;
 			const { subClass, frequency } = this.blueprint.layers[i];
 			const previousLayer = structure.layers[structure.layers.length - 1];
 			const subdivideFunction = this.blueprintMap[subClass];
