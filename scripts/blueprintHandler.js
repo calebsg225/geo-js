@@ -90,29 +90,66 @@ class BlueprintHandler {
 
 		blueprintLayerDiv.innerHTML = `
 			<div class="layer-info">
-				<h3 class="layer-name">${this.getLayerName(...frequency)}</h3>
-				<input
-					class="sub-freq freq1"
-					type="number"
-					min="1"
-					value="${frequency[0]}"
-				/>
-				<input 
-					class="sub-freq freq2"
-					type="number"
-					min="0"
-					value="${frequency[1]}"
-				/>
-				<button class="remove-layer-button button" >remove this layer</button>
+				<div class="drag-handle"></div>
+				<div class="inputs-container">
+					<h3 class="layer-name">${this.getLayerName(...frequency)}</h3>
+					<div class="layer-inputs">
+						<div class="layer-input-container">
+							<h4>m</h4>
+							<button class="button minus-button minus1">-</button>
+							<input
+								class="sub-freq freq1"
+								name="m"
+								type="text"
+								value="${frequency[0]}"
+							/>
+							<button class="button plus-button plus1">+</button>
+						</div>
+						<div class="layer-input-container">
+							<h4>n</h4>
+							<button class="button minus-button minus2">-</button>
+							<input 
+								class="sub-freq freq2"
+								name="n"
+								type="text"
+								value="${frequency[1]}"
+							/>
+							<button class="button plus-button plus2">+</button>
+						</div>
+					</div>
+					<button class="remove-layer-button button" >X</button>
+				</div>
 			</div>
 		`;
 
 		for (let i = 0; i <= 1; i++) {
-			blueprintLayerDiv.querySelector(`.freq${i + 1}`).addEventListener("change", (e) => {
+			const input = blueprintLayerDiv.querySelector(`.freq${i + 1}`);
+
+			const updateDescription = (i, mn) => {
 				const layer = this.blueprint.layers[index];
-				layer.frequency[i] = +e.target.value;
+				layer.frequency[i] = mn;
 				layer.subClass = 'class' + this.getClassType(...layer.frequency);
 				blueprintLayerDiv.querySelector('h3.layer-name').innerText = this.getLayerName(...layer.frequency);
+			}
+
+			input.addEventListener("change", (e) => {
+				const hasNonInteger = e.target.value.search(/[^0-9]/g) >= 0;
+				const mn = hasNonInteger ? i ^ 1 : +e.target.value;
+				if (hasNonInteger) e.target.value = mn + '';
+				updateDescription(i, mn);
+			});
+
+			blueprintLayerDiv.querySelector(`.plus${i + 1}`).addEventListener("click", (e) => {
+				e.preventDefault();
+				input.value = +input.value + 1 + '';
+				updateDescription(i, +input.value);
+			});
+
+			blueprintLayerDiv.querySelector(`.minus${i + 1}`).addEventListener("click", (e) => {
+				e.preventDefault();
+				if (+input.value <= (i ^ 1)) return;
+				input.value = +input.value - 1 + '';
+				updateDescription(i, +input.value);
 			});
 		}
 

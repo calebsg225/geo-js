@@ -9,8 +9,8 @@ body.innerHTML = `
 		<canvas id="geo-canvas"></canvas>
 		<div id="interface">
 			<form>
-				<label for="baseShapes">Base Shape</label>
-				<select name="baseShapes" id="selectBaseShape">
+				<label for="select-base-shape">Base Shape</label>
+				<select name="baseShapes" id="select-base-shape">
 					<optgroup label="Traditional">
 						<option value="tetrahedron">Tetrahedron</option>
 						<option value="octahedron">Octahedron</option>
@@ -37,7 +37,7 @@ const blueprintHandler = new BlueprintHandler(layersContainer);
 
 // set the default base shape to match the options
 const selectedBaseShape = blueprintHandler.blueprint.baseShape;
-const selectedBaseShapeOption = document.querySelector(`select#selectBaseShape option[value=${selectedBaseShape}]`);
+const selectedBaseShapeOption = document.querySelector(`select#select-base-shape option[value=${selectedBaseShape}]`);
 selectedBaseShapeOption.selected = "selected";
 
 let width = body.clientWidth;
@@ -124,7 +124,7 @@ document.querySelector('#generate').addEventListener('click', (e) => {
 });
 
 // update the base shape in the blueprint
-document.querySelector('#selectBaseShape').addEventListener('change', (e) => {
+document.querySelector('#select-base-shape').addEventListener('change', (e) => {
 	blueprintHandler.updateBaseShape(e.target.value);
 });
 
