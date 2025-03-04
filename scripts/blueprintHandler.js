@@ -95,22 +95,22 @@ class BlueprintHandler {
 					<h3 class="layer-name">${this.getLayerName(...frequency)}</h3>
 					<div class="layer-inputs">
 						<div class="layer-input-container">
-							<h4>m</h4>
 							<button class="button minus-button minus1">-</button>
 							<input
 								class="sub-freq freq1"
 								name="m"
+								placeholder="m"
 								type="text"
 								value="${frequency[0]}"
 							/>
 							<button class="button plus-button plus1">+</button>
 						</div>
 						<div class="layer-input-container">
-							<h4>n</h4>
 							<button class="button minus-button minus2">-</button>
 							<input 
 								class="sub-freq freq2"
 								name="n"
+								placeholder="n"
 								type="text"
 								value="${frequency[1]}"
 							/>
@@ -134,6 +134,7 @@ class BlueprintHandler {
 
 			input.addEventListener("change", (e) => {
 				const hasNonInteger = e.target.value.search(/[^0-9]/g) >= 0;
+				if (!e.target.value.length) e.target.value = i ^ 1 + '';
 				const mn = hasNonInteger ? i ^ 1 : +e.target.value;
 				if (hasNonInteger) e.target.value = mn + '';
 				updateDescription(i, mn);

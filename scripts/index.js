@@ -8,24 +8,36 @@ body.innerHTML = `
 	<div id="main" >
 		<canvas id="geo-canvas"></canvas>
 		<div id="interface">
-			<form>
-				<label for="select-base-shape">Base Shape</label>
-				<select name="baseShapes" id="select-base-shape">
-					<optgroup label="Traditional">
-						<option value="tetrahedron">Tetrahedron</option>
-						<option value="octahedron">Octahedron</option>
-						<option value="icosahedron">Icosahedron</option>
-					</optgroup>
-					<optgroup label="Geometric"></optgroup>
-					<optgroup label="Unusual"></optgroup>
-				</select>
-				<div id="layers-interface">
-					<div id="layers-container">
-					</div>
-					<button id="add-layer-button" class="button">+</button>
+			<section id="build-interface-container">
+				<div class="dropdown">
+					<button id="build-interface-toggle">/\\</button>
+					<h3>Build</h3>
 				</div>
-				<input id="generate" class="button" type="submit" value="Generate"/>
-			</form>
+				<form id="build-form" style="display: inline;">
+					<label for="select-base-shape">Base Shape</label>
+					<select name="baseShapes" id="select-base-shape">
+						<optgroup label="Traditional">
+							<option value="tetrahedron">Tetrahedron</option>
+							<option value="octahedron">Octahedron</option>
+							<option value="icosahedron">Icosahedron</option>
+						</optgroup>
+						<optgroup label="Geometric"></optgroup>
+						<optgroup label="Other"></optgroup>
+					</select>
+					<div id="layers-interface">
+						<div id="layers-container">
+						</div>
+						<button id="add-layer-button" class="button">+</button>
+					</div>
+					<input id="build" class="button" type="submit" value="Build"/>
+				</form>
+			</section>
+			<section id="render-interface-container">
+				<div class="dropdown">
+					<button>\\/</button>
+					<h3>Render</h3>
+				</div>
+			</section>
 		</div>
 	</div>
 `;
@@ -112,12 +124,24 @@ geoCanvas.addEventListener('touchmove', (e) => {
 
 // events for interface elements
 
-// generates structure from the current blueprint
-document.querySelector('#generate').addEventListener('click', (e) => {
+// hide/show build interface
+document.querySelector('#build-interface-toggle').addEventListener('click', (e) => {
+	const form = document.querySelector('#build-form');
+	if (form.style.display !== "inline") {
+		form.style.display = "inline";
+		e.target.innerHTML = "/\\";
+	} else {
+		form.style.display = "none";
+		e.target.innerHTML = "\\/";
+	}
+});
+
+// builds structure from the current blueprint
+document.querySelector('#build').addEventListener('click', (e) => {
 	// stop from reloading
 	e.preventDefault();
 
-	// generate new structure from blueprint and render
+	// build new structure from blueprint and render
 	const newStructure = blueprintHandler.buildStructure(buildOptions);
 	renderer.setStructure(newStructure);
 	renderer.render();
