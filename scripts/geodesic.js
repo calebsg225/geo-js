@@ -761,7 +761,9 @@ const classIIILayer = (layer, options, frequency) => {
 							connectEdge(edges, depthNode, connectedFaceNode, edgeColorMap);
 							connectFace(faces, prevDepthNode, depthNode, connectedFaceNode, faceColorMap);
 							if (ind) {
-								connectFace(faces, prevDepthNode, prevConnectedFaceNode, connectedFaceNode, faceColorMap);
+								if (prevDepthNode.name !== prevConnectedFaceNode.name) {
+									connectFace(faces, prevDepthNode, prevConnectedFaceNode, connectedFaceNode, faceColorMap);
+								}
 								connectEdge(edges, prevDepthNode, connectedFaceNode, edgeColorMap);
 							}
 						} else {
@@ -851,7 +853,6 @@ const classIIILayer = (layer, options, frequency) => {
 						if (interFaceConnections.has(acEdgeKey)) {
 							const connectedFaceNode = getNode(nodes, interFaceConnections.get(acEdgeKey)[ind]).node;
 							const prevConnectedFaceNode = getNode(nodes, interFaceConnections.get(acEdgeKey)[ind - 1]).node;
-							const nextConnectedFaceNode = getNode(nodes, interFaceConnections.get(acEdgeKey)[ind + 1]).node;
 							// not last node
 							if (bww >= -zero) {
 								const upNode = getNode(nodes, generateNodeKey(a.name, b.name, c.name, aww + sL, bww - sM, cww - sS)).node;
@@ -862,7 +863,9 @@ const classIIILayer = (layer, options, frequency) => {
 									connectFace(faces, widthNode, prevConnectedFaceNode, connectedFaceNode, faceColorMap);
 								} else {
 									connectFace(faces, upNode, widthNode, connectedFaceNode, faceColorMap);
-									connectFace(faces, upNode, connectedFaceNode, prevConnectedFaceNode, faceColorMap);
+									if (upNode.name !== prevConnectedFaceNode.name) {
+										connectFace(faces, upNode, connectedFaceNode, prevConnectedFaceNode, faceColorMap);
+									}
 									connectEdge(edges, upNode, connectedFaceNode, edgeColorMap);
 								}
 							}
