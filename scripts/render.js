@@ -112,7 +112,7 @@ class Renderer {
 				if (rotatedNodes.has(node.name)) return;
 
 				// rotate node, check if node switched near/far
-				const { switched, underThreshold } = node.updateCoord(...rotateNode(node.x, node.y, node.z, dX, dY, this.options.rotationStep), this.layer.maxEdgeLength);
+				const { switched, underThreshold } = node.updateCoord(...rotateNode(node.x, node.y, node.z, dX, dY, this.options.rotationStep), Math.max(this.layer.maxEdgeLength, Math.abs(dX), Math.abs(dY)));
 
 				// if node z value is or was under max edge length, edges and faces connected to this node need to be checked if it crossed to near/far
 				if (underThreshold) {
