@@ -6,12 +6,11 @@ const body = document.querySelector('body');
 body.innerHTML = `
 	<div id="main" >
 		<canvas id="geo-canvas"></canvas>
-			<div id="interface">
-				<section id="build-interface-container">
+			<div id="interface"> <section id="build-interface-container">
 					<div class="dropdown">
 						<button id="build-interface-toggle">/\\ Build</button>
 					</div>
-					<form id="build-form" style="display: inline;">
+					<form id="build-form" style="display: none;">
 						<label for="select-base-shape">Base Shape</label>
 						<select name="baseShapes" id="select-base-shape">
 							<optgroup label="Traditional">
@@ -35,7 +34,8 @@ body.innerHTML = `
 					<div class="dropdown">
 						<button id="render-interface-toggle">\\/ Render</button>
 					</div>
-					<form id="render-form" style="display: none;">
+					<form id="render-form" style="display: inline;">
+						<input id="render" class="button" type="submit" value="Render"/>
 					</form>
 				</section>
 		</div>
@@ -158,6 +158,12 @@ document.querySelector('#build').addEventListener('click', (e) => {
 	const newStructure = blueprintHandler.buildStructure(buildOptions);
 	renderer.setStructure(newStructure);
 	renderer.render();
+});
+
+// renders from render options
+document.querySelector('#render').addEventListener('click', (e) => {
+	// stop from reloading
+	e.preventDefault();
 });
 
 // update the base shape in the blueprint
