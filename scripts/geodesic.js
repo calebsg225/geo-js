@@ -58,8 +58,11 @@ const generateBaseIcosahedron = (options) => {
 		far: new Map()
 	};
 
-	/** @type {Map<number, number>} */
+	/** @type {Map<(number | string), number>} */
 	const edgeColorMap = new Map();
+
+	// piggy back off of edgeColorMap to store maxEdgeLength
+	edgeColorMap.set('maxEdgeLength', -Infinity);
 
 	/** @type {Map<number, number>} */
 	const faceColorMap = new Map();
@@ -109,7 +112,7 @@ const generateBaseIcosahedron = (options) => {
 			nodes.far.set(node.name, node);
 		}
 	}
-	return { nodes, edges, faces, maxEdgeLength: edges.near.get('a-b').length }
+	return { nodes, edges, faces, maxEdgeLength: edgeColorMap.get('maxEdgeLength') }
 }
 
 /**
@@ -148,8 +151,11 @@ const generateBaseTetrahedron = (options) => {
 		far: new Map()
 	};
 
-	/** @type {Map<number, number>} */
+	/** @type {Map<(number | string), number>} */
 	const edgeColorMap = new Map();
+
+	// piggy back off of edgeColorMap to store maxEdgeLength
+	edgeColorMap.set('maxEdgeLength', -Infinity);
 
 	/** @type {Map<number, number>} */
 	const faceColorMap = new Map();
@@ -172,7 +178,7 @@ const generateBaseTetrahedron = (options) => {
 		nodes[nodeDistType].set(nodeName, node);
 	}
 
-	return { nodes, edges, faces, maxEdgeLength: edges.near.get('a-b').length };
+	return { nodes, edges, faces, maxEdgeLength: edgeColorMap.get('maxEdgeLength') };
 }
 
 /**
@@ -211,8 +217,11 @@ const generateBaseOctahedron = (options) => {
 		far: new Map()
 	};
 
-	/** @type {Map<number, number>} */
+	/** @type {Map<(number | string), number>} */
 	const edgeColorMap = new Map();
+
+	// piggy back off of edgeColorMap to store maxEdgeLength
+	edgeColorMap.set('maxEdgeLength', -Infinity);
 
 	/** @type {Map<number, number>} */
 	const faceColorMap = new Map();
@@ -237,7 +246,7 @@ const generateBaseOctahedron = (options) => {
 		nodes[nodeDistType].set(nodeName, node);
 	}
 
-	return { nodes, edges, faces, maxEdgeLength: edges.near.get('a-c').length };
+	return { nodes, edges, faces, maxEdgeLength: edgeColorMap.get('maxEdgeLength') };
 }
 
 /**
@@ -280,8 +289,11 @@ const classILayer = (layer, options, frequency) => {
 		far: new Map()
 	};
 
-	/** @type {Map<number, number>} */
+	/** @type {Map<(number | string), number>} */
 	const edgeColorMap = new Map();
+
+	// piggy back off of edgeColorMap to store maxEdgeLength
+	edgeColorMap.set('maxEdgeLength', -Infinity);
 
 	/** @type {Map<number, number>} */
 	const faceColorMap = new Map();
@@ -394,7 +406,7 @@ const classILayer = (layer, options, frequency) => {
 	console.log('total node count: ', nodes.far.size + nodes.near.size);
 	console.log('total unique edges: ', edgeColorMap.size);
 	console.log('total unique faces (by area): ', faceColorMap.size);
-	return { nodes, edges, faces };
+	return { nodes, edges, faces, maxEdgeLength: edgeColorMap.get('maxEdgeLength') };
 }
 
 /**
@@ -439,8 +451,11 @@ const classIILayer = (layer, options, frequency) => {
 		far: new Map()
 	};
 
-	/** @type {Map<number, number>} */
+	/** @type {Map<(number | string), number>} */
 	const edgeColorMap = new Map();
+
+	// piggy back off of edgeColorMap to store maxEdgeLength
+	edgeColorMap.set('maxEdgeLength', -Infinity);
 
 	/** @type {Map<number, number>} */
 	const faceColorMap = new Map();
@@ -605,7 +620,7 @@ const classIILayer = (layer, options, frequency) => {
 	console.log('total node count: ', nodes.far.size + nodes.near.size);
 	console.log('total unique edges: ', edgeColorMap.size);
 	console.log('total unique faces (by area): ', faceColorMap.size);
-	return { nodes, edges, faces };
+	return { nodes, edges, faces, maxEdgeLength: edgeColorMap.get('maxEdgeLength') };
 }
 
 /**
@@ -672,8 +687,11 @@ const classIIILayer = (layer, options, frequency) => {
 		far: new Map()
 	};
 
-	/** @type {Map<number, number>} */
+	/** @type {Map<(number | string), number>} */
 	const edgeColorMap = new Map();
+
+	// piggy back off of edgeColorMap to store maxEdgeLength
+	edgeColorMap.set('maxEdgeLength', -Infinity);
 
 	/** @type {Map<number, number>} */
 	const faceColorMap = new Map();
@@ -928,7 +946,7 @@ const classIIILayer = (layer, options, frequency) => {
 	console.log('total node count: ', nodes.far.size + nodes.near.size);
 	console.log('total unique edges: ', edgeColorMap.size);
 	console.log('total unique faces (by area): ', faceColorMap.size);
-	return { nodes, edges, faces };
+	return { nodes, edges, faces, maxEdgeLength: edgeColorMap.get('maxEdgeLength') };
 }
 
 /**
@@ -949,14 +967,21 @@ const connectEdge = (edges, node1, node2, edgeColorMap) => {
 	// create new edge
 	const newEdge = new Edge(node1, node2);
 
+	// update color map
 	const edgeColorKey = parseFloat(newEdge.length.toPrecision(10));
 	if (edgeColorMap.has(edgeColorKey)) {
 		newEdge.colorCode = edgeColorMap.get(edgeColorKey);
 	} else {
-		const edgeColorCode = edgeColorMap.size;
+		const edgeColorCode = edgeColorMap.size - 1;
 		edgeColorMap.set(edgeColorKey, edgeColorCode);
 		newEdge.colorCode = edgeColorCode;
 	}
+
+	// keep track of largest edge length
+	if (newEdge.length > edgeColorMap.get('maxEdgeLength')) {
+		edgeColorMap.set('maxEdgeLength', newEdge.length);
+	}
+
 	// find out view distance of edge
 	const distType = isNear([node1.z, node2.z]) ? 'near' : 'far';
 

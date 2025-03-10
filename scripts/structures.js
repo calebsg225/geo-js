@@ -31,7 +31,7 @@ class Node {
 	 * @param {number} threshold
 	 * @returns {{switched: boolean, underThreshold: boolean}}
 	 */
-	updateCoord(x, y, z, threshold = 0) {
+	updateCoord(x, y, z, threshold = 1000) {
 		const switched = (z > 0) !== (this.z > 0);
 		const underThreshold = Math.abs(this.z) < threshold || Math.abs(z) < threshold;
 		this.x = x;
