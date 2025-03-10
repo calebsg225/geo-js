@@ -296,7 +296,6 @@ const classILayer = (layer, options, frequency) => {
 					layer.nodes.near.get(nodeKey)
 				);
 			}
-			// TODO: (for class III subdivision) order in a consistent way
 			const [a, b, c] = faceNodes;
 
 			// initialize node weights
@@ -391,9 +390,10 @@ const classILayer = (layer, options, frequency) => {
 			}
 		});
 	}
-	console.log(`~~~~ CLASS I: ${nv}v ~~~~`);
-	console.log('unique edges: ', edgeColorMap.size);
-	console.log('unique faces (by area): ', faceColorMap.size);
+	console.log(`~~~~~~~~ LAYER Class I: ${nv}v ~~~~~~~~`);
+	console.log('total node count: ', nodes.far.size + nodes.near.size);
+	console.log('total unique edges: ', edgeColorMap.size);
+	console.log('total unique faces (by area): ', faceColorMap.size);
 	return { nodes, edges, faces };
 }
 
@@ -601,9 +601,10 @@ const classIILayer = (layer, options, frequency) => {
 			if (!interFaceConnections.has(bcEdgeKey)) interFaceConnections.set(bcEdgeKey, bcInter);
 		});
 	}
-	console.log(`~~~~ CLASS II: ${nv}v ~~~~`);
-	console.log('unique edges: ', edgeColorMap.size);
-	console.log('unique faces (by area): ', faceColorMap.size);
+	console.log(`~~~~~~~~ LAYER Class II: ${nv}v ~~~~~~~~`);
+	console.log('total node count: ', nodes.far.size + nodes.near.size);
+	console.log('total unique edges: ', edgeColorMap.size);
+	console.log('total unique faces (by area): ', faceColorMap.size);
 	return { nodes, edges, faces };
 }
 
@@ -923,9 +924,10 @@ const classIIILayer = (layer, options, frequency) => {
 			if (!interFaceConnections.has(bcEdgeKey)) interFaceConnections.set(bcEdgeKey, bcInter);
 		});
 	}
-	console.log(`~~~~ CLASS III: {${mInitial}, ${nInitial}} ${v}v ~~~~`);
-	console.log('unique edges: ', edgeColorMap.size);
-	console.log('unique faces (by area): ', faceColorMap.size);
+	console.log(`~~~~~~~~ LAYER Class III: {${mInitial}, ${nInitial}} ${v}v ~~~~~~~~`);
+	console.log('total node count: ', nodes.far.size + nodes.near.size);
+	console.log('total unique edges: ', edgeColorMap.size);
+	console.log('total unique faces (by area): ', faceColorMap.size);
 	return { nodes, edges, faces };
 }
 

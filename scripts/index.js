@@ -2,47 +2,49 @@ import { BlueprintHandler } from "./blueprintHandler.js";
 import Renderer from "./render.js";
 import { buildOptions, renderOptions } from "./defaultOptions.js";
 
-const body = document.querySelectorAll('body')[0];
-
+const body = document.querySelector('body');
 body.innerHTML = `
 	<div id="main" >
 		<canvas id="geo-canvas"></canvas>
-		<div id="interface">
-			<section id="build-interface-container">
-				<div class="dropdown">
-					<button id="build-interface-toggle">/\\</button>
-					<h3>Build</h3>
-				</div>
-				<form id="build-form" style="display: inline;">
-					<label for="select-base-shape">Base Shape</label>
-					<select name="baseShapes" id="select-base-shape">
-						<optgroup label="Traditional">
-							<option value="tetrahedron">Tetrahedron</option>
-							<option value="octahedron">Octahedron</option>
-							<option value="icosahedron">Icosahedron</option>
-						</optgroup>
-						<optgroup label="Geometric"></optgroup>
-						<optgroup label="Other"></optgroup>
-					</select>
-					<div id="layers-interface">
-						<div id="layers-container">
-						</div>
-						<button id="add-layer-button" class="button">+</button>
+			<div id="interface">
+				<section id="build-interface-container">
+					<div class="dropdown">
+						<button id="build-interface-toggle">/\\ Build</button>
 					</div>
-					<input id="build" class="button" type="submit" value="Build"/>
-				</form>
-			</section>
-			<section id="render-interface-container">
-				<div class="dropdown">
-					<button>\\/</button>
-					<h3>Render</h3>
-				</div>
-			</section>
+					<form id="build-form" style="display: inline;">
+						<label for="select-base-shape">Base Shape</label>
+						<select name="baseShapes" id="select-base-shape">
+							<optgroup label="Traditional">
+								<option value="tetrahedron">Tetrahedron</option>
+								<option value="octahedron">Octahedron</option>
+								<option value="icosahedron">Icosahedron</option>
+							</optgroup>
+							<optgroup label="Geometric"></optgroup>
+							<optgroup label="Other"></optgroup>
+						</select>
+						<label for="layers-interface">Layers</label>
+						<div id="layers-interface">
+							<div id="layers-container">
+							</div>
+							<button id="add-layer-button" class="button">+</button>
+						</div>
+						<input id="build" class="button" type="submit" value="Build"/>
+					</form>
+				</section>
+				<section id="render-interface-container">
+					<div class="dropdown">
+						<button id="render-interface-toggle">\\/ Render</button>
+					</div>
+					<form id="render-form" style="display: none;">
+					</form>
+				</section>
 		</div>
 	</div>
 `;
 
+
 /** @type HTMLDivElement */
+
 const layersContainer = document.querySelector('#layers-container');
 
 const blueprintHandler = new BlueprintHandler(layersContainer);
@@ -129,10 +131,21 @@ document.querySelector('#build-interface-toggle').addEventListener('click', (e) 
 	const form = document.querySelector('#build-form');
 	if (form.style.display !== "inline") {
 		form.style.display = "inline";
-		e.target.innerHTML = "/\\";
+		e.target.innerHTML = "/\\ Build";
 	} else {
 		form.style.display = "none";
-		e.target.innerHTML = "\\/";
+		e.target.innerHTML = "\\/ Build";
+	}
+});
+
+document.querySelector('#render-interface-toggle').addEventListener('click', (e) => {
+	const form = document.querySelector('#render-form');
+	if (form.style.display !== "inline") {
+		form.style.display = "inline";
+		e.target.innerHTML = "/\\ Render";
+	} else {
+		form.style.display = "none";
+		e.target.innerHTML = "\\/ Render";
 	}
 });
 
@@ -157,7 +170,6 @@ document.querySelector('#add-layer-button').addEventListener('click', (e) => {
 	e.preventDefault();
 	blueprintHandler.addLayerToInterface([1, 0]);
 });
-
 // update canvas width and height to match client window size
 window.addEventListener('resize', () => {
 	width = body.clientWidth;

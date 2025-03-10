@@ -33,9 +33,7 @@ class BlueprintHandler {
 			layers: [],
 		};
 		const dLayerV = [
-			[2, 0],
-			[3, 2],
-			[2, 0],
+			[2, 1],
 		];
 		for (let i = 0; i < dLayerV.length; i++) {
 			this.addLayerToInterface(dLayerV[i]);

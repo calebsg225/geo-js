@@ -1,140 +1,189 @@
-body,
-#main,
-#geo-canvas {
-	margin: 0;
-}
-
-#main,
-#geo-canvas {
-	width: 100%;
-	height: 100%;
-}
-
 body {
+	margin: 0;
 	height: 100vh;
-	overflow: hidden;
+	background-color: black;
+	font-size: 1rem;
 }
 
 #main {
-	position: relative;
+	height: 100%;
+	margin: 0;
+}
+
+#geo-canvas {
+	width: 100%;
+	height: 100%;
+	margin: 0;
 }
 
 #interface {
 	position: absolute;
-	z-index: 10;
-	top: 10px;
-	left: 10px;
+	top: 1rem;
+	left: 1rem;
+	width: min(90%, 20rem);
 }
 
 button {
-	font-size: 1rem;
 	font-weight: 700;
 	border: none;
 	cursor: pointer;
+	font-size: inherit;
+	color: white;
+	background-color: #00000000;
+	transition: background-color .1s;
 }
 
-#build-form {
-
-	label {
-		color: white;
-	}
-
-	select {
-		color: white;
-		background-color: #00000000;
-		cursor: pointer;
-	}
-
+label {
+	color: white;
+	font-weight: 700;
+	font-size: 1.25rem;
 }
 
 form>* {
 	margin-left: 2rem;
-	width: min(calc(100vw - 2rem), 20rem);
 }
 
 select {
+	cursor: pointer;
+	color: white;
 	font-weight: 700;
+	border: solid 2px white;
+	outline: none;
+	background-color: #000000aa;
+	transition: background-color .1s;
+}
+
+select:hover {
+	background-color: #444444;
+}
+
+optgroup,
+option {
+	background-color: black;
 }
 
 .dropdown {
-	display: flex;
 	align-items: center;
+	justify-content: space-between;
 	color: white;
+	font-size: 1.5rem;
 
 	button {
 		color: white;
-		font-weight: 700;
 		padding: .5rem;
 		background-color: #00000000;
-		font-size: .75rem;
-	}
-
-	h3 {
-		margin: 0;
 	}
 
 }
 
-#layers-container {}
+#layers-interface {
+	border: solid 2px white;
+	display: flex;
+	flex-direction: column;
+	margin-top: .25rem;
+	background-color: #000000aa;
+}
 
 #layers-container .layer-info {
 	padding: .25rem;
 	margin: .5rem;
+	border: solid 2px white;
 
 	h3 {
-		margin: 0;
+		margin: .25rem;
+		color: white;
 	}
-
-	background-color: white;
 
 	.inputs-container {
 		position: relative;
 
 		.layer-inputs {
-			display: flex;
+			display: grid;
+			grid-template-columns: 50% 50%;
 
 			.layer-input-container {
-				width: 5rem;
 				margin: .25rem;
-
-				.minus-button {
-					grid-area: minus;
-				}
-
-				.plus-button {
-					grid-area: plus;
-				}
+				border: solid 1px white;
+				display: grid;
+				font-size: 1.5rem;
+				grid-template-columns: 1.5rem calc(100% - 3rem) 1.5rem;
 
 				input {
-					grid-area: input;
 					border: none;
-					font-size: 1rem;
 					text-align: center;
 					outline: none;
+					color: white;
+					background-color: #00000000;
+					font-size: 1.25rem;
 				}
-
-				display: grid;
-				grid-template-areas: "minus input plus";
-				grid-template-columns: 1.25rem calc(100% - 2.5rem) 1.25rem;
 
 				button {
-					line-height: 0;
-					background-color: #ddddff;
+					color: white;
+					background-color: #00000000;
 				}
+
+				button:hover {
+					background-color: #444444;
+				}
+
+
 			}
 		}
 
 		.remove-layer-button {
 			position: absolute;
+			margin: 0 .25rem;
 			top: 0;
 			right: 0;
 			aspect-ratio: 1/1;
-			border: none;
-			background-color: red;
-			color: #FFaaaa;
+			font-weight: 900;
+			border: solid 1px #FF7777;
+			background-color: #00000000;
+			color: #FF7777;
 			line-height: 0;
-			padding: .5rem;
+			font-size: .75rem;
 		}
 
+		.remove-layer-button:hover {
+			background-color: #444444;
+		}
+	}
+}
+
+#add-layer-button {
+	margin: .5rem;
+	padding: 0;
+	background-color: #00000000;
+	border: solid 2px #77FF77;
+	color: #77FF77;
+	font-size: 1.5rem;
+}
+
+#add-layer-button:hover {
+	background-color: #444444;
+}
+
+#build {
+	cursor: pointer;
+	width: calc(100% - 2rem);
+	background-color: #00000000;
+	color: white;
+	font-size: 1.25rem;
+	border: solid 2px white;
+	margin-top: .5rem;
+	padding: .5rem 0;
+	background-color: #000000aa;
+	transition: background-color .1s;
+}
+
+#build:hover {
+	background-color: #444444;
+}
+
+@media (max-width: 700px) {
+	#interface {
+		inset: 1rem;
+		bottom: auto;
+		width: auto;
 	}
 }
