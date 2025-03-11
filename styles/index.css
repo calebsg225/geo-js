@@ -54,7 +54,7 @@ select {
 }
 
 select:hover {
-	background-color: #444444;
+	background-color: #444444aa;
 }
 
 optgroup,
@@ -174,6 +174,42 @@ option {
 	padding: .5rem 0;
 	background-color: #000000aa;
 	transition: background-color .1s;
+}
+
+#render-form {
+	h3 {
+		color: white;
+		margin: 0;
+	}
+
+	label {
+		font-size: 1rem;
+	}
+
+	select {
+		min-width: 6rem;
+		background-color: #00000000;
+	}
+
+	select:hover {
+		background-color: #444444aa;
+	}
+
+	.select-div {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+}
+
+#render-form>* {
+	display: grid;
+	grid-template-columns: 4rem 1fr 1fr;
+	align-items: center;
+	border: solid 2px white;
+	margin-bottom: .5rem;
+	padding: .25rem .5rem;
+	background-color: #000000aa;
 }
 
 #build:hover {

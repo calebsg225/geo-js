@@ -10,7 +10,7 @@ body.innerHTML = `
 					<div class="dropdown">
 						<button id="build-interface-toggle">/\\ Build</button>
 					</div>
-					<form id="build-form" style="display: none;">
+					<form id="build-form" style="display: inline;">
 						<label for="select-base-shape">Base Shape</label>
 						<select name="baseShapes" id="select-base-shape">
 							<optgroup label="Traditional">
@@ -36,16 +36,37 @@ body.innerHTML = `
 					</div>
 					<form id="render-form" style="display: inline;">
 						<div id="node-render-options">
-							<label for="select-node-dist">Show Nodes</label>
-							<select id="select-node-dist"></select>
+							<h3>Nodes</h3>
+							<div class="select-div">
+								<label for="select-node-dist">show</label>
+								<select id="select-node-dist"></select>
+							</div>
+							<div class="select-div">
+								<label for="select-node-color">color</label>
+								<select id="select-node-color"></select>
+							</div>
 						</div>
 						<div id="edge-render-options">
-							<label for="select-edge-dist">Show Edges</label>
-							<select id="select-edge-dist"></select>
+							<h3>Edges</h3>
+							<div class="select-div">
+								<label for="select-edge-dist">show</label>
+								<select id="select-edge-dist"></select>
+							</div>
+							<div class="select-div">
+								<label for="select-edge-color">color</label>
+								<select id="select-edge-color"></select>
+							</div>
 						</div>
 						<div id="face-render-options">
-							<label for="select-face-dist">Show Faces</label>
-							<select id="select-face-dist"></select>
+							<h3>Faces</h3>
+							<div class="select-div">
+								<label for="select-face-dist">show</label>
+								<select id="select-face-dist"></select>
+							</div>
+							<div class="select-div">
+								<label for="select-face-color">color</label>
+								<select id="select-face-color"></select>
+							</div>
 						</div>
 					</form>
 				</section>

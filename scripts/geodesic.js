@@ -404,7 +404,7 @@ const classILayer = (layer, options, frequency) => {
 	}
 	console.log(`~~~~~~~~ LAYER Class I: ${nv}v ~~~~~~~~`);
 	console.log('total node count: ', nodes.far.size + nodes.near.size);
-	console.log('total unique edges: ', edgeColorMap.size);
+	console.log('total unique edges: ', edgeColorMap.size - 1);
 	console.log('total unique faces (by area): ', faceColorMap.size);
 	return { nodes, edges, faces, maxEdgeLength: edgeColorMap.get('maxEdgeLength') };
 }
@@ -618,7 +618,7 @@ const classIILayer = (layer, options, frequency) => {
 	}
 	console.log(`~~~~~~~~ LAYER Class II: ${nv}v ~~~~~~~~`);
 	console.log('total node count: ', nodes.far.size + nodes.near.size);
-	console.log('total unique edges: ', edgeColorMap.size);
+	console.log('total unique edges: ', edgeColorMap.size - 1);
 	console.log('total unique faces (by area): ', faceColorMap.size);
 	return { nodes, edges, faces, maxEdgeLength: edgeColorMap.get('maxEdgeLength') };
 }
@@ -944,7 +944,7 @@ const classIIILayer = (layer, options, frequency) => {
 	}
 	console.log(`~~~~~~~~ LAYER Class III: {${mInitial}, ${nInitial}} ${v}v ~~~~~~~~`);
 	console.log('total node count: ', nodes.far.size + nodes.near.size);
-	console.log('total unique edges: ', edgeColorMap.size);
+	console.log('total unique edges: ', edgeColorMap.size - 1);
 	console.log('total unique faces (by area): ', faceColorMap.size);
 	return { nodes, edges, faces, maxEdgeLength: edgeColorMap.get('maxEdgeLength') };
 }
