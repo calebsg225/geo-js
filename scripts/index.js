@@ -34,7 +34,7 @@ body.innerHTML = `
 					<div class="dropdown">
 						<button id="render-interface-toggle">\\/ Render</button>
 					</div>
-					<form id="render-form" style="display: inline;">
+					<form id="render-form" style="display: none;">
 						<div id="node-render-options">
 							<h3>Nodes</h3>
 							<div class="select-div">
