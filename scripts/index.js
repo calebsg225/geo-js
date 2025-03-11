@@ -83,8 +83,9 @@ body.innerHTML = `
 const optionsBuilder = (options, defaultOption) => {
 	const ops = [];
 	options.forEach((v) => {
+		const uppercaseV = v.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 		ops.push(`
-			<option value="${v}" ${defaultOption === v ? "selected" : ""}>${v.charAt(0).toUpperCase() + v.slice(1)}</option>
+			<option value="${v}" ${defaultOption === v ? "selected" : ""}>${uppercaseV}</option>
 		`);
 	});
 	return ops.join('\n');
@@ -98,6 +99,11 @@ const blueprintHandler = new BlueprintHandler(layersContainer);
 document.querySelector('#select-node-dist').innerHTML = optionsBuilder(['all', 'near', 'far', 'none'], defaultOptions.nodes.show);
 document.querySelector('#select-edge-dist').innerHTML = optionsBuilder(['all', 'near', 'far', 'none'], defaultOptions.edges.show);
 document.querySelector('#select-face-dist').innerHTML = optionsBuilder(['all', 'near', 'far', 'none'], defaultOptions.faces.show);
+
+const colors = 'red-orange-yellow-green-blue-indigo-violet-black-white';
+document.querySelector('#select-node-color').innerHTML = optionsBuilder([...colors.split('-')], defaultOptions.nodes.color);
+document.querySelector('#select-edge-color').innerHTML = optionsBuilder(['by length', ...colors.split('-')], defaultOptions.edges.color);
+document.querySelector('#select-face-color').innerHTML = optionsBuilder(['by area', ...colors.split('-')], defaultOptions.faces.color);
 
 // set the default base shape to match the options
 const selectedBaseShape = blueprintHandler.blueprint.baseShape;
@@ -210,6 +216,8 @@ document.querySelector('#build').addEventListener('click', (e) => {
 	renderer.render();
 });
 
+// UPDATE DISTANCES
+
 // update node distance
 document.querySelector('#select-node-dist').addEventListener('change', (e) => {
 	renderer.updateDistOptions("nodes", e.target.value);
@@ -225,6 +233,26 @@ document.querySelector('#select-edge-dist').addEventListener('change', (e) => {
 // update face distance
 document.querySelector('#select-face-dist').addEventListener('change', (e) => {
 	renderer.updateDistOptions("faces", e.target.value);
+	renderer.render();
+});
+
+// UPDATE COLORS
+
+// update node color
+document.querySelector('#select-node-color').addEventListener('change', (e) => {
+	renderer.updateColorOptions("nodes", e.target.value);
+	renderer.render();
+});
+
+// update edge color
+document.querySelector('#select-edge-color').addEventListener('change', (e) => {
+	renderer.updateColorOptions("edges", e.target.value);
+	renderer.render();
+});
+
+// update face color
+document.querySelector('#select-face-color').addEventListener('change', (e) => {
+	renderer.updateColorOptions("faces", e.target.value);
 	renderer.render();
 });
 

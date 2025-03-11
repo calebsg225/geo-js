@@ -328,7 +328,6 @@ class Renderer {
 		});
 	}
 
-	// TODO: put Structure type in a differnet file so type can be accessed here
 	/**
 	 * sets 3d object structure to render
 	 * @param {Types.Structure} strucrure
@@ -357,6 +356,46 @@ class Renderer {
 		const showFar = newDist === 'all' || newDist === 'far';
 		this.options[type].near.show = showNear;
 		this.options[type].far.show = showFar;
+	}
+
+	/**
+	 * updates the color of the shown structures
+	 * @param {string} type nodes/edges/faces
+	 * @param {string} color the new color to update to
+	 */
+	updateColorOptions = (type, color) => {
+		const colorMap = new Map([
+			['red', '#FF0000'],
+			['orange', '#FFA500'],
+			['yellow', '#FFFF00'],
+			['green', '#00FF00'],
+			['blue', '#0000FF'],
+			['indigo', '#3F00FF'],
+			['violet', '#7F0033'],
+			['black', '#000000'],
+			['white', '#FFFFFF'],
+		]);
+		if (colorMap.has(color)) {
+			if (type === 'edges') {
+				this.options[type].near.colorLength = false;
+				this.options[type].far.colorLength = false;
+			}
+			if (type === 'faces') {
+				this.options[type].near.colorArea = false;
+				this.options[type].far.colorArea = false;
+			}
+			this.options[type].near.color = colorMap.get(color);
+			this.options[type].far.color = colorMap.get(color);
+			return;
+		}
+		if (color === "by length") {
+			this.options[type].near.colorLength = true;
+			this.options[type].far.colorLength = true;
+		}
+		if (color === "by area") {
+			this.options[type].near.colorArea = true;
+			this.options[type].far.colorArea = true;
+		}
 	}
 
 	/**
