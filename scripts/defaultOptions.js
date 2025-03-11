@@ -6,9 +6,12 @@ const buildOptions = {
 	fillPercentage: .98, // percentage of sizeConstraint that the structure should fill initially
 };
 
+
 /** @type {Types.RenderOptions} */
 const renderOptions = {
 	backgroundColor: "black",
+	farStructureOpacity: "88",
+	nearStructureOpacity: "cc",
 	rotationStep: 0.003,
 	defaultColors: [
 		"#FF0000",
@@ -36,41 +39,59 @@ const renderOptions = {
 	nodes: {
 		near: {
 			show: false,
-			color: 'white',
-			size: 2
+			color: '#FFFFFF',
+			size: 4
 		},
 		far: {
 			show: false,
-			color: 'red',
-			size: 2
+			color: '#cccccc',
+			size: 4
 		},
 	},
 	edges: {
 		near: {
-			show: true,
+			show: false,
 			colorLength: true,
-			color: 'black',
+			color: '#000000',
 			size: 2
 		},
 		far: {
-			show: true,
-			colorLength: false,
-			color: 'grey',
+			show: false,
+			colorLength: true,
+			color: '#999999',
 			size: 1
 		},
 	},
 	faces: {
 		near: {
-			show: false,
-			colorArea: false,
-			color: '#00000075',
+			show: true,
+			colorArea: true,
+			color: '#999999',
 		},
 		far: {
-			show: false,
+			show: true,
 			colorArea: true,
-			color: 'black',
+			color: '#999999',
 		},
 	}
 };
 
-export { buildOptions, renderOptions };
+/** @type {Object} */
+const defaultOptions = {
+	nodes: {
+		show: "none",
+		color: "white",
+		size: 2,
+	},
+	edges: {
+		show: "none",
+		color: "by length",
+		size: 2,
+	},
+	faces: {
+		show: "all",
+		color: "by area",
+	}
+}
+
+export { buildOptions, renderOptions, defaultOptions };

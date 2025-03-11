@@ -90,6 +90,8 @@ import { Node, Edge, Face } from "./structures.js";
 /**
  * @typedef {Object} RenderOptions
  * @property {string} backgroundColor
+ * @property {string} farStructureOpacity
+ * @property {string} nearStructureOpacity
  * @property {number} rotationStep
  * @property {string[]} defaultColors
  * @property {NodeDistOptions} nodes

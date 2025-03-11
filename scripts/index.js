@@ -1,6 +1,6 @@
 import { BlueprintHandler } from "./blueprintHandler.js";
 import Renderer from "./render.js";
-import { buildOptions, renderOptions } from "./defaultOptions.js";
+import { buildOptions, renderOptions, defaultOptions } from "./defaultOptions.js";
 
 const body = document.querySelector('body');
 body.innerHTML = `
@@ -35,19 +35,48 @@ body.innerHTML = `
 						<button id="render-interface-toggle">\\/ Render</button>
 					</div>
 					<form id="render-form" style="display: inline;">
-						<input id="render" class="button" type="submit" value="Render"/>
+						<div id="node-render-options">
+							<label for="select-node-dist">Show Nodes</label>
+							<select id="select-node-dist"></select>
+						</div>
+						<div id="edge-render-options">
+							<label for="select-edge-dist">Show Edges</label>
+							<select id="select-edge-dist"></select>
+						</div>
+						<div id="face-render-options">
+							<label for="select-face-dist">Show Faces</label>
+							<select id="select-face-dist"></select>
+						</div>
 					</form>
 				</section>
 		</div>
 	</div>
 `;
 
+/**
+ * builds the options for a select element
+ * @param {string[]} options an array of options to put in the select
+ * @param {string} defaultOption the option to select by default
+ * @returns {string}
+ */
+const optionsBuilder = (options, defaultOption) => {
+	const ops = [];
+	options.forEach((v) => {
+		ops.push(`
+			<option value="${v}" ${defaultOption === v ? "selected" : ""}>${v.charAt(0).toUpperCase() + v.slice(1)}</option>
+		`);
+	});
+	return ops.join('\n');
+};
 
 /** @type HTMLDivElement */
-
 const layersContainer = document.querySelector('#layers-container');
 
 const blueprintHandler = new BlueprintHandler(layersContainer);
+
+document.querySelector('#select-node-dist').innerHTML = optionsBuilder(['all', 'near', 'far', 'none'], defaultOptions.nodes.show);
+document.querySelector('#select-edge-dist').innerHTML = optionsBuilder(['all', 'near', 'far', 'none'], defaultOptions.edges.show);
+document.querySelector('#select-face-dist').innerHTML = optionsBuilder(['all', 'near', 'far', 'none'], defaultOptions.faces.show);
 
 // set the default base shape to match the options
 const selectedBaseShape = blueprintHandler.blueprint.baseShape;
@@ -160,10 +189,22 @@ document.querySelector('#build').addEventListener('click', (e) => {
 	renderer.render();
 });
 
-// renders from render options
-document.querySelector('#render').addEventListener('click', (e) => {
-	// stop from reloading
-	e.preventDefault();
+// update node distance
+document.querySelector('#select-node-dist').addEventListener('change', (e) => {
+	renderer.updateDistOptions("nodes", e.target.value);
+	renderer.render();
+});
+
+// update edge distance
+document.querySelector('#select-edge-dist').addEventListener('change', (e) => {
+	renderer.updateDistOptions("edges", e.target.value);
+	renderer.render();
+});
+
+// update face distance
+document.querySelector('#select-face-dist').addEventListener('change', (e) => {
+	renderer.updateDistOptions("faces", e.target.value);
+	renderer.render();
 });
 
 // update the base shape in the blueprint

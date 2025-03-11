@@ -41,21 +41,24 @@ class Renderer {
 		// render far nodes
 		this.drawNodes(
 			this.layer.nodes.far,
-			this.options.nodes.far
+			this.options.nodes.far,
+			true
 		);
 
 		// render far faces
 		this.drawFaces(
 			this.layer.faces.far,
 			this.options.faces.far,
-			this.options.defaultColors
+			this.options.defaultColors,
+			true
 		);
 
 		// render far edges
 		this.drawEdges(
 			this.layer.edges.far,
 			this.options.edges.far,
-			this.options.defaultColors
+			this.options.defaultColors,
+			true
 		);
 
 		// render near edges
@@ -245,11 +248,12 @@ class Renderer {
 	 * draws inputed nodes using the inputed styles
 	 * @param {Map<Node>} nodes
 	 * @param {Types.NodesOptions} styles
+	 * @param {boolean} isFar
 	 */
-	drawNodes = (nodes, styles) => {
+	drawNodes = (nodes, styles, isFar = false) => {
 		if (!styles.show) return;
 		nodes.forEach((node, _) => {
-			this.drawNode(node.x + this.cX, node.y + this.cY, styles.size, styles.color);
+			this.drawNode(node.x + this.cX, node.y + this.cY, styles.size, styles.color + (isFar ? this.options.farStructureOpacity : this.options.nearStructureOpacity));
 			/*
 			if (node.name.length < 2) { this.labelNode(node) }
 			else { this.labelNode(node, "white", "8px serif") }
@@ -262,8 +266,9 @@ class Renderer {
 	 * @param {Map<string, Edge>} edges
 	 * @param {Types.EdgesOptions} styles
 	 * @param {string[]} defaultColors
+	 * @param {boolean} isFar
 	 */
-	drawEdges = (edges, styles, defaultColors) => {
+	drawEdges = (edges, styles, defaultColors, isFar = false) => {
 		if (!styles.show) return;
 		edges.forEach((edge, _) => {
 
@@ -285,7 +290,7 @@ class Renderer {
 					return [node.x + this.cX, node.y + this.cY]
 				}),
 				styles.size,
-				color
+				color + (isFar ? this.options.farStructureOpacity : this.options.nearStructureOpacity)
 			);
 		});
 	}
@@ -295,8 +300,9 @@ class Renderer {
 	 * @param {Map<string, Face>} faces
 	 * @param {Types.FacesOptions} styles
 	 * @param {string[]} defaultColors
+	 * @param {boolean} isFar
 	 */
-	drawFaces = (faces, styles, defaultColors) => {
+	drawFaces = (faces, styles, defaultColors, isFar = false) => {
 		if (!styles.show) return;
 		faces.forEach((face, _) => {
 
@@ -317,7 +323,7 @@ class Renderer {
 					const { node } = getNode(this.layer.nodes, nodeKey);
 					return [node.x + this.cX, node.y + this.cY];
 				}),
-				color
+				color + (isFar ? this.options.farStructureOpacity : this.options.nearStructureOpacity)
 			);
 		});
 	}
@@ -341,8 +347,16 @@ class Renderer {
 		this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 	}
 
-	updateOptions = (options) => {
-		this.options = options;
+	/**
+	 * updates whether structures should be rendered near/far
+	 * @param {string} type nodes/edges/faces
+	 * @param {string} newDist the new distance to update to
+	 */
+	updateDistOptions = (type, newDist) => {
+		const showNear = newDist === 'all' || newDist === 'near';
+		const showFar = newDist === 'all' || newDist === 'far';
+		this.options[type].near.show = showNear;
+		this.options[type].far.show = showFar;
 	}
 
 	/**
