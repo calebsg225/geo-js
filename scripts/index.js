@@ -305,9 +305,11 @@ window.addEventListener('resize', () => {
 	geoCanvas.height = height;
 	buildOptions.sizeConstraint = Math.min(width, height);
 	renderer.updateCenter(width, height);
+	renderer.updateRadius(buildOptions.sizeConstraint * buildOptions.fillPercentage / 2);
 	renderer.render();
 });
 
-// build and default structure
+// build and render default structure
+renderer.updateRadius(buildOptions.sizeConstraint * buildOptions.fillPercentage / 2);
 renderer.setStructure(blueprintHandler.buildStructure(buildOptions));
 renderer.render();

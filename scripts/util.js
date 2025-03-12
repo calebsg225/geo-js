@@ -30,11 +30,19 @@ const isNear = (zs) => {
  * @param {Node} a
  * @param {Node} b
  * @param {Node} c
+ * @param {number} r radius used to adjust to perspective projection
  * @returns {{coords: number[], flipped: boolean}}
  */
-const faceNormal = (a, b, c) => {
-	const ab = [b.x - a.x, b.y - a.y, b.z - a.z];
-	const ac = [c.x - a.x, c.y - a.y, c.z - a.z];
+const faceNormal = (a, b, c, r = 0) => {
+	const ax = r ? pp(r, a.x, a.z) : a.x;
+	const ay = r ? pp(r, a.y, a.z) : a.y;
+	const bx = r ? pp(r, b.x, b.z) : b.x;
+	const by = r ? pp(r, b.y, b.z) : b.y;
+	const cx = r ? pp(r, c.x, c.z) : c.x;
+	const cy = r ? pp(r, c.y, c.z) : c.y;
+
+	const ab = [bx - ax, by - ay, b.z - a.z];
+	const ac = [cx - ax, cy - ay, c.z - a.z];
 
 	// calculate coordinates of normal vertex
 	const nx = ab[1] * ac[2] - ab[2] * ac[1];
@@ -42,7 +50,7 @@ const faceNormal = (a, b, c) => {
 	const nz = ab[0] * ac[1] - ab[1] * ac[0];
 
 	// find the angle between a and the normal vector
-	const theta = Math.acos((a.x * nx + a.y * ny + a.z * nz) / (Math.sqrt(a.x ** 2 + a.y ** 2 + a.z ** 2) * Math.sqrt(nx ** 2 + ny ** 2 + nz ** 2)));
+	const theta = Math.acos((ax * nx + ay * ny + a.z * nz) / (Math.sqrt(ax ** 2 + ay ** 2 + a.z ** 2) * Math.sqrt(nx ** 2 + ny ** 2 + nz ** 2)));
 
 	// swap if needed
 	if (theta > Math.PI / 2) return { coords: [nx * -1, ny * -1, nz * -1], flipped: true };
@@ -54,15 +62,16 @@ const faceNormal = (a, b, c) => {
  * @param {Node} n1
  * @param {Node} n2
  * @param {Node} n3
+ * @param {number} r used to adjust to perspective projection
  * @returns {boolean}
  */
-const isFaceNear = (n1, n2, n3) => {
+const isFaceNear = (n1, n2, n3, r = 0) => {
 	// deal with any stray inputs, less computation required for these
 	if (n1.z > 0 && n2.z > 0 && n3.z > 0) return false;
 	if (n1.z <= 0 && n2.z <= 0 && n3.z <= 0) return true;
 
 	// get normal and determine distance
-	const { coords: nv } = faceNormal(n1, n2, n3);
+	const { coords: nv } = faceNormal(n1, n2, n3, r);
 	if (nv[2] <= 0) return true;
 	return false;
 }
@@ -321,6 +330,17 @@ const normalizeNode = (x, y, z, r) => {
 	return [nX, nY, nZ];
 }
 
+/**
+ * calculates a coordinate for perspective projection
+ * @param {number} r radius
+ * @param {number} c coordinate
+ * @param {number} z z-coordinate paired with coordinate
+ * @returns {number} the new coordinate
+ */
+const pp = (r, c, z) => {
+	return (1 - z / (r * 6)) * c;
+}
+
 export {
 	calc3dDistance,
 	calcTriangleArea,
@@ -339,4 +359,5 @@ export {
 	rotateNode,
 	calcMidNodeCoords,
 	normalizeNode,
+	pp,
 };

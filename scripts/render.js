@@ -1,6 +1,6 @@
 import * as Types from "./types.js";
 import { Node, Edge, Face } from "./structures.js";
-import { rotateNode, isNear, getNode, getEdge, getFace, isFaceNear } from "./util.js";
+import { rotateNode, isNear, getNode, getEdge, getFace, isFaceNear, pp } from "./util.js";
 
 /**
  * @class
@@ -156,7 +156,7 @@ class Renderer {
 			const { node: node2 } = getNode(this.layer.nodes, face.nodes[1]);
 			const { node: node3 } = getNode(this.layer.nodes, face.nodes[2]);
 
-			const newDist = isFaceNear(node1, node2, node3) ? "near" : "far";
+			const newDist = isFaceNear(node1, node2, node3, this.options.radius) ? "near" : "far";
 
 			// if face used to be near and is now far (or vice versa)
 			if (newDist !== distType) {
@@ -249,7 +249,7 @@ class Renderer {
 	drawNodes = (nodes, styles) => {
 		if (!styles.show) return;
 		nodes.forEach((node, _) => {
-			this.drawNode(node.x + this.cX, node.y + this.cY, styles.size, styles.color);
+			this.drawNode(pp(this.options.radius, node.x, node.z) + this.cX, pp(this.options.radius, node.y, node.z) + this.cY, styles.size, styles.color);
 			/*
 			if (node.name.length < 2) { this.labelNode(node) }
 			else { this.labelNode(node, "white", "8px serif") }
@@ -283,7 +283,7 @@ class Renderer {
 			this.drawEdge(
 				edge.nodes.map((nodeKey) => {
 					const { node } = getNode(this.layer.nodes, nodeKey);
-					return [node.x + this.cX, node.y + this.cY]
+					return [pp(this.options.radius, node.x, node.z) + this.cX, pp(this.options.radius, node.y, node.z) + this.cY]
 				}),
 				styles.size,
 				color + (isFar ? this.options.farStructureOpacity : this.options.nearStructureOpacity)
@@ -317,7 +317,7 @@ class Renderer {
 			this.drawFace(
 				face.nodes.map((nodeKey) => {
 					const { node } = getNode(this.layer.nodes, nodeKey);
-					return [node.x + this.cX, node.y + this.cY];
+					return [pp(this.options.radius, node.x, node.z) + this.cX, pp(this.options.radius, node.y, node.z) + this.cY];
 				}),
 				color + (isFar ? this.options.farStructureOpacity : this.options.nearStructureOpacity)
 			);
@@ -339,6 +339,14 @@ class Renderer {
 	clearCanvas = () => {
 		this.ctx.fillStyle = this.options.backgroundColor;
 		this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+	}
+
+	/**
+	 * updates the radius
+	 * @param {number} radius the new radius
+	 */
+	updateRadius = (radius) => {
+		this.options.radius = radius;
 	}
 
 	/**
