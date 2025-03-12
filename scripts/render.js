@@ -8,22 +8,19 @@ import { rotateNode, isNear, getNode, getEdge, getFace, isFaceNear } from "./uti
  */
 class Renderer {
 
-	// TODO: remove 'structure' from input: should not be required for initializing the renderer
 	/**
 	 * @constructor
 	 * @param {HTMLCanvasElement} canvas
 	 * @param {Types.RenderOptions} defaultOptions
-	 * @param {Types.Structure} structure
 	 */
-	constructor(canvas, defaultOptions, structure) {
+	constructor(canvas, defaultOptions) {
 		this.canvas = canvas;
 		this.cX = canvas.width / 2;
 		this.cY = canvas.height / 2;
 		this.options = defaultOptions;
 		this.ctx = canvas.getContext('2d');
-		this.structure = structure;
-		this.renderLayer = structure.layers.length - 1;
-		this.layer = structure.layers[this.renderLayer];
+		this.structure = {};
+		this.layer = {};
 
 		/** @type {Map<number, string>} */
 		this.edgeColorCodes = new Map();
@@ -333,8 +330,7 @@ class Renderer {
 	 */
 	setStructure = (structure) => {
 		this.structure = structure;
-		this.renderLayer = structure.layers.length - 1;
-		this.layer = structure.layers[this.renderLayer];
+		this.layer = structure.layers[structure.layers.length - 1];
 	}
 
 	/**

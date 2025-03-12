@@ -143,7 +143,6 @@ buildOptions.sizeConstraint = Math.min(width, height);
 const renderer = new Renderer(
 	geoCanvas,
 	renderOptions,
-	blueprintHandler.buildStructure(buildOptions),
 );
 
 /** @type {HTMLCanvasElement} */
@@ -309,4 +308,6 @@ window.addEventListener('resize', () => {
 	renderer.render();
 });
 
+// build and default structure
+renderer.setStructure(blueprintHandler.buildStructure(buildOptions));
 renderer.render();
