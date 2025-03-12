@@ -42,7 +42,6 @@ class Renderer {
 		this.drawNodes(
 			this.layer.nodes.far,
 			this.options.nodes.far,
-			true
 		);
 
 		// render far faces
@@ -250,10 +249,10 @@ class Renderer {
 	 * @param {Types.NodesOptions} styles
 	 * @param {boolean} isFar
 	 */
-	drawNodes = (nodes, styles, isFar = false) => {
+	drawNodes = (nodes, styles) => {
 		if (!styles.show) return;
 		nodes.forEach((node, _) => {
-			this.drawNode(node.x + this.cX, node.y + this.cY, styles.size, styles.color + (isFar ? this.options.farStructureOpacity : this.options.nearStructureOpacity));
+			this.drawNode(node.x + this.cX, node.y + this.cY, styles.size, styles.color);
 			/*
 			if (node.name.length < 2) { this.labelNode(node) }
 			else { this.labelNode(node, "white", "8px serif") }
@@ -396,6 +395,16 @@ class Renderer {
 			this.options[type].near.colorArea = true;
 			this.options[type].far.colorArea = true;
 		}
+	}
+
+	/**
+	 * updates the size of the shown structures
+	 * @param {string} type nodes/edges/faces
+	 * @param {string} newSize the new color to update to
+	 */
+	updateSizeOptions = (type, newSize) => {
+		this.options[type].near.size = +newSize;
+		this.options[type].far.size = +newSize;
 	}
 
 	/**

@@ -37,33 +37,41 @@ body.innerHTML = `
 					<form id="render-form" style="display: none;">
 						<div id="node-render-options">
 							<h3>Nodes</h3>
-							<div class="select-div">
+							<div class="select-div select-dist">
 								<label for="select-node-dist">show</label>
 								<select id="select-node-dist"></select>
 							</div>
-							<div class="select-div">
+							<div class="select-div select-color">
 								<label for="select-node-color">color</label>
 								<select id="select-node-color"></select>
+							</div>
+							<div class="select-div select-size">
+								<label for="select-node-size">radius</label>
+								<select id="select-node-size"></select>
 							</div>
 						</div>
 						<div id="edge-render-options">
 							<h3>Edges</h3>
-							<div class="select-div">
+							<div class="select-div select-dist">
 								<label for="select-edge-dist">show</label>
 								<select id="select-edge-dist"></select>
 							</div>
-							<div class="select-div">
+							<div class="select-div select-color">
 								<label for="select-edge-color">color</label>
 								<select id="select-edge-color"></select>
+							</div>
+							<div class="select-div select-size">
+								<label for="select-edge-size">width</label>
+								<select id="select-edge-size"></select>
 							</div>
 						</div>
 						<div id="face-render-options">
 							<h3>Faces</h3>
-							<div class="select-div">
+							<div class="select-div select-dist">
 								<label for="select-face-dist">show</label>
 								<select id="select-face-dist"></select>
 							</div>
-							<div class="select-div">
+							<div class="select-div select-color">
 								<label for="select-face-color">color</label>
 								<select id="select-face-color"></select>
 							</div>
@@ -96,14 +104,25 @@ const layersContainer = document.querySelector('#layers-container');
 
 const blueprintHandler = new BlueprintHandler(layersContainer);
 
+// create UI distance options
 document.querySelector('#select-node-dist').innerHTML = optionsBuilder(['all', 'near', 'far', 'none'], defaultOptions.nodes.show);
 document.querySelector('#select-edge-dist').innerHTML = optionsBuilder(['all', 'near', 'far', 'none'], defaultOptions.edges.show);
 document.querySelector('#select-face-dist').innerHTML = optionsBuilder(['all', 'near', 'far', 'none'], defaultOptions.faces.show);
 
-const colors = 'red-orange-yellow-green-blue-indigo-violet-black-white';
-document.querySelector('#select-node-color').innerHTML = optionsBuilder([...colors.split('-')], defaultOptions.nodes.color);
-document.querySelector('#select-edge-color').innerHTML = optionsBuilder(['by length', ...colors.split('-')], defaultOptions.edges.color);
-document.querySelector('#select-face-color').innerHTML = optionsBuilder(['by area', ...colors.split('-')], defaultOptions.faces.color);
+/** @type {string[]} */
+const colors = 'red-orange-yellow-green-blue-indigo-violet-black-white'.split('-');
+
+// create UI color options
+document.querySelector('#select-node-color').innerHTML = optionsBuilder([...colors], defaultOptions.nodes.color);
+document.querySelector('#select-edge-color').innerHTML = optionsBuilder(['by length', ...colors], defaultOptions.edges.color);
+document.querySelector('#select-face-color').innerHTML = optionsBuilder(['by area', ...colors], defaultOptions.faces.color);
+
+/** @type {string[]} */
+const numRange = new Array(16).fill(0).map((_, i) => (i + 1) + '');
+
+// create UI size options
+document.querySelector('#select-node-size').innerHTML = optionsBuilder(numRange, defaultOptions.nodes.size + '');
+document.querySelector('#select-edge-size').innerHTML = optionsBuilder(numRange, defaultOptions.edges.size + '');
 
 // set the default base shape to match the options
 const selectedBaseShape = blueprintHandler.blueprint.baseShape;
@@ -253,6 +272,19 @@ document.querySelector('#select-edge-color').addEventListener('change', (e) => {
 // update face color
 document.querySelector('#select-face-color').addEventListener('change', (e) => {
 	renderer.updateColorOptions("faces", e.target.value);
+	renderer.render();
+});
+
+// UPDATE SIZES
+
+// update node size
+document.querySelector('#select-node-size').addEventListener('change', (e) => {
+	renderer.updateSizeOptions("nodes", e.target.value);
+	renderer.render();
+});
+
+document.querySelector('#select-edge-size').addEventListener('change', (e) => {
+	renderer.updateSizeOptions("edges", e.target.value);
 	renderer.render();
 });
 

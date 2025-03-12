@@ -38,40 +38,40 @@ const renderOptions = {
 	],
 	nodes: {
 		near: {
-			show: false,
-			color: '#FFFFFF',
-			size: 4
+			show: true,
+			color: '#000000',
+			size: 7
 		},
 		far: {
 			show: false,
-			color: '#cccccc',
-			size: 4
+			color: '#000000',
+			size: 7
 		},
 	},
 	edges: {
 		near: {
-			show: false,
-			colorLength: true,
-			color: '#000000',
-			size: 2
+			show: true,
+			colorLength: false,
+			color: '#FFFFFF',
+			size: 7
 		},
 		far: {
 			show: false,
-			colorLength: true,
-			color: '#999999',
-			size: 1
+			colorLength: false,
+			color: '#FFFFFF',
+			size: 7
 		},
 	},
 	faces: {
 		near: {
 			show: true,
 			colorArea: true,
-			color: '#999999',
+			color: '#FFFFFF',
 		},
 		far: {
 			show: true,
 			colorArea: true,
-			color: '#999999',
+			color: '#FFFFFFF',
 		},
 	}
 };
@@ -79,14 +79,14 @@ const renderOptions = {
 /** @type {Object} */
 const defaultOptions = {
 	nodes: {
-		show: "none",
-		color: "white",
-		size: 2,
+		show: "near",
+		color: "black",
+		size: 7,
 	},
 	edges: {
-		show: "none",
-		color: "by length",
-		size: 2,
+		show: "near",
+		color: "white",
+		size: 7,
 	},
 	faces: {
 		show: "all",
