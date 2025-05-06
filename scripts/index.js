@@ -114,8 +114,8 @@ const colors = 'red-orange-yellow-green-blue-indigo-violet-black-white'.split('-
 
 // create UI color options
 document.querySelector('#select-node-color').innerHTML = optionsBuilder([...colors], defaultOptions.nodes.color);
-document.querySelector('#select-edge-color').innerHTML = optionsBuilder(['by length', ...colors], defaultOptions.edges.color);
-document.querySelector('#select-face-color').innerHTML = optionsBuilder(['by area', ...colors], defaultOptions.faces.color);
+document.querySelector('#select-edge-color').innerHTML = optionsBuilder(['unique', ...colors], defaultOptions.edges.color);
+document.querySelector('#select-face-color').innerHTML = optionsBuilder(['unique', ...colors], defaultOptions.faces.color);
 
 /** @type {string[]} */
 const numRange = new Array(16).fill(0).map((_, i) => (i + 1) + '');

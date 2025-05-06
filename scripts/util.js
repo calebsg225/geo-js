@@ -26,6 +26,25 @@ const isNear = (zs) => {
 }
 
 /**
+ * orders face nodes around its normal vector
+ * @param {Node[]} faceNodes array of face nodes
+ * @param {boolean} reverseOrder swapped m and n
+ * @returns {orderedNodes: Node[], swapped: boolean}
+ */
+const orderFaceNodesByNormal = (faceNodes, reverseOrder = false) => {
+	// order with normal vector
+	// if normal vector points to origin: swap b and c
+	const [a, bInitial, cInitial] = faceNodes;
+
+	// keep track of whether a and b were swapped
+	const swapped = faceNormal(a, bInitial, cInitial).flipped ^ reverseOrder;
+
+	// if either flipped or reverse order, flip b and c
+	const [b, c] = swapped ? [cInitial, bInitial] : [bInitial, cInitial];
+	return { orderedNodes: [a, b, c], swapped: swapped };
+}
+
+/**
  * calulates the normal vector of a face (points away from origin)
  * @param {Node} a
  * @param {Node} b
@@ -354,6 +373,7 @@ export {
 	numToChar,
 	charToNum,
 	isNear,
+	orderFaceNodesByNormal,
 	faceNormal,
 	isFaceNear,
 	rotateNode,

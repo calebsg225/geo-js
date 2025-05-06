@@ -391,11 +391,11 @@ class Renderer {
 			this.options[type].far.color = colorMap.get(color);
 			return;
 		}
-		if (color === "by length") {
+		if (color === "unique") {
 			this.options[type].near.colorLength = true;
 			this.options[type].far.colorLength = true;
 		}
-		if (color === "by area") {
+		if (color === "unique") {
 			this.options[type].near.colorArea = true;
 			this.options[type].far.colorArea = true;
 		}

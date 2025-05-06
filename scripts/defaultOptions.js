@@ -39,7 +39,7 @@ const renderOptions = {
 	],
 	nodes: {
 		near: {
-			show: true,
+			show: false,
 			color: '#000000',
 			size: 7
 		},
@@ -51,7 +51,7 @@ const renderOptions = {
 	},
 	edges: {
 		near: {
-			show: true,
+			show: false,
 			colorLength: false,
 			color: '#FFFFFF',
 			size: 7
@@ -80,18 +80,18 @@ const renderOptions = {
 /** @type {Object} */
 const defaultOptions = {
 	nodes: {
-		show: "near",
+		show: "none",
 		color: "black",
 		size: 7,
 	},
 	edges: {
-		show: "near",
+		show: "none",
 		color: "white",
 		size: 7,
 	},
 	faces: {
 		show: "all",
-		color: "by area",
+		color: "unique",
 	}
 }
 

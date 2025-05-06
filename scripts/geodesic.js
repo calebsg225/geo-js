@@ -6,13 +6,14 @@ import {
 	getFace,
 	getBaseIcosahedronConnections,
 	isNear,
-	faceNormal,
+	orderFaceNodesByNormal,
 	numToChar,
 	generateNodeKey,
 	generateEdgeKey,
 	generateFaceKey,
 	normalizeNode,
-	calcMidNodeCoords
+	calcMidNodeCoords,
+	calc3dDistance
 } from "./util.js";
 
 /**
@@ -405,7 +406,7 @@ const classILayer = (layer, options, frequency) => {
 	console.log(`~~~~~~~~ LAYER Class I: ${nv}v ~~~~~~~~`);
 	console.log('total node count: ', nodes.far.size + nodes.near.size);
 	console.log('total unique edges: ', edgeColorMap.size - 1);
-	console.log('total unique faces (by area): ', faceColorMap.size);
+	console.log('total unique faces: ', faceColorMap.size);
 	return { nodes, edges, faces, maxEdgeLength: edgeColorMap.get('maxEdgeLength') };
 }
 
@@ -441,11 +442,13 @@ const classIILayer = (layer, options, frequency) => {
 		});
 	}
 
+	/** @type {Types.Edges} */
 	const edges = {
 		near: new Map(),
 		far: new Map()
 	};
 
+	/** @type {Types.Faces} */
 	const faces = {
 		near: new Map(),
 		far: new Map()
@@ -463,6 +466,7 @@ const classIILayer = (layer, options, frequency) => {
 	for (const distType of Object.keys(layer.faces)) {
 		layer.faces[distType].forEach((face, _) => {
 			// get face nodes
+			/** @type {Node[]} **/
 			const faceNodes = [];
 			for (const nodeKey of face.nodes.sort()) {
 				faceNodes.push(
@@ -619,7 +623,7 @@ const classIILayer = (layer, options, frequency) => {
 	console.log(`~~~~~~~~ LAYER Class II: ${nv}v ~~~~~~~~`);
 	console.log('total node count: ', nodes.far.size + nodes.near.size);
 	console.log('total unique edges: ', edgeColorMap.size - 1);
-	console.log('total unique faces (by area): ', faceColorMap.size);
+	console.log('total unique faces: ', faceColorMap.size);
 	return { nodes, edges, faces, maxEdgeLength: edgeColorMap.get('maxEdgeLength') };
 }
 
@@ -677,11 +681,13 @@ const classIIILayer = (layer, options, frequency) => {
 		});
 	}
 
+	/** @type {Types.Edges} */
 	const edges = {
 		near: new Map(),
 		far: new Map()
 	};
 
+	/** @type {Types.Faces} */
 	const faces = {
 		near: new Map(),
 		far: new Map()
@@ -699,6 +705,7 @@ const classIIILayer = (layer, options, frequency) => {
 	for (const distType of Object.keys(layer.faces)) {
 		layer.faces[distType].forEach((face, _) => {
 			// get face nodes
+			/** @type {Node[]} **/
 			const faceNodes = [];
 			for (const nodeKey of face.nodes.sort()) {
 				faceNodes.push(
@@ -707,17 +714,8 @@ const classIIILayer = (layer, options, frequency) => {
 				);
 			}
 
-			// order with normal vector
-			// if normal vector points to origin: swap b and c
-			const [a, bInitial, cInitial] = faceNodes;
-
-			const { flipped } = faceNormal(a, bInitial, cInitial);
-
-			// keep track of whether a and b were swapped
-			const swapped = flipped ^ reverseOrder;
-
-			// if either flipped or reverse order, flip b and c
-			const [b, c] = swapped ? [cInitial, bInitial] : [bInitial, cInitial];
+			// order nodes based on normal vector
+			const { orderedNodes: [a, b, c], swapped } = orderFaceNodesByNormal(faceNodes, reverseOrder);
 
 			// keep track of interFaceConnections
 			const abInter = [];
@@ -945,7 +943,7 @@ const classIIILayer = (layer, options, frequency) => {
 	console.log(`~~~~~~~~ LAYER Class III: {${mInitial}, ${nInitial}} ${v}v ~~~~~~~~`);
 	console.log('total node count: ', nodes.far.size + nodes.near.size);
 	console.log('total unique edges: ', edgeColorMap.size - 1);
-	console.log('total unique faces (by area): ', faceColorMap.size);
+	console.log('total unique faces: ', faceColorMap.size);
 	return { nodes, edges, faces, maxEdgeLength: edgeColorMap.get('maxEdgeLength') };
 }
 
@@ -1010,7 +1008,25 @@ const connectFace = (faces, node1, node2, node3, faceColorMap) => {
 	// create new face
 	const newFace = new Face(node1, node2, node3);
 
-	const faceColorKey = parseFloat(newFace.area.toPrecision(10));
+	const { orderedNodes } = orderFaceNodesByNormal([node1, node2, node3]);
+	const [n1, n2, n3] = orderedNodes;
+	// calculate edge lengths of each
+	const es = [
+		+calc3dDistance(n1.x, n1.y, n1.z, n2.x, n2.y, n2.z).toPrecision(8),
+		+calc3dDistance(n3.x, n3.y, n3.z, n2.x, n2.y, n2.z).toPrecision(8),
+		+calc3dDistance(n1.x, n1.y, n1.z, n3.x, n3.y, n3.z).toPrecision(8)
+	];
+	// find which one is largest
+	let bgst = 0;
+	if (es[1] > es[0]) bgst = 1;
+	if (es[2] > es[bgst]) bgst = 2;
+	// deal with isosceles triangles
+	if (es[bgst] === es[(bgst + 1) % 3]) bgst = (bgst + 1) % 3;
+	// use the clockwise edge
+	let cwe = (bgst + 1) % 3;
+	const sm = (es[cwe] - Math.trunc(es[cwe])).toPrecision(5).substring(2);
+
+	const faceColorKey = parseFloat(newFace.area.toPrecision(8) + sm);
 	if (faceColorMap.has(faceColorKey)) {
 		newFace.colorCode = faceColorMap.get(faceColorKey);
 	} else {
