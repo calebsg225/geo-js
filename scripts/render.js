@@ -1,6 +1,6 @@
 import * as Types from "./types.js";
 import { Node, Edge, Face } from "./structures.js";
-import { rotateNode, isNear, getNode, getEdge, getFace, isFaceNear, pp } from "./util.js";
+import * as util from "./util.js";
 
 /**
  * @class
@@ -111,7 +111,7 @@ class Renderer {
 				if (rotatedNodes.has(node.name)) return;
 
 				// rotate node, check if node switched near/far
-				const { switched, underThreshold } = node.updateCoord(...rotateNode(node.x, node.y, node.z, dX, dY, this.options.rotationStep), Math.max(this.layer.maxEdgeLength, Math.abs(dX), Math.abs(dY)));
+				const { switched, underThreshold } = node.updateCoord(...util.rotateNode(node.x, node.y, node.z, dX, dY, this.options.rotationStep), Math.max(this.layer.maxEdgeLength, Math.abs(dX), Math.abs(dY)));
 
 				// if node z value is or was under max edge length, edges and faces connected to this node need to be checked if it crossed to near/far
 				if (underThreshold) {
@@ -135,11 +135,11 @@ class Renderer {
 
 		// for detected edges near z=0, check if switched to near/far
 		edgesToUpdate.forEach(edgeKey => {
-			const { edge, distType } = getEdge(this.layer.edges, edgeKey);
-			const { node: node1 } = getNode(this.layer.nodes, edge.nodes[0]);
-			const { node: node2 } = getNode(this.layer.nodes, edge.nodes[1]);
+			const { edge, distType } = util.getEdge(this.layer.edges, edgeKey);
+			const { node: node1 } = util.getNode(this.layer.nodes, edge.nodes[0]);
+			const { node: node2 } = util.getNode(this.layer.nodes, edge.nodes[1]);
 
-			const newDist = isNear([node1.z, node2.z]) ? "near" : "far";
+			const newDist = util.isNear([node1.z, node2.z]) ? "near" : "far";
 
 			// if edge used to be near and is now far (or vice versa)
 			if (newDist !== distType) {
@@ -151,12 +151,12 @@ class Renderer {
 
 		// for detected faces near z=0, check if switched to near/far
 		facesToUpdate.forEach(faceKey => {
-			const { face, distType } = getFace(this.layer.faces, faceKey);
-			const { node: node1 } = getNode(this.layer.nodes, face.nodes[0]);
-			const { node: node2 } = getNode(this.layer.nodes, face.nodes[1]);
-			const { node: node3 } = getNode(this.layer.nodes, face.nodes[2]);
+			const { face, distType } = util.getFace(this.layer.faces, faceKey);
+			const { node: node1 } = util.getNode(this.layer.nodes, face.nodes[0]);
+			const { node: node2 } = util.getNode(this.layer.nodes, face.nodes[1]);
+			const { node: node3 } = util.getNode(this.layer.nodes, face.nodes[2]);
 
-			const newDist = isFaceNear(node1, node2, node3, this.options.radius) ? "near" : "far";
+			const newDist = util.isFaceNear(node1, node2, node3, this.options.radius) ? "near" : "far";
 
 			// if face used to be near and is now far (or vice versa)
 			if (newDist !== distType) {
@@ -249,7 +249,7 @@ class Renderer {
 	drawNodes = (nodes, styles) => {
 		if (!styles.show) return;
 		nodes.forEach((node, _) => {
-			this.drawNode(pp(this.options.radius, node.x, node.z) + this.cX, pp(this.options.radius, node.y, node.z) + this.cY, styles.size, styles.color);
+			this.drawNode(util.pp(this.options.radius, node.x, node.z) + this.cX, util.pp(this.options.radius, node.y, node.z) + this.cY, styles.size, styles.color);
 			/*
 			if (node.name.length < 2) { this.labelNode(node) }
 			else { this.labelNode(node, "white", "8px serif") }
@@ -282,8 +282,8 @@ class Renderer {
 
 			this.drawEdge(
 				edge.nodes.map((nodeKey) => {
-					const { node } = getNode(this.layer.nodes, nodeKey);
-					return [pp(this.options.radius, node.x, node.z) + this.cX, pp(this.options.radius, node.y, node.z) + this.cY]
+					const { node } = util.getNode(this.layer.nodes, nodeKey);
+					return [util.pp(this.options.radius, node.x, node.z) + this.cX, util.pp(this.options.radius, node.y, node.z) + this.cY]
 				}),
 				styles.size,
 				color + (isFar ? this.options.farStructureOpacity : this.options.nearStructureOpacity)
@@ -316,8 +316,8 @@ class Renderer {
 
 			this.drawFace(
 				face.nodes.map((nodeKey) => {
-					const { node } = getNode(this.layer.nodes, nodeKey);
-					return [pp(this.options.radius, node.x, node.z) + this.cX, pp(this.options.radius, node.y, node.z) + this.cY];
+					const { node } = util.getNode(this.layer.nodes, nodeKey);
+					return [util.pp(this.options.radius, node.x, node.z) + this.cX, util.pp(this.options.radius, node.y, node.z) + this.cY];
 				}),
 				color + (isFar ? this.options.farStructureOpacity : this.options.nearStructureOpacity)
 			);

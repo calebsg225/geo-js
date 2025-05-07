@@ -1,5 +1,6 @@
 import * as Types from "./types.js";
-import * as geo from "./geodesic.js";
+import * as sdiv from "./subdivisions.js";
+import * as bshape from "./baseShapes.js";
 
 class BlueprintHandler {
 
@@ -14,12 +15,12 @@ class BlueprintHandler {
 		this.buildDefaultBlueprint();
 
 		this.blueprintMap = {
-			"tetrahedron": geo.generateBaseTetrahedron,
-			"octahedron": geo.generateBaseOctahedron,
-			"icosahedron": geo.generateBaseIcosahedron,
-			"classI": geo.classILayer,
-			"classII": geo.classIILayer,
-			"classIII": geo.classIIILayer,
+			"tetrahedron": bshape.generateBaseTetrahedron,
+			"octahedron": bshape.generateBaseOctahedron,
+			"icosahedron": bshape.generateBaseIcosahedron,
+			"classI": sdiv.classILayer,
+			"classII": sdiv.classIILayer,
+			"classIII": sdiv.classIIILayer,
 		};
 
 	}
