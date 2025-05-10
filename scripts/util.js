@@ -240,13 +240,11 @@ const generateEdgeKey = (nn1, nn2) => {
 /**
  * generates a face key based on connected nodes
  * face names are alphabetized
- * @param {string} nn1 face name of first node
- * @param {string} nn2 face name of second node
- * @param {string} nn3 face name of third node
+ * @param {string[]} nns ordered face names
  * @returns {string}
  */
-const generateFaceKey = (nn1, nn2, nn3) => {
-	return [nn1, nn2, nn3].sort().join('-');
+const generateFaceKey = (nns) => {
+	return nns.sort().join('-');
 }
 
 /**

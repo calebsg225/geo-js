@@ -1,12 +1,12 @@
 import * as Types from "./types.js";
-import { Edge, Face } from "./structures.js";
+import { Node, Edge, Face } from "./structures.js";
 import * as util from "./util.js";
 
 /**
  * given 2 existing nodes, add a connected edge between them
  * @param {Types.Edges} edges
- * @param {Types.Nodes} node1
- * @param {Types.Nodes} node2
+ * @param {Node} node1
+ * @param {Node} node2
  * @param {Map<number, number>} edgeColorMap
  */
 const connectEdge = (edges, node1, node2, edgeColorMap) => {
@@ -45,15 +45,15 @@ const connectEdge = (edges, node1, node2, edgeColorMap) => {
 /**
  * given 3 existing nodes, add a connected face between them
  * @param {Types.Faces} faces
- * @param {Types.Nodes} node1
- * @param {Types.Nodes} node2
- * @param {Types.Nodes} node3
+ * @param {Node} node1
+ * @param {Node} node2
+ * @param {Node} node3
  * @param {string} faceType
  * @param {Map<number, number>} faceColorMap
  */
 const connectFace = (faces, node1, node2, node3, faceColorMap) => {
 	// generate name of new face
-	const faceKey = util.generateFaceKey(node1.name, node2.name, node3.name);
+	const faceKey = util.generateFaceKey([node1, node2, node3].map(n => n.name));
 
 	// connect face to nodes
 	node1.addFace(faceKey);
