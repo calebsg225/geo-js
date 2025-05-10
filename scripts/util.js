@@ -45,6 +45,16 @@ const orderFaceNodesByNormal = (faceNodes, reverseOrder = false) => {
 }
 
 /**
+ * calculate the resultant vector of 2 vectors
+ * @param {number[]} v1
+ * @param {number[]} v2
+ * @returns {number[]}
+ */
+const resultant = (v1, v2) => {
+	return [v2[0] - v1[0], v2[1] - v1[1], v2[2] - v1[2]];
+}
+
+/**
  * calulates the normal vector of a face (points away from origin)
  * @param {Node} a
  * @param {Node} b
@@ -60,8 +70,8 @@ const faceNormal = (a, b, c, r = 0) => {
 	const cx = r ? pp(r, c.x, c.z) : c.x;
 	const cy = r ? pp(r, c.y, c.z) : c.y;
 
-	const ab = [bx - ax, by - ay, b.z - a.z];
-	const ac = [cx - ax, cy - ay, c.z - a.z];
+	const ab = resultant([ax, ay, a.z], [bx, by, b.z]);
+	const ac = resultant([ax, ay, a.z], [cx, cy, c.z]);
 
 	// calculate coordinates of normal vertex
 	const nx = ab[1] * ac[2] - ab[2] * ac[1];
@@ -98,42 +108,21 @@ const isFaceNear = (n1, n2, n3, r = 0) => {
 
 /**
  * calculates the area of a triangle given 3 node positions
- * @param {number} x1
- * @param {number} y1
- * @param {number} z1
- * @param {number} x2
- * @param {number} y2
- * @param {number} z2
- * @param {number} x3
- * @param {number} y3
- * @param {number} z3
+ * @param {number[]} v1
+ * @param {number[]} v2
+ * @param {number[]} v3
  * @returns {number}
  */
-const calcTriangleArea = (
-	x1,
-	y1,
-	z1,
-	x2,
-	y2,
-	z2,
-	x3,
-	y3,
-	z3
-) => {
+const calcTriangleArea = (v1, v2, v3) => {
 	// vector from 1 to 2
-	const v12x = x2 - x1;
-	const v12y = y2 - y1;
-	const v12z = z2 - z1;
-
+	const v12 = resultant(v1, v2);
 	// vector from 1 to 3
-	const v13x = x3 - x1;
-	const v13y = y3 - y1;
-	const v13z = z3 - z1;
+	const v13 = resultant(v1, v3);
 
 	// orthogonal vector from v12 and v13
-	const ovx = v12y * v13z - v13y * v12z;
-	const ovy = v12x * v13z - v13x * v12z;
-	const ovz = v12x * v13y - v13x * v12y;
+	const ovx = v12[1] * v13[2] - v13[1] * v12[2];
+	const ovy = v12[0] * v13[2] - v13[0] * v12[2];
+	const ovz = v12[0] * v13[1] - v13[0] * v12[1];
 
 	// return area
 	return Math.sqrt(ovx ** 2 + ovy ** 2 + ovz ** 2) / 2;
@@ -142,18 +131,14 @@ const calcTriangleArea = (
 /**
  * given a nodes coordinates, rotate that node around the x or y
  * plane based on multiplyers
- * @param {number} x
- * @param {number} y
- * @param {number} z
+ * @param {number[]} v
  * @param {number} mX: how far to rotate around x axis
  * @param {number} mY: how far to rotate around y axis
  * @param {number} rad: how far to rotate per m_
  * @returns {number[]} an array containing the new coordinates
  */
 const rotateNode = (
-	x,
-	y,
-	z,
+	v,
 	mX,
 	mY,
 	rad
@@ -169,9 +154,9 @@ const rotateNode = (
 	const cY = Math.cos(rad * mY);
 
 	// calculate rotated coords
-	const nX = (x * cX) - (y * sX * sY) - (z * sX * cY);
-	const nY = (y * cY) - (z * sY);
-	const nZ = (x * sX) + (y * cX * sY) + (z * cX * cY);
+	const nX = (v[0] * cX) - (v[1] * sX * sY) - (v[2] * sX * cY);
+	const nY = (v[1] * cY) - (v[2] * sY);
+	const nZ = (v[0] * sX) + (v[1] * cX * sY) + (v[2] * cX * cY);
 
 	return [nX, nY, nZ];
 }

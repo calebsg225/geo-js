@@ -100,15 +100,9 @@ class Face {
 		this.nodes = [];
 		this.nodes.push(node1.name, node2.name, node3.name);
 		this.area = calcTriangleArea(
-			node1.x,
-			node1.y,
-			node1.z,
-			node2.x,
-			node2.y,
-			node2.z,
-			node3.x,
-			node3.y,
-			node3.z,
+			[node1.x, node1.y, node1.z],
+			[node2.x, node2.y, node2.z],
+			[node3.x, node3.y, node3.z]
 		);
 		this.colorCode = 0;
 	}
