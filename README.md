@@ -52,7 +52,8 @@ There are many other shapes out there though and I'd like to experiment with som
 
 ### Re-Write
 While having this project as a client-side web application provides convenient access from anywhere with an internet connection, there are associated drawbacks that do not pair well with the nature of this project.
-For example, large structures are not quickly generated. Running JavaScript in a browser tab is not and will likely never be exceptionally fast.
+For example, large structures are not quickly generated. This iteration is not using webgl or any other ways of using a gpu, so it is slow.
+I want my next iteration to use the gpu as much as possible for fast generation and rendering.
 
 This is not the first version of this project and it will not be the last. I wrote the very first version in TI-Basic on my TI-84 graphing calculator. The second is one of my other repos, in JS like this one.
 My next iteration of this project will likely be a Rust application, time will tell!
