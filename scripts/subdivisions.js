@@ -700,8 +700,8 @@ const classIIILayer = (layer, options, frequency) => {
 	return { nodes, edges, faces, maxEdgeLength: edgeColorMap.get('maxEdgeLength') };
 }
 
-export {
-	classILayer,
-	classIILayer,
-	classIIILayer,
-}
+export default {
+	"classI": classILayer,
+	"classII": classIILayer,
+	"classIII": classIIILayer,
+};

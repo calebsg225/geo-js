@@ -1,6 +1,6 @@
 import * as Types from "./types.js";
-import * as sdiv from "./subdivisions.js";
-import * as bshape from "./baseShapes.js";
+import subdivide from "./subdivisions.js";
+import baseShapes from "./baseShapes.js";
 
 class BlueprintHandler {
 
@@ -13,16 +13,6 @@ class BlueprintHandler {
 		this.blueprint = {};
 		this.parentElement = parentElement;
 		this.buildDefaultBlueprint();
-
-		this.blueprintMap = {
-			"tetrahedron": bshape.generateBaseTetrahedron,
-			"octahedron": bshape.generateBaseOctahedron,
-			"icosahedron": bshape.generateBaseIcosahedron,
-			"classI": sdiv.classILayer,
-			"classII": sdiv.classIILayer,
-			"classIII": sdiv.classIIILayer,
-		};
-
 	}
 
 	/**
@@ -173,15 +163,14 @@ class BlueprintHandler {
 			layers: [],
 		}
 
-		structure.layers.push(this.blueprintMap[this.blueprint.baseShape](options));
+		structure.layers.push(baseShapes[this.blueprint.baseShape](options));
 
 		// subdivide one layer at a time
 		for (let i = 0; i < this.blueprint.layers.length; i++) {
 			if (!this.blueprint.layers[i]) continue;
 			const { subClass, frequency } = this.blueprint.layers[i];
 			const previousLayer = structure.layers[structure.layers.length - 1];
-			const subdivideFunction = this.blueprintMap[subClass];
-			const newLayer = subdivideFunction(previousLayer, options, frequency);
+			const newLayer = subdivide[subClass](previousLayer, options, frequency);
 			structure.layers.push(newLayer);
 		}
 

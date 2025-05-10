@@ -236,8 +236,9 @@ const generateBaseOctahedron = (options) => {
 
 	return { nodes, edges, faces, maxEdgeLength: edgeColorMap.get('maxEdgeLength') };
 }
-export {
-	generateBaseIcosahedron,
-	generateBaseOctahedron,
-	generateBaseTetrahedron,
-}
+
+export default {
+	"tetrahedron": generateBaseTetrahedron,
+	"octahedron": generateBaseOctahedron,
+	"icosahedron": generateBaseIcosahedron,
+};
