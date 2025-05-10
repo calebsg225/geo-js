@@ -39,7 +39,8 @@ One feature I have yet to implement that is fairly common among existing softwar
 This would include the various node, edge, and face properties that would be useful for anyone desiring to construct the structure in the real world, or just curious about scale.
 
 ### Trussing
-Geodesic structures are extrodinarily strong as is, but the addition of a layer of trusses greatly improves stability. There are a number
+Geodesic structures are extrodinarily strong as is, but the addition of a layer of trusses greatly improves stability, and is generally
+a requirement for structures with a large triangle subdivision frequency. There are a number
 of ways to truss a geodesic structure, none of which are implemented in any existing software that I've tried. Trussed geodesic structures
 are not often mentioned in existing literature either, despite its usefulness. Maybe people find it too complicated or not worth it?
 
@@ -51,9 +52,15 @@ The icosahedron, tetrahedron, and octahedron are the most common base shapes for
 There are many other shapes out there though and I'd like to experiment with some.
 
 ### Re-Write
-While having this project as a client-side web application provides convenient access from anywhere with an internet connection, there are associated drawbacks that do not pair well with the nature of this project.
-For example, large structures are not quickly generated. This iteration is not using webgl or any other ways of using a gpu, so it is slow.
-I want my next iteration to use the gpu as much as possible for fast generation and rendering.
+While I'm glad to have written this program, there are many things I know now that I didn't know when I began this project. 
+I plan to push this version as far as it'll go in its current state in order to flush out any more poor choices, then 
+use what I've learned to build a (hopefully) superior revision.
 
-This is not the first version of this project and it will not be the last. I wrote the very first version in TI-Basic on my TI-84 graphing calculator. The second is one of my other repos, in JS like this one.
-My next iteration of this project will likely be a Rust application, time will tell!
+
+Some examples of what I'm talking about:
+- I started this project with an almost non-existant understanding/familiarity with linear algebra and vectors.
+- I didn't even consider the possibility of using the clients gpu for faster structure generation and rendering.
+- My knowledge on geodesic structures (the whole point of the project) was not as good as I thought it was. I didn't know what I didn't know, and it bit me.
+My structure generation methods, while functional, are messy and suboptimal.
+
+These are the main ones, but there are other small issues. Any future iterations must deal with all of the above, and more.
