@@ -152,6 +152,7 @@ class Renderer {
 		// for detected faces near z=0, check if switched to near/far
 		facesToUpdate.forEach(faceKey => {
 			const { face, distType } = util.getFace(this.layer.faces, faceKey);
+			// using only three face nodes is ok because normal vector is used
 			const { node: node1 } = util.getNode(this.layer.nodes, face.nodes[0]);
 			const { node: node2 } = util.getNode(this.layer.nodes, face.nodes[1]);
 			const { node: node3 } = util.getNode(this.layer.nodes, face.nodes[2]);
@@ -214,8 +215,9 @@ class Renderer {
 	drawFace = (nodes, color) => {
 		this.ctx.beginPath();
 		this.ctx.moveTo(nodes[0][0], nodes[0][1]);
-		this.ctx.lineTo(nodes[1][0], nodes[1][1]);
-		this.ctx.lineTo(nodes[2][0], nodes[2][1]);
+		for (let i = 1; i < nodes.length; i++) {
+			this.ctx.lineTo(nodes[i][0], nodes[i][1]);
+		}
 		this.ctx.lineTo(nodes[0][0], nodes[0][1]);
 		this.ctx.fillStyle = color;
 		this.ctx.fill();

@@ -78,6 +78,7 @@ const faceNormal = (a, b, c, r = 0) => {
 
 /**
  * determines whether a face is near or far based on its normal vector
+ * only 3 nodes is required for any face: normal is calculated the same regardless
  * @param {Node} n1
  * @param {Node} n2
  * @param {Node} n3
