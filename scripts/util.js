@@ -55,6 +55,20 @@ const resultant = (v1, v2) => {
 }
 
 /**
+ * calculate the cross product given 2 vectors
+ * @param {number[]} v1
+ * @param {number[]} v2
+ * @returns {number[]}
+ */
+const crossProd = (v1, v2) => {
+	return [
+		v1[1] * v2[2] - v2[1] * v1[2],
+		v1[2] * v2[0] - v2[2] * v1[0],
+		v1[0] * v2[1] - v2[0] * v1[1]
+	];
+}
+
+/**
  * calulates the normal vector of a face (points away from origin)
  * @param {Node} a
  * @param {Node} b
@@ -73,17 +87,15 @@ const faceNormal = (a, b, c, r = 0) => {
 	const ab = resultant([ax, ay, a.z], [bx, by, b.z]);
 	const ac = resultant([ax, ay, a.z], [cx, cy, c.z]);
 
-	// calculate coordinates of normal vertex
-	const nx = ab[1] * ac[2] - ab[2] * ac[1];
-	const ny = ab[2] * ac[0] - ab[0] * ac[2];
-	const nz = ab[0] * ac[1] - ab[1] * ac[0];
+	// calculate corss product
+	const cp = crossProd(ab, ac);
 
-	// find the angle between a and the normal vector
-	const theta = Math.acos((ax * nx + ay * ny + a.z * nz) / (Math.sqrt(ax ** 2 + ay ** 2 + a.z ** 2) * Math.sqrt(nx ** 2 + ny ** 2 + nz ** 2)));
+	// find the angle between a and the cross product
+	const theta = Math.acos((ax * cp[0] + ay * cp[1] + a.z * cp[2]) / (Math.sqrt(ax ** 2 + ay ** 2 + a.z ** 2) * Math.sqrt(cp[0] ** 2 + cp[1] ** 2 + cp[2] ** 2)));
 
 	// swap if needed
-	if (theta > Math.PI / 2) return { coords: [nx * -1, ny * -1, nz * -1], flipped: true };
-	return { coords: [nx, ny, nz], flipped: false };
+	if (theta > Math.PI / 2) return { coords: cp.map(n => n * -1), flipped: true };
+	return { coords: cp, flipped: false };
 }
 
 /**
@@ -114,18 +126,12 @@ const isFaceNear = (n1, n2, n3, r = 0) => {
  * @returns {number}
  */
 const calcTriangleArea = (v1, v2, v3) => {
-	// vector from 1 to 2
 	const v12 = resultant(v1, v2);
-	// vector from 1 to 3
 	const v13 = resultant(v1, v3);
 
-	// orthogonal vector from v12 and v13
-	const ovx = v12[1] * v13[2] - v13[1] * v12[2];
-	const ovy = v12[0] * v13[2] - v13[0] * v12[2];
-	const ovz = v12[0] * v13[1] - v13[0] * v12[1];
-
-	// return area
-	return Math.sqrt(ovx ** 2 + ovy ** 2 + ovz ** 2) / 2;
+	// calculate cross product
+	const cp = crossProd(v12, v13);
+	return Math.sqrt(cp[0] ** 2 + cp[1] ** 2 + cp[2] ** 2) / 2;
 }
 
 /**
