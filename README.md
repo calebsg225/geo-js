@@ -1,17 +1,10 @@
 # Geodesic Structure Builder and Renderer
 A client-side [web application](https://calebsg225.github.io/geo-js) for building and rendering various [Geodesic Polyhedra](https://en.wikipedia.org/wiki/Geodesic_polyhedron)
 
-- [Why Make This?](#why-make-this)
 - [Features](#features)
   - [Build Menu](#build-menu)
   - [Render Menu](#render-menu)
 - [Future Endeavors](#future-endeavors)
-
-## Why Make This
-There's not much software out there for building Geodesic Structures. 
-What software does exist lacks the features I want, and none (that I have found) are being actively developed. 
-With no alternative I could accept, I decided to develop my own.
-
 
 ## Features
 - [Build Menu](#build-menu)
